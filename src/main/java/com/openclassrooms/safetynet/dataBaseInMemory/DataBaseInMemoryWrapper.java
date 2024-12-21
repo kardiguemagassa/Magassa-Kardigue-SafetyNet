@@ -16,7 +16,6 @@ import java.util.List;
 @Component
 @Data
 public class DataBaseInMemoryWrapper {
-
     private final List<Person> persons = new ArrayList<>();
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
     private final List<FireStation> fireStations = new ArrayList<>();
