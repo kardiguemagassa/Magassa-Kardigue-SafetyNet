@@ -5,20 +5,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
+import com.openclassrooms.safetynet.repository.FireStationRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Component
 @Data
 @AllArgsConstructor
 public class DataBaseInMemoryWrapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataBaseInMemoryWrapper.class);
+
     private final List<Person> persons = new ArrayList<>();
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
     private final List<FireStation> fireStations = new ArrayList<>();
@@ -28,18 +36,30 @@ public class DataBaseInMemoryWrapper {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
-            // Charger les données depuis le fichier JSON
-            DataWrapper dataWrapper = loadJson("/dada/data.json", objectMapper, new TypeReference<>() {});
+            // Load data from JSON file
+            DataWrapper dataWrapper = loadJson("/data/data.json", objectMapper, new TypeReference<>() {});
 
-            // Ajouter les données aux listes
+            // Add data to lists
             persons.addAll(dataWrapper.getPersons());
             medicalRecords.addAll(dataWrapper.getMedicalrecords());
             fireStations.addAll(dataWrapper.getFirestations());
 
-            System.out.println("Données chargées avec succès !");
+            LOGGER.info("Data loaded successfully !");
+
+            // Display data in the console
+            LOGGER.info("=== Displaying Loaded Data ===");
+
+            LOGGER.info("Persons:");
+            persons.stream().map(Person::toString).forEach(LOGGER::info);
+
+            LOGGER.info("FireStations:");
+            fireStations.stream().map(FireStation::toString).forEach(LOGGER::info);
+
+            LOGGER.info("MedicalRecords:");
+            medicalRecords.stream().map(MedicalRecord::toString).forEach(LOGGER::info);
+
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des données JSON : " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Error loading JSON data: {}", e.getMessage(), e);
         }
     }
 
@@ -57,17 +77,42 @@ public class DataBaseInMemoryWrapper {
         InputStream inputStream = getClass().getResourceAsStream(path);
 
         if (inputStream == null) {
-            throw new IllegalArgumentException("Fichier JSON introuvable : " + path);
+            throw new IllegalArgumentException("JSON file not found : " + path);
         }
 
         return objectMapper.readValue(inputStream, typeReference);
     }
 
-    // Classe interne pour mapper la structure JSON
+    public List<Person> getPersons() {
+        return persons;
+    }
+
+    public List<FireStation> getFireStations() {
+        return fireStations;
+    }
+
+    public List<MedicalRecord> getMedicalRecords() {
+        return medicalRecords;
+    }
+
+    // Internal class to map JSON structure
     @Data
+    @NoArgsConstructor
     private static class DataWrapper {
         private List<Person> persons;
         private List<FireStation> firestations;
         private List<MedicalRecord> medicalrecords;
+
+        public List<Person> getPersons() {
+            return persons;
+        }
+
+        public List<FireStation> getFirestations() {
+            return firestations;
+        }
+
+        public List<MedicalRecord> getMedicalrecords() {
+            return medicalrecords;
+        }
     }
 }

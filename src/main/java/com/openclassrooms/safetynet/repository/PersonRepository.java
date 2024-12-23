@@ -2,8 +2,6 @@ package com.openclassrooms.safetynet.repository;
 
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.Person;
-//import org.slf4j.LoggerFactory;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,7 +12,6 @@ import java.util.List;
 
 @Repository
 @Component
-@AllArgsConstructor
 public class PersonRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonRepository.class);
@@ -22,6 +19,10 @@ public class PersonRepository {
     // Liste des personnes (sera remplie après le chargement des données)
     private final List<Person> persons = new ArrayList<>();
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
+
+    public PersonRepository (DataBaseInMemoryWrapper dataBaseInMemoryWrapper) {
+        this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
+    }
 
     /**
      * Retourne la liste des personnes après chargement des données.
@@ -31,18 +32,27 @@ public class PersonRepository {
     public List<Person> getPersons() {
         try {
             if (persons.isEmpty()) {
-                // Charger les données depuis le wrapper
+
+                LOGGER.info("Person list is empty, loading data...");
                 dataBaseInMemoryWrapper.loadData();
 
-                // Copier les données depuis DataBaseInMemoryWrapper
-                persons.addAll(dataBaseInMemoryWrapper.getPersons());
+
+                List<Person> loadedPersons = dataBaseInMemoryWrapper.getPersons();
+
+                if (loadedPersons != null) {
+                    persons.addAll(loadedPersons);
+                    LOGGER.info("Successfully loaded {} persons.", loadedPersons.size());
+                } else {
+                    LOGGER.warn("No persons found in DataBaseInMemoryWrapper.");
+                }
             }
-            return new ArrayList<>(persons); // Retourner une copie immuable
+            return new ArrayList<>(persons); // Retourner une copie pour protéger la liste interne
         } catch (Exception e) {
-            //LOGGER.error("Erreur lors du chargement des données JSON : {}", e.getMessage(), e);
+            LOGGER.error("Error loading Json data: {}", e.getMessage(), e);
         }
-        return List.of(); // Retourner une liste vide en cas d'erreur
+        return List.of(); // Retourner une liste vide pour éviter une exception en aval
     }
+
 
     public List<Person> saveAll(List<Person> personList) {
         try {

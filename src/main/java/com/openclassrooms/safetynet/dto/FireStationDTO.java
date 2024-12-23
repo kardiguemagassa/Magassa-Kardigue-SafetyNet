@@ -1,15 +1,34 @@
 package com.openclassrooms.safetynet.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
+//@AllArgsConstructor
+//@NoArgsConstructor
 public class FireStationDTO {
     private String address;
-    private int station;
+    private String station;
+
+    public FireStationDTO(String address, String station) {
+        this.address = address;
+        this.station = station;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getStation() {
+        return station;
+    }
+
+    public void setStation(String station) {
+        this.station = station;
+    }
 }
