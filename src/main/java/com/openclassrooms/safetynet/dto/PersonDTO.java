@@ -3,12 +3,13 @@ package com.openclassrooms.safetynet.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Builder
-@Component
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class PersonDTO {
     private String firstName;
     private String lastName;

@@ -6,7 +6,9 @@ import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @Component
 @Data
+@AllArgsConstructor
 public class DataBaseInMemoryWrapper {
     private final List<Person> persons = new ArrayList<>();
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
