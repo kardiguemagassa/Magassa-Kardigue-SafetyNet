@@ -1,5 +1,6 @@
 package com.openclassrooms.safetynet.controller;
 
+import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.service.PersonService;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,9 @@ public class PersonController {
     }
 
     @GetMapping("/persons")
-    public ResponseEntity<List<Person>> getPersons() {
-
-        List<Person> persons = personService.getPersons();
-        return new ResponseEntity<>(persons, HttpStatus.OK);
+    public ResponseEntity<List<PersonDTO>> getPersons() {
+        List<PersonDTO> personDTOS = personService.getPersons();
+        return new ResponseEntity<>(personDTOS, HttpStatus.OK);
     }
 
 }

@@ -28,11 +28,7 @@ public class PersonRepository {
         this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
     }
 
-    /**
-     * Retourne la liste des personnes après chargement des données.
-     *
-     * @return Liste des personnes ou une liste vide si une erreur survient.
-     */
+    // CRUD
     public List<Person> getPersons() {
         try {
             if (persons.isEmpty()) {
@@ -157,20 +153,18 @@ public class PersonRepository {
 
     public Boolean deleteByFullName(String firstName, String lastName) {
         try {
-            List<Person> allPersons = dataBaseInMemoryWrapper.getPersons(); // Récupérer les données du wrapper
+            List<Person> allPersons = dataBaseInMemoryWrapper.getPersons(); // Recover data
             if (allPersons == null) {
                 LOGGER.warn("DataBaseInMemoryWrapper persons list is null. Cannot perform deletion.");
                 return false;
             }
 
             boolean isDeleted = allPersons.removeIf(person ->
-                    person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName)
-            );
+                    person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName));
 
             if (isDeleted) {
                 persons.removeIf(person ->
-                        person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName)
-                );
+                        person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName));
                 LOGGER.info("Person {} {} deleted successfully.", firstName, lastName);
             } else {
                 LOGGER.warn("Person {} {} not found for deletion.", firstName, lastName);
@@ -183,6 +177,7 @@ public class PersonRepository {
         return false;
     }
 
+    // NEW ENDPOINT
     public List<Person> findByAddresses(List<String> addresses) {
         if (addresses == null || addresses.isEmpty()) {
             LOGGER.warn("Attempted to search with an empty or null address list.");
@@ -284,15 +279,4 @@ public class PersonRepository {
         }
         return 0;
     }
-
-
-
-
-
-
-
-
-
-
-
 }

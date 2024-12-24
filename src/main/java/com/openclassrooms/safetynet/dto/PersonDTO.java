@@ -17,6 +17,10 @@ public class PersonDTO {
     private String zip;
     private String phone;
 
+    public PersonDTO() {
+        super();
+    }
+
     public PersonDTO(String firstName, String lastName, String email, String address, String city, String zip, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;
