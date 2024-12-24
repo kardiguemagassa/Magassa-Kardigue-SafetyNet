@@ -1,6 +1,6 @@
 package com.openclassrooms.safetynet.controller;
 
-import com.openclassrooms.safetynet.model.MedicalRecord;
+import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.service.MedicalRecordService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +19,8 @@ public class MedicalRecordController {
     }
 
     @GetMapping("/medicalRecords")
-    public ResponseEntity<List<MedicalRecord>> getMedicalRecord () {
-        List<MedicalRecord> medicalRecords = medicalRecordService.getMedicalRecords();
+    public ResponseEntity<List<MedicalRecordDTO>> getMedicalRecord () {
+        List<MedicalRecordDTO> medicalRecords = medicalRecordService.getMedicalRecords();
         return new ResponseEntity<>(medicalRecords, HttpStatus.OK);
     }
 }

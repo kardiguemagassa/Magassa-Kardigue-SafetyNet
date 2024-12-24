@@ -2,10 +2,7 @@ package com.openclassrooms.safetynet.repository;
 
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.MedicalRecord;
-import com.openclassrooms.safetynet.model.Person;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -116,7 +113,7 @@ public class MedicalRecordRepository {
         }
     }
 
-    public Optional<MedicalRecord> updateMedicalRecords(MedicalRecord updateMedicalRecord) {
+    public Optional<MedicalRecord> update(MedicalRecord updateMedicalRecord) {
         if (updateMedicalRecord == null) {
             LOGGER.warn("Attempted to update a null medical record.");
             return Optional.empty();
@@ -153,7 +150,7 @@ public class MedicalRecordRepository {
         }
     }
 
-    public boolean deleteMedicalRecord(String firstName, String lastName) {
+    public Boolean deleteByFullName(String firstName, String lastName) {
         try {
             List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
             if (allMedicalRecords == null) {
