@@ -1,7 +1,7 @@
 package com.openclassrooms.safetynet.dto;
 
+import com.openclassrooms.safetynet.model.MedicalRecord;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 @Builder
 @Getter

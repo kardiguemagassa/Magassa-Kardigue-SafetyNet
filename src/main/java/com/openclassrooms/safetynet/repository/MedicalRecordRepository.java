@@ -3,14 +3,21 @@ package com.openclassrooms.safetynet.repository;
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 
+import com.openclassrooms.safetynet.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 //@Data
@@ -216,4 +223,43 @@ public class MedicalRecordRepository {
             return Optional.empty();
         }
     }
+
+    /*
+    public MedicalRecord findByPerson(Person person) {
+        return medicalRecords.stream()
+                .filter(record -> record.getFirstName().equalsIgnoreCase(person.getFirstName()) &&
+                        record.getLastName().equalsIgnoreCase(person.getLastName()))
+                .findFirst()
+                .orElse(null);
+    }
+
+     */
+
+
+    public List<Integer> calculateAgeForPersons(List<Person> persons) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+        try {
+            return persons.stream()
+                    .map(person -> {
+                        MedicalRecord record = findByFullName(person.getFirstName(), person.getLastName());
+                        if (record != null && record.getBirthdate() != null) {
+                            try {
+                                LocalDate birthDate = LocalDate.parse(record.getBirthdate(), formatter);
+                                return Period.between(birthDate, LocalDate.now()).getYears();
+                            } catch (DateTimeParseException e) {
+                                LOGGER.error("Invalid birthdate format for {} {}: {}", person.getFirstName(), person.getLastName(), record.getBirthdate(), e);
+                                return null; // Ignorer cette entrée en cas de format invalide
+                            }
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull) // Supprimer les valeurs nulles
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("An unexpected error occurred: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
 }

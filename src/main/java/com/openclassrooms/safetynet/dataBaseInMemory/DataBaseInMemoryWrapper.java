@@ -46,17 +46,22 @@ public class DataBaseInMemoryWrapper {
 
             LOGGER.info("Data loaded successfully !");
 
+            /*
             // Display data in the console
             LOGGER.info("=== Displaying Loaded Data ===");
-
             LOGGER.info("Persons:");
             persons.stream().map(Person::toString).forEach(LOGGER::info);
-
             LOGGER.info("FireStations:");
             fireStations.stream().map(FireStation::toString).forEach(LOGGER::info);
-
             LOGGER.info("MedicalRecords:");
             medicalRecords.stream().map(MedicalRecord::toString).forEach(LOGGER::info);
+
+             */
+
+            LOGGER.info("{} people in charge.", persons.size());
+            LOGGER.info("{} Fire stations loaded.", fireStations.size());
+            LOGGER.info("{} medical records loaded.", medicalRecords.size());
+
 
         } catch (Exception e) {
             LOGGER.error("Error loading JSON data: {}", e.getMessage(), e);

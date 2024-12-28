@@ -33,6 +33,7 @@ public class PersonConvertorDTO {
                 person.getCity(),
                 person.getZip(),
                 person.getPhone()
+
         );
     }
 

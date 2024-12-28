@@ -2,6 +2,7 @@ package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
+import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
@@ -60,6 +61,7 @@ public class PersonService {
             return persons.stream()
                     .map(personConvertorDTO::convertEntityToDto)
                     .collect(Collectors.toList());
+
         } catch (ResponseStatusException e) {
             throw e; // Re-throw HTTP-specific exceptions
         } catch (Exception e) {
@@ -189,6 +191,7 @@ public class PersonService {
     }
 
 
+    // 1
     public List<Map<String, PersonDTO>> getChildrenByAddress(String address) {
         if (address == null || address.isBlank()) {
             LOGGER.warn("Invalid address: null or empty.");
@@ -235,7 +238,53 @@ public class PersonService {
         }
     }
 
+    // 1
+    public List<Map<String, Object>> getChildrenByAddressObject(String address) {
+        // Récupérer la liste des résidents à une adresse donnée et les convertir en DTO
+        List<PersonDTO> residents = personRepository.findByAddress(address).stream()
+                .map(personConvertorDTO::convertEntityToDto)
+                .collect(Collectors.toList());
 
+        List<Map<String, Object>> children = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+        for (PersonDTO resident : residents) {
+            MedicalRecord medicalRecord = medicalRecordRepository.findByFullName(resident.getFirstName(), resident.getLastName());
+
+            if (medicalRecord != null && medicalRecord.getBirthdate() != null) {
+                try {
+                    LocalDate birthDate = LocalDate.parse(medicalRecord.getBirthdate(), formatter);
+                    int age = personRepository.calculateAge(birthDate);
+
+                    if (age <= 18) {
+                        // Filtrer les membres du foyer en excluant l'enfant actuel
+                        List<Map<String, String>> householdMembers = residents.stream()
+                                .filter(r -> !r.equals(resident))
+                                .map(r -> Map.of(
+                                        "firstName", r.getFirstName(),
+                                        "lastName", r.getLastName()
+                                ))
+                                .collect(Collectors.toList());
+
+                        // Ajouter les informations de l'enfant à la liste des résultats
+                        children.add(Map.of(
+                                "firstName", resident.getFirstName(),
+                                "lastName", resident.getLastName(),
+                                "age", age,
+                                "householdMembers", householdMembers
+                        ));
+                    }
+                } catch (DateTimeParseException e) {
+                    throw new RuntimeException("Invalid birthdate format for resident: " + resident.getFirstName() + " " + resident.getLastName(), e);
+                }
+            }
+        }
+
+        return children;
+    }
+
+
+    // 2
     public List<Map<String, Object>> getPersonInfo(String lastName) {
         if (lastName == null || lastName.isBlank()) {
             LOGGER.warn("Invalid last name: null or empty.");
@@ -283,8 +332,9 @@ public class PersonService {
         }
     }
 
-    /*
-    public List<Map<String, PersonDTO>> getPersonInfo(String lastName) {
+
+    // 2
+    public List<Map<String, PersonDTO>> getPersonInfoDTO(String lastName) {
         if (lastName == null || lastName.isBlank()) {
             LOGGER.warn("Invalid last name: null or empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Last name cannot be null or empty.");
@@ -324,15 +374,20 @@ public class PersonService {
     private PersonDTO enrichPersonWithMedicalRecord(PersonDTO person, MedicalRecord medicalRecord, DateTimeFormatter formatter) {
         if (medicalRecord != null && medicalRecord.getBirthdate() != null) {
             try {
+                // Calcul de l'âge à partir de la date de naissance
                 LocalDate birthDate = LocalDate.parse(medicalRecord.getBirthdate(), formatter);
                 int age = personRepository.calculateAge(birthDate);
 
-                // Copier les informations médicales dans le DTO
-                person.setAdditionalInfo(Map.of(
-                        "age", age,
-                        "medications", medicalRecord.getMedications(),
-                        "allergies", medicalRecord.getAllergies()
-                ));
+                // Créer une instance de MedicalRecordDTO pour stocker les informations médicales
+                MedicalRecordDTO medicalRecordDTO = new MedicalRecordDTO();
+                medicalRecordDTO.setBirthdate(String.valueOf(age));
+                medicalRecordDTO.setMedications(medicalRecord.getMedications());
+                medicalRecordDTO.setAllergies(medicalRecord.getAllergies());
+
+                // Ajouter les informations médicales au PersonDTO
+                //person.setMedicalRecord(medicalRecordDTO);
+
+
             } catch (DateTimeParseException e) {
                 String errorMsg = "Invalid birthdate format for person: " + person.getFirstName() + " " + person.getLastName();
                 LOGGER.error(errorMsg, e);
@@ -345,11 +400,31 @@ public class PersonService {
         return person;
     }
 
-     */
 
-
-
-    public List<PersonDTO> getCommunityEmails(String city) {
+    // 3
+    public List<String> getCommunityEmails(String city) {
+        if (city == null || city.isBlank()) {
+            LOGGER.warn("Invalid city: null or empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City cannot be null or empty.");
+        }
+        try {
+            List<PersonDTO> residents = personRepository.findByCity(city).stream()
+                    .map(personConvertorDTO::convertEntityToDto)
+                    .collect(Collectors.toList());
+            if (residents.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No persons found with last name: " + city);
+            }
+            return residents.stream()
+                    .map(PersonDTO::getEmail)
+                    .distinct()
+                    .collect(Collectors.toList());
+        } catch (ResponseStatusException e) {
+            LOGGER.error("Error while retrieving community emails for city {}: {}", city, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while retrieving community emails.", e);
+        }
+    }
+    /*
+    public List<PersonDTO> getCommunityEmailsDTO(String city) {
         if (city == null || city.isBlank()) {
             LOGGER.warn("Invalid city: null or empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City cannot be null or empty.");
@@ -365,6 +440,8 @@ public class PersonService {
             return residents.stream()
                     .filter(person -> person.getEmail() != null)
                     .map(personConvertorDTO::convertEntityToDto)
+                    .collect(Collectors.toList());
+                    /*
                     .collect(Collectors.collectingAndThen(
                             Collectors.toMap(
                                     PersonDTO::getEmail,
@@ -374,6 +451,9 @@ public class PersonService {
                             ),
                             map -> new ArrayList<>(map.values())
                     ));
+                    */
+        /*
+
         } catch (ResponseStatusException e) {
             throw e; // Re-throw HTTP-specific exceptions
         } catch (Exception e) {
@@ -381,6 +461,8 @@ public class PersonService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while retrieving community emails.", e);
         }
     }
+
+         */
 
 
 }

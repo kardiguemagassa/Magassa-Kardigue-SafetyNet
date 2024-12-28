@@ -24,6 +24,10 @@ public class MedicalRecordDTO {
         this.allergies = allergies;
     }
 
+    public MedicalRecordDTO() {
+        super();
+    }
+
     public String getFirstName() {
         return firstName;
     }
@@ -63,4 +67,5 @@ public class MedicalRecordDTO {
     public void setAllergies(List<String> allergies) {
         this.allergies = allergies;
     }
+
 }

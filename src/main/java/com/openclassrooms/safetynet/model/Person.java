@@ -1,6 +1,6 @@
 package com.openclassrooms.safetynet.model;
 
-import lombok.*;
+import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 
 //@Builder
 //@Data
