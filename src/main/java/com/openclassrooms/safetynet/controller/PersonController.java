@@ -52,14 +52,14 @@ public class PersonController {
     }
 
     @DeleteMapping("/person/delete")
-    public ResponseEntity<Boolean> deletePerson(
+    public ResponseEntity<Void> deletePerson(
             @RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName) {
 
-        // http://localhost:8080/delete?firstName=John&lastName=Boyd
+        // http://localhost:8080/person/delete?firstName=John&lastName=Boyd
         personService.deleteByFullName(firstName, lastName);
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        //return new ResponseEntity<>(true, HttpStatus.OK);
+        return ResponseEntity.notFound().build();
     }
-
 
 
 
