@@ -1,5 +1,6 @@
 package com.openclassrooms.safetynet.service;
 
+import com.openclassrooms.safetynet.controller.MedicalRecordControllerTest;
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
@@ -14,11 +15,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.time.Period;
+
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -27,6 +30,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersonServiceTest.class);
 
     @Mock
     private PersonRepository personRepository;
@@ -61,33 +66,6 @@ public class PersonServiceTest {
                 "12345", "123-456-7890", "johndoe@email.com");
         personDTO2 = new PersonDTO("Jane", "Doe", "123 Main St", "Springfield",
                 "12345", "123-456-7890", "janedoe@email.com");
-
-        /*
-        "medicalrecords": [
-        {
-            "firstName": "John",
-                "lastName": "Boyd",
-                "birthdate": "03/06/1984",
-                "medications": [
-            "aznol:350mg",
-                    "hydrapermazol:100mg"
-      ],
-            "allergies": [
-            "nillacilan"
-      ]
-        },
-
-         */
-    /*
-        medicalRecord1 new MedicalRecord("Mary", "Private", "01/01/2015", "medications": ["aznol:350mg", "hydrapermazol:100mg"],"allergies": ["nillacilan"]);
-        medicalRecord2 new MedicalRecord("suzan", "Public", "01/01/2000", "medications": ["aznol:350mg", "hydrapermazol:100mg"],"allergies": ["nillacilan"]);
-
-        medicalRecordDTO1 new MedicalRecordDTO("Mary", "Private", "01/01/2015", "medications": ["aznol:350mg", "hydrapermazol:100mg"],"allergies": ["nillacilan"]);
-        medicalRecordDTO2 new MedicalRecordDTO()"suzan", "Public", "01/01/2000", "medications": ["aznol:350mg", "hydrapermazol:100mg"],"allergies": ["nillacilan"]);
-
-     */
-
-
     }
 
     // CRUD
@@ -104,7 +82,8 @@ public class PersonServiceTest {
 
         // Assert
         assertNotNull(personDTOList);
-        // l'opération ou la méthode tester retourne une liste contenant 2 éléments
+
+        // The operation or method tester returns a list containing 2 elements
         assertEquals(2, personDTOList.size());
         assertEquals("John", personDTOList.get(0).getFirstName());
         assertEquals("Jane", personDTOList.get(1).getFirstName());
@@ -123,6 +102,9 @@ public class PersonServiceTest {
         // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> personService.getPersons());
         assertEquals("404 NOT_FOUND \"No persons found.\"", exception.getMessage());
+
+        verify(personRepository,times(1)).getPersons();
+        verifyNoInteractions(personConvertorDTO);
     }
 
     @Test

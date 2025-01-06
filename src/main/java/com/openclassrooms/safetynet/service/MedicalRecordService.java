@@ -36,7 +36,7 @@ public class MedicalRecordService {
 
             if (medicalRecords == null || medicalRecords.isEmpty()) {
                 LOGGER.warn("No medical records found");
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No medical records found");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No medical records found.");
             }
 
             return medicalRecords.stream()

@@ -52,13 +52,18 @@ public class PersonController {
     }
 
     @DeleteMapping("/person/delete")
-    public ResponseEntity<Void> deletePerson(
+    public ResponseEntity<Boolean> deletePerson(
             @RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName) {
 
         // http://localhost:8080/person/delete?firstName=John&lastName=Boyd
-        personService.deleteByFullName(firstName, lastName);
-        //return new ResponseEntity<>(true, HttpStatus.OK);
-        return ResponseEntity.notFound().build();
+        boolean isDeleted = personService.deleteByFullName(firstName, lastName);
+
+        if (isDeleted) {
+            return ResponseEntity.ok().build(); // Retourne 200 si suppression réussie
+        } else {
+            return ResponseEntity.notFound().build(); // Retourne 404 si l'entité n'est pas trouvée
+        }
+
     }
 
 
