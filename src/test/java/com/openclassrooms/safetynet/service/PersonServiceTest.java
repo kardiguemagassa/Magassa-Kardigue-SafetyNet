@@ -136,20 +136,20 @@ public class PersonServiceTest {
     }
 
     @Test
-    public  void testSaveAll_NullOrEmptyList() {
-        // Tester avec une liste null
+    void testSaveAll_NullOrEmptyList() {
+        // Test with list null
         ResponseStatusException exception1 = assertThrows(ResponseStatusException.class, () -> {
             personService.saveAll(null);
         });
         assertEquals(HttpStatus.BAD_REQUEST, exception1.getStatusCode());
-        assertTrue(exception1.getReason().contains("Person list cannot be null or empty."));
+        assertTrue(Objects.requireNonNull(exception1.getReason()).contains("Person list cannot be null or empty."));
 
-        // Tester avec une liste vide
+        // Test with list empty
         ResponseStatusException exception2 = assertThrows(ResponseStatusException.class, () -> {
             personService.saveAll(Collections.emptyList());
         });
         assertEquals(HttpStatus.BAD_REQUEST, exception2.getStatusCode());
-        assertTrue(exception2.getReason().contains("Person list cannot be null or empty."));
+        assertTrue(Objects.requireNonNull(exception2.getReason()).contains("Person list cannot be null or empty."));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class PersonServiceTest {
         // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> personService.saveAll(personDTOList));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
-        assertTrue(exception.getReason().contains("An error occurred while saving persons."));
+        assertTrue(Objects.requireNonNull(exception.getReason()).contains("An error occurred while saving persons."));
 
         // Vérifier les interactions
         verify(personConvertorDTO,times(1)).convertDtoToEntity(personDTOList);
@@ -199,10 +199,10 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testUpdatePerson_Success() {
+    void testUpdate_Success() {
         // Arrange
-        PersonDTO personDTO = personDTO1; // Le DTO à mettre à jour
-        Person personEntities = person1;  // L'entité correspondant à ce DTO
+        PersonDTO personDTO = personDTO1;
+        Person personEntities = person1;
 
         // Configurer les mocks
         when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntities);

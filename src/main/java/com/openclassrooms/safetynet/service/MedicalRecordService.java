@@ -51,24 +51,38 @@ public class MedicalRecordService {
         }
     }
 
-    public List<MedicalRecordDTO> saveAll (List<MedicalRecordDTO> medicalRecordDTOList) {
-
+    public List<MedicalRecordDTO> saveAll(List<MedicalRecordDTO> medicalRecordDTOList) {
         try {
-            if (medicalRecordDTOList == null || medicalRecordDTOList.isEmpty()) {
-                LOGGER.warn("No medical records found");
-                throw new IllegalArgumentException("No medical records found");
-            }
+            // Validation de la liste d'entrée
+            validateMedicalRecordDTOList(medicalRecordDTOList);
 
-            List<MedicalRecord> medicalRecordEntity = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTOList);
-            List<MedicalRecord> savedMedicalRecords = medicalRecordRepository.saveAll(medicalRecordEntity);
+            // Conversion des DTOs en entités
+            List<MedicalRecord> medicalRecordEntities = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTOList);
+
+            // Sauvegarde des entités
+            List<MedicalRecord> savedMedicalRecords = medicalRecordRepository.saveAll(medicalRecordEntities);
+
+            // Logging du succès
+            LOGGER.info("Successfully saved {} medical records.", savedMedicalRecords.size());
+
+            // Conversion des entités sauvegardées en DTOs
             return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecords);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid medicalRecord data: " + e.getMessage(), e);
-        } catch (Exception e) {
-            LOGGER.error("Error while saving MedicalRecord: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while saving MedicalRecord: " + e.getMessage(), e);
+            LOGGER.error("Validation error while saving medical records: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request: " + e.getMessage(), e);
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error encountered in MedicalRecordRepository: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An unexpected error occurred while saving medical records. Please try again later.", e);
+        }
+    }
+
+    // Méthode privée pour valider la liste d'entrée
+    private void validateMedicalRecordDTOList(List<MedicalRecordDTO> medicalRecordDTOList) {
+        if (medicalRecordDTOList == null || medicalRecordDTOList.isEmpty()) {
+            LOGGER.warn("No medical records found in the provided list.");
+            throw new IllegalArgumentException("No medical records were provided for saving.");
         }
     }
 
