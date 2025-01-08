@@ -68,16 +68,6 @@ public class DataBaseInMemoryWrapper {
         }
     }
 
-    /**
-     * Méthode générique pour charger un fichier JSON dans un objet Java.
-     *
-     * @param <T>           Le type d'objet à retourner.
-     * @param path          Le chemin vers le fichier JSON.
-     * @param objectMapper  L'instance d'ObjectMapper pour la désérialisation.
-     * @param typeReference Le type attendu (ex : DataWrapper).
-     * @return L'objet Java désérialisé à partir du fichier JSON.
-     * @throws Exception Si une erreur se produit pendant la lecture du fichier JSON.
-     */
     private <T> T loadJson(String path, ObjectMapper objectMapper, TypeReference<T> typeReference) throws Exception {
         InputStream inputStream = getClass().getResourceAsStream(path);
 
