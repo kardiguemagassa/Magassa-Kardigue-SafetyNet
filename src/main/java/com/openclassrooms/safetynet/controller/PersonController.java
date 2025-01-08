@@ -33,7 +33,6 @@ public class PersonController {
     public ResponseEntity<List <PersonDTO>> saveAll(@RequestBody List<PersonDTO> persons) {
 
         List <PersonDTO> personDTOS = personService.saveAll(persons);
-        personService.saveAll(persons);
         return new ResponseEntity<>(personDTOS, HttpStatus.OK);
         //return new ResponseEntity<>(personDTOS, HttpStatus.CREATED);
     }
@@ -52,7 +51,7 @@ public class PersonController {
     }
 
     @DeleteMapping("/person/delete")
-    public ResponseEntity<Boolean> deletePerson(
+    public ResponseEntity<Boolean> deleteByFullName(
             @RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName) {
 
         // http://localhost:8080/person/delete?firstName=John&lastName=Boyd
