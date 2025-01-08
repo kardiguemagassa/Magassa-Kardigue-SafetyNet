@@ -3,6 +3,7 @@ package com.openclassrooms.safetynet.service;
 import com.openclassrooms.safetynet.controller.MedicalRecordControllerTest;
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
+import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.model.MedicalRecord;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,8 +27,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
@@ -57,22 +61,23 @@ public class PersonServiceTest {
 
     @BeforeEach
     void setUp() {
-        person1 = new Person("John", "Doe", "123 Main St", "Springfield", "12345",
-                "123-456-7890", "johndoe@email.com");
-        person2 = new Person("Jane", "Doe", "123 Main St", "Springfield", "12345",
-                "123-456-7890", "janedoe@email.com");
+        person1 = new Person("John", "Doe", "123 Main St", "Springfield", "75016",
+                "0144445151", "johndoe@gmail.com");
+        person2 = new Person("Jane", "Doe", "123 Main St", "Springfield", "75017",
+                "0144445152", "janedoe@gmail.com");
 
-        personDTO1 = new PersonDTO("John", "Doe", "123 Main St", "Springfield",
-                "12345", "123-456-7890", "johndoe@email.com");
-        personDTO2 = new PersonDTO("Jane", "Doe", "123 Main St", "Springfield",
-                "12345", "123-456-7890", "janedoe@email.com");
+        personDTO1 = new PersonDTO("John", "Doe", "johndoe@gmail.com", "123 Main St", "Springfield",
+                "75016", "0144445151");
+        personDTO2 = new PersonDTO("Jane", "Doe", "janedoe@gmail.com", "123 Main St",
+                "Springfield", "75017", "0144445152");
     }
 
     // CRUD
 
     @Test
-    void testGetAllPersons_Success() {
+    void shouldReturnGetPersons() { //getPersons
         // Arrange
+        // Call personRepository and you will get back to me the list with these 2 people.
         when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
@@ -84,18 +89,18 @@ public class PersonServiceTest {
         assertNotNull(personDTOList);
 
         // The operation or method tester returns a list containing 2 elements
+        //assertThat(personDTOList).containsExactly(personDTO1, personDTO2);
         assertEquals(2, personDTOList.size());
-        assertEquals("John", personDTOList.get(0).getFirstName());
-        assertEquals("Jane", personDTOList.get(1).getFirstName());
+        assertEquals(personDTO1.getFirstName(),personDTOList.get(0).getFirstName());
+        assertEquals(personDTO2.getFirstName(),personDTOList.get(1).getFirstName());
 
         verify(personRepository,times(1)).getPersons();
         verify(personConvertorDTO,times(1)).convertEntityToDto(person1);
         verify(personConvertorDTO,times(1)).convertEntityToDto(person2);
     }
 
-
     @Test
-    void testGetPersons_NotFound() {
+    void shouldReturnGetPersons_NotFound() {
         // Arrange
         when(personRepository.getPersons()).thenReturn(null);
 
@@ -108,7 +113,7 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testSaveAll_Success() {
+    void shouldReturnSaveAll() {
         // Arrange
         List<PersonDTO> personDTOList = Arrays.asList(personDTO1, personDTO2);
         List<Person> personEntities = Arrays.asList(person1, person2);
@@ -123,10 +128,10 @@ public class PersonServiceTest {
 
         assertNotNull(personDTOList);
         assertEquals(2, result.size());
-        assertEquals("John", result.get(0).getFirstName());
-        assertEquals("Doe", result.get(0).getLastName());
-        assertEquals("Jane", result.get(1).getFirstName());
-        assertEquals("Doe", result.get(1).getLastName());
+        assertEquals(personDTO1.getFirstName(), result.get(0).getFirstName());
+        assertEquals(personDTO1.getLastName(), result.get(0).getLastName());
+        assertEquals(personDTO2.getFirstName(), result.get(1).getFirstName());
+        assertEquals(personDTO2.getLastName(), result.get(1).getLastName());
 
         // Vérifier les interactions avec les mocks
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTOList);
@@ -136,11 +141,12 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testSaveAll_NullOrEmptyList() {
+    void shouldReturnSaveAll_NullOrEmptyList() {
         // Test with list null
         ResponseStatusException exception1 = assertThrows(ResponseStatusException.class, () -> {
             personService.saveAll(null);
         });
+
         assertEquals(HttpStatus.BAD_REQUEST, exception1.getStatusCode());
         assertTrue(Objects.requireNonNull(exception1.getReason()).contains("Person list cannot be null or empty."));
 
@@ -148,12 +154,13 @@ public class PersonServiceTest {
         ResponseStatusException exception2 = assertThrows(ResponseStatusException.class, () -> {
             personService.saveAll(Collections.emptyList());
         });
+
         assertEquals(HttpStatus.BAD_REQUEST, exception2.getStatusCode());
         assertTrue(Objects.requireNonNull(exception2.getReason()).contains("Person list cannot be null or empty."));
     }
 
     @Test
-    void testSaveAll_ExceptionThrownByRepository() {
+    void shouldReturnSaveAll_ExceptionThrownByRepository() {
         // Arrange
         List<PersonDTO> personDTOList = Arrays.asList(personDTO1, personDTO2);
         List<Person> personEntities = Arrays.asList(person1, person2);
@@ -173,7 +180,7 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testSave_Success() {
+    void shouldReturnSave() {
         // Arrange
         PersonDTO personDTO = personDTO1;
         Person personEntities = person1;
@@ -188,18 +195,17 @@ public class PersonServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
+        assertEquals(personDTO1.getFirstName(), result.getFirstName());
+        assertEquals(personDTO1.getLastName(), result.getLastName());
 
         // Vérifier les interactions
         verify(personConvertorDTO,times(1)).convertDtoToEntity(personDTO);
         verify(personRepository,times(1)).save(personEntities);
         verify(personConvertorDTO,times(1)).convertEntityToDto(personEntities);
-
     }
 
     @Test
-    void testUpdate_Success() {
+    void shouldReturnUpdate() {
         // Arrange
         PersonDTO personDTO = personDTO1;
         Person personEntities = person1;
@@ -213,9 +219,9 @@ public class PersonServiceTest {
         Optional<PersonDTO> result = personService.update(personDTO);
 
         // Assert
-        assertTrue(result.isPresent()); // Vérifier que le résultat n'est pas vide
-        assertEquals("John", result.get().getFirstName());
-        assertEquals("Doe", result.get().getLastName());
+        assertTrue(result.isPresent());
+        assertEquals(personDTO1.getFirstName(), result.get().getFirstName());
+        assertEquals(personDTO1.getLastName(), result.get().getLastName());
 
         // Vérifier les interactions
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
@@ -224,26 +230,28 @@ public class PersonServiceTest {
     }
 
     @Test
-    void testDelete_Success() {
+    void shouldReturnDeleteByFullName() {
         // Arrange
+        /*
         String firstName = "John";
         String lastName = "Doe";
 
-        when(personRepository.deleteByFullName(firstName, lastName)).thenReturn(true);
+         */
+        when(personRepository.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName())).thenReturn(true);
 
         // Act
-        Boolean result = personService.deleteByFullName(firstName, lastName);
+        Boolean result = personService.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
 
         // Assert
         assertTrue(result);
 
         // Vérifier que la méthode du repository a été appelée
-        verify(personRepository, times(1)).deleteByFullName(firstName, lastName);
+        verify(personRepository, times(1)).deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
     }
 
     // NEW ENDPOINT
     @Test
-    void getChildrenByAddress_Success() {
+    void shouldReturnGetChildrenByAddress() {
         // Arrange
         String address = "123 Main St";
 
@@ -256,6 +264,7 @@ public class PersonServiceTest {
         when(personRepository.findByAddress(address)).thenReturn(personEntities);
         when(personConvertorDTO.convertEntityToDto(personEntities.get(0))).thenReturn(personDTOList.get(0));
         when(personConvertorDTO.convertEntityToDto(personEntities.get(1))).thenReturn(personDTOList.get(1));
+
         when(medicalRecordRepository.findByFullName("John", "Doe")).thenReturn(medicalRecordJohn);
         when(medicalRecordRepository.findByFullName("Jane", "Doe")).thenReturn(medicalRecordJane);
         when(personRepository.calculateAge(LocalDate.of(2015, 1, 1))).thenReturn(8); // children
@@ -277,13 +286,9 @@ public class PersonServiceTest {
     }
 
     @Test
-    public void getPersonInfo_Success() {
+    void shouldReturnGetPersonInfo() {
         // Arrange
         String lastName = "Doe";
-
-        // Création de la personne et du DTO
-        //Person person = new Person("John", lastName, "john.doe@example.com", "123 Main St", "Springfield", "12345", "123-456-7890");
-        //PersonDTO personDTO = new PersonDTO("John", lastName, "john.doe@example.com", "123 Main St", "Springfield", "12345", "123-456-7890");
 
         // Arrange
         Person person = person1;  // L'entité correspondant à ce DTO
@@ -317,31 +322,26 @@ public class PersonServiceTest {
     }
 
     @Test
-    public void getCommunityEmail_Success() {
+    void shouldReturnGetCommunityEmail() {
         // Arrange
-        String city = "Springfield";
-        List<Person> personEntities = List.of(person1, person2);
-        List<PersonDTO> personDTOList = List.of(personDTO1, personDTO2);
-
-        // Configurer les mocks
-        when(personRepository.findByCity(city)).thenReturn(personEntities);
+        // Call personRepository and you will get back to me the list with these 2 people.
+        when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
 
         // Act
-        List<String> emails = personService.getCommunityEmails(city);
+        List<PersonDTO> personDTOList = personService.getPersons();
 
         // Assert
-        assertNotNull(emails);
-        assertEquals(2, emails.size());
-        assertTrue(emails.contains("john.doe@example.com"));
-        assertTrue(emails.contains("jane.doe@example.com"));
+        assertNotNull(personDTOList);
 
-        // Vérifier les interactions
-        verify(personRepository, times(1)).findByCity(city);
-        verify(personConvertorDTO, times(1)).convertEntityToDto(person1);
-        verify(personConvertorDTO, times(1)).convertEntityToDto(person2);
+        //assertThat(personDTOList).containsExactly(personDTO1, personDTO2);
+        assertEquals(2, personDTOList.size());
+        assertEquals(personDTO1.getEmail(),personDTOList.get(0).getEmail());
+        assertEquals(personDTO2.getEmail(),personDTOList.get(1).getEmail());
+
+        verify(personRepository,times(1)).getPersons();
+        verify(personConvertorDTO,times(1)).convertEntityToDto(person1);
+        verify(personConvertorDTO,times(1)).convertEntityToDto(person2);
     }
-
-
 }

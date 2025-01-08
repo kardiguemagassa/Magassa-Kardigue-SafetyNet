@@ -257,9 +257,14 @@ public class PersonRepository {
                 return List.of();
             }
 
-            return allPersons.stream()
+            LOGGER.debug("Total persons in database: {}", allPersons.size());
+
+            List<Person> filteredPersons = allPersons.stream()
                     .filter(person -> person.getCity().equalsIgnoreCase(city))
                     .collect(Collectors.toList());
+
+            LOGGER.debug("Filtered persons for city '{}': {}", city, filteredPersons.size());
+            return filteredPersons;
         } catch (Exception e) {
             LOGGER.error("Error while searching for persons by city: {}", e.getMessage(), e);
         }
