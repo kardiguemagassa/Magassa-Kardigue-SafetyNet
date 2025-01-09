@@ -37,50 +37,42 @@ public class PersonControllerTest {
     @MockitoBean // Inject personService
     private PersonService personService;
 
-    private PersonDTO personDTO1;
-    private PersonDTO personDTO2;
+    private PersonDTO mockPersonDTO1;
+    private PersonDTO mockPersonDTO2;
 
     @BeforeEach
     void setUp() {
-        personDTO1 = new PersonDTO("John", "Doe", "johndoe@gmail.com", "123 Main St",
+        mockPersonDTO1 = new PersonDTO("John", "Doe", "johndoe@gmail.com", "123 Main St",
                 "Springfield", "75016", "0144445151");
 
-        personDTO2 = new PersonDTO("Jane", "Doe", "janedoe@gmail.com", "123 Main St",
+        mockPersonDTO2 = new PersonDTO("Jane", "Doe", "janedoe@gmail.com", "123 Main St",
                 "Springfield", "75016", "0144445151");
         LOGGER.info("@BeforeEach executes before the execution of every test method in this class");
     }
-
     @AfterEach
-    public void tearDownAfterEach() {
-        LOGGER.info("Running @AfterEach");
-        System.out.println();
-    }
-
+    public void tearDownAfterEach() {LOGGER.info("Running @AfterEach");}
     @BeforeAll
-    static void setUpBeforeClass() {
-        LOGGER.info("@BeforeAll executes only once before all test methods execute in this class");
-        System.out.println();
-    }
-
+    static void setUpBeforeClass() {LOGGER.info("@BeforeAll executes only once before all test methods execute in this class");}
     @AfterAll
-    static void tearDownAfterAll() {
-        LOGGER.info("@AfterAll executes only once after all test methods execute in this class");
-        System.out.println();
-    }
+    static void tearDownAfterAll() {LOGGER.info("@AfterAll executes only once after all test methods execute in this class");}
+
 
     @Test
     @Order(1)
     void shouldReturnGetPersons() throws Exception {
 
-        when(personService.getPersons()).thenReturn(List.of(personDTO1,personDTO2));
+        when(personService.getPersons()).thenReturn(List.of(mockPersonDTO1,mockPersonDTO2));
         // Perform GET request
-        mockMvc.perform(get("/persons"))
+        String response = mockMvc.perform(get("/persons"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].firstName").value("John"))
-                .andExpect(jsonPath("$[0].lastName").value("Doe"))
-                .andExpect(jsonPath("$[1].firstName").value("Jane"))
-                .andExpect(jsonPath("$[1].lastName").value("Doe"));
+                .andExpect(jsonPath("$[0].firstName").value(mockPersonDTO1.getFirstName()))
+                .andExpect(jsonPath("$[0].lastName").value(mockPersonDTO1.getLastName()))
+                .andExpect(jsonPath("$[1].firstName").value(mockPersonDTO2.getFirstName()))
+                .andExpect(jsonPath("$[1].lastName").value(mockPersonDTO2.getLastName()))
+                .andReturn().getResponse().getContentAsString();
+
+        LOGGER.info("ResponseOfAllPersons: " + response);
 
         // Verify service interaction
         verify(personService, times(1)).getPersons();
@@ -108,19 +100,19 @@ public class PersonControllerTest {
         ]
         """;
         // Prepare PersonDTO that mocks will use
-        personDTO1 = new PersonDTO();
-        personDTO1.setFirstName("John");
-        personDTO1.setLastName("Doe");
-        personDTO1.setAddress("123 Main St");
-        personDTO1.setEmail("johndoe@gmail.com");
+        mockPersonDTO1 = new PersonDTO();
+        mockPersonDTO1.setFirstName("John");
+        mockPersonDTO1.setLastName("Doe");
+        mockPersonDTO1.setAddress("123 Main St");
+        mockPersonDTO1.setEmail("johndoe@gmail.com");
 
-        personDTO2 = new PersonDTO();
-        personDTO2.setFirstName("Jane");
-        personDTO2.setLastName("Doe");
-        personDTO2.setAddress("123 Main St");
-        personDTO2.setEmail("janedoe@gmail.com");
+        mockPersonDTO2 = new PersonDTO();
+        mockPersonDTO2.setFirstName("Jane");
+        mockPersonDTO2.setLastName("Doe");
+        mockPersonDTO2.setAddress("123 Main St");
+        mockPersonDTO2.setEmail("janedoe@gmail.com");
 
-        List<PersonDTO> savedPersons = List.of(personDTO1, personDTO2);
+        List<PersonDTO> savedPersons = List.of(mockPersonDTO1, mockPersonDTO2);
 
         // Mock the service to expect and return the PersonDTO list
         when(personService.saveAll(anyList())).thenReturn(savedPersons);
@@ -130,14 +122,14 @@ public class PersonControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$[0].firstName").value(personDTO1.getFirstName()))
-                        .andExpect(jsonPath("$[0].lastName").value(personDTO1.getLastName()))
-                        .andExpect(jsonPath("$[0].address").value(personDTO1.getAddress()))
-                        .andExpect(jsonPath("$[0].email").value(personDTO1.getEmail()))
-                        .andExpect(jsonPath("$[1].firstName").value(personDTO2.getFirstName()))
-                        .andExpect(jsonPath("$[1].lastName").value(personDTO2.getLastName()))
-                        .andExpect(jsonPath("$[1].address").value(personDTO2.getAddress()))
-                        .andExpect(jsonPath("$[1].email").value(personDTO2.getEmail()))
+                        .andExpect(jsonPath("$[0].firstName").value(mockPersonDTO1.getFirstName()))
+                        .andExpect(jsonPath("$[0].lastName").value(mockPersonDTO1.getLastName()))
+                        .andExpect(jsonPath("$[0].address").value(mockPersonDTO1.getAddress()))
+                        .andExpect(jsonPath("$[0].email").value(mockPersonDTO1.getEmail()))
+                        .andExpect(jsonPath("$[1].firstName").value(mockPersonDTO2.getFirstName()))
+                        .andExpect(jsonPath("$[1].lastName").value(mockPersonDTO2.getLastName()))
+                        .andExpect(jsonPath("$[1].address").value(mockPersonDTO2.getAddress()))
+                        .andExpect(jsonPath("$[1].email").value(mockPersonDTO2.getEmail()))
                         .andReturn().getResponse().getContentAsString();
 
         LOGGER.info("ResponseSaveList: " + response);
@@ -159,24 +151,24 @@ public class PersonControllerTest {
                 }
                 """;
 
-        personDTO1 = new PersonDTO();
-        personDTO1.setFirstName("John");
-        personDTO1.setLastName("Doe");
-        personDTO1.setAddress("123 Main St");
-        personDTO1.setEmail("johndoe@gmail.com");
+        mockPersonDTO1 = new PersonDTO();
+        mockPersonDTO1.setFirstName("John");
+        mockPersonDTO1.setLastName("Doe");
+        mockPersonDTO1.setAddress("123 Main St");
+        mockPersonDTO1.setEmail("johndoe@gmail.com");
 
         // Mock data
-        when(personService.save(any(PersonDTO.class))).thenReturn(personDTO1);
+        when(personService.save(any(PersonDTO.class))).thenReturn(mockPersonDTO1);
 
         // Perform POST request
         String response = mockMvc.perform(post("/person/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.firstName").value(personDTO1.getFirstName()))
-                        .andExpect(jsonPath("$.lastName").value(personDTO1.getLastName()))
-                        .andExpect(jsonPath("$.address").value(personDTO1.getAddress()))
-                        .andExpect(jsonPath("$.email").value(personDTO1.getEmail()))
+                        .andExpect(jsonPath("$.firstName").value(mockPersonDTO1.getFirstName()))
+                        .andExpect(jsonPath("$.lastName").value(mockPersonDTO1.getLastName()))
+                        .andExpect(jsonPath("$.address").value(mockPersonDTO1.getAddress()))
+                        .andExpect(jsonPath("$.email").value(mockPersonDTO1.getEmail()))
                         .andReturn().getResponse().getContentAsString();
 
         LOGGER.info("Response: " + response);
@@ -201,30 +193,30 @@ public class PersonControllerTest {
             }
             """;
 
-        personDTO1 = new PersonDTO();
-        personDTO1.setFirstName("John");
-        personDTO1.setLastName("Doe");
-        personDTO1.setAddress("123 Main St");
-        personDTO1.setEmail("johndoe@gmail.com");
-        personDTO1.setCity("Springfield");
-        personDTO1.setPhone("0144445151");
-        personDTO1.setZip("75016");
+        mockPersonDTO1 = new PersonDTO();
+        mockPersonDTO1.setFirstName("John");
+        mockPersonDTO1.setLastName("Doe");
+        mockPersonDTO1.setAddress("123 Main St");
+        mockPersonDTO1.setEmail("johndoe@gmail.com");
+        mockPersonDTO1.setCity("Springfield");
+        mockPersonDTO1.setPhone("0144445151");
+        mockPersonDTO1.setZip("75016");
 
         // Mocking service
-        when(personService.update(any(PersonDTO.class))).thenReturn(Optional.of(personDTO1));
+        when(personService.update(any(PersonDTO.class))).thenReturn(Optional.of(mockPersonDTO1));
 
         // Perform PUT request
         String responseUpdate = mockMvc.perform(put("/person/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.firstName").value(personDTO1.getFirstName()))
-                        .andExpect(jsonPath("$.lastName").value(personDTO1.getLastName()))
-                        .andExpect(jsonPath("$.address").value(personDTO1.getAddress()))
-                        .andExpect(jsonPath("$.email").value(personDTO1.getEmail()))
-                        .andExpect(jsonPath("$.city").value(personDTO1.getCity()))
-                        .andExpect(jsonPath("$.phone").value(personDTO1.getPhone()))
-                        .andExpect(jsonPath("$.zip").value(personDTO1.getZip()))
+                        .andExpect(jsonPath("$.firstName").value(mockPersonDTO1.getFirstName()))
+                        .andExpect(jsonPath("$.lastName").value(mockPersonDTO1.getLastName()))
+                        .andExpect(jsonPath("$.address").value(mockPersonDTO1.getAddress()))
+                        .andExpect(jsonPath("$.email").value(mockPersonDTO1.getEmail()))
+                        .andExpect(jsonPath("$.city").value(mockPersonDTO1.getCity()))
+                        .andExpect(jsonPath("$.phone").value(mockPersonDTO1.getPhone()))
+                        .andExpect(jsonPath("$.zip").value(mockPersonDTO1.getZip()))
                         .andReturn().getResponse().getContentAsString();
 
         LOGGER.info("ResponseUpdate: " + responseUpdate);
@@ -237,23 +229,25 @@ public class PersonControllerTest {
     @Order(5)
     void shouldReturnDeleteByFullName() throws Exception {
         // Arrange
-        /*
-        String firstName = "John";
-        String lastName = "Boyd";
-        personDTO1 = new PersonDTO();
-        personDTO1.setFirstName("John");
-        personDTO1.setLastName("Doe");
+        // Ensure mock data setup
+        mockPersonDTO1 = new PersonDTO();
+        mockPersonDTO1.setFirstName("John");
+        mockPersonDTO1.setLastName("Doe");
 
-         */
-        when(personService.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName())).thenReturn(true);
+        when(personService.deleteByFullName(mockPersonDTO1.getFirstName(), mockPersonDTO1.getLastName())).thenReturn(true);
 
         // Act
-        mockMvc.perform(delete("/person/delete")
-                        .param("firstName", personDTO1.getFirstName())
-                        .param("lastName", personDTO1.getLastName()))
-                .andExpect(status().isOk());
+        String response = mockMvc.perform(delete("/person/delete")
+                        .param("firstName", mockPersonDTO1.getFirstName())
+                        .param("lastName", mockPersonDTO1.getLastName()))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andReturn().getResponse().getContentAsString();
+
+        LOGGER.info("ResponseDelete: " + response);
 
         // Assert
-        verify(personService, times(1)).deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
+        verify(personService, times(1)).deleteByFullName(mockPersonDTO1.getFirstName(), mockPersonDTO1.getLastName());
+        Assertions.assertEquals("true", response, "The delete response should be 'true' as returned by the service.");
     }
 }

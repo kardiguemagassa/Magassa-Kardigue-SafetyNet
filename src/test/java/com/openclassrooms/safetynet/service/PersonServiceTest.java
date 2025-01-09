@@ -1,10 +1,7 @@
 package com.openclassrooms.safetynet.service;
 
-import com.openclassrooms.safetynet.controller.MedicalRecordControllerTest;
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
-import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
-import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
@@ -18,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,6 +30,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
+//@SpringBootTest
 public class PersonServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonServiceTest.class);
@@ -43,8 +41,6 @@ public class PersonServiceTest {
     private PersonConvertorDTO personConvertorDTO;
     @Mock
     private MedicalRecordRepository medicalRecordRepository;
-    @Mock
-    private MedicalRecordConvertorDTO medicalRecordConvertorDTO;
 
     @InjectMocks
     private PersonService personService;
@@ -53,11 +49,6 @@ public class PersonServiceTest {
     private Person person2;
     private PersonDTO personDTO1;
     private PersonDTO personDTO2;
-
-    private MedicalRecord medicalRecord1;
-    private MedicalRecord medicalRecord2;
-    private MedicalRecordDTO medicalRecordDTO1;
-    private MedicalRecordDTO medicalRecordDTO2;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +64,6 @@ public class PersonServiceTest {
     }
 
     // CRUD
-
     @Test
     void shouldReturnGetPersons() { //getPersons
         // Arrange
@@ -137,7 +127,6 @@ public class PersonServiceTest {
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTOList);
         verify(personRepository,times(1)).saveAll(personEntities);
         verify(personConvertorDTO,times(1)).convertEntityToDto(personEntities);
-
     }
 
     @Test
@@ -172,7 +161,7 @@ public class PersonServiceTest {
         // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> personService.saveAll(personDTOList));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
-        assertTrue(Objects.requireNonNull(exception.getReason()).contains("An error occurred while saving persons."));
+        assertTrue(Objects.requireNonNull(exception.getReason()).contains("Database/system error while saving persons:"));
 
         // Vérifier les interactions
         verify(personConvertorDTO,times(1)).convertDtoToEntity(personDTOList);
@@ -232,11 +221,6 @@ public class PersonServiceTest {
     @Test
     void shouldReturnDeleteByFullName() {
         // Arrange
-        /*
-        String firstName = "John";
-        String lastName = "Doe";
-
-         */
         when(personRepository.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName())).thenReturn(true);
 
         // Act
@@ -291,9 +275,8 @@ public class PersonServiceTest {
         String lastName = "Doe";
 
         // Arrange
-        Person person = person1;  // L'entité correspondant à ce DTO
-        PersonDTO personDTO = personDTO1; // Le DTO à mettre à jour
-
+        Person person = person1;
+        PersonDTO personDTO = personDTO1;
 
         // Simulation de la méthode findByLastName
         when(personRepository.findByLastName(lastName)).thenReturn(List.of(person));

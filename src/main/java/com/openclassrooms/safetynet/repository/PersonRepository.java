@@ -24,6 +24,7 @@ public class PersonRepository {
     private final List<Person> persons = new ArrayList<>();
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
 
+
     public PersonRepository (DataBaseInMemoryWrapper dataBaseInMemoryWrapper) {
         this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
     }
@@ -46,17 +47,16 @@ public class PersonRepository {
                     LOGGER.warn("No persons found in DataBaseInMemoryWrapper.");
                 }
             }
-            return new ArrayList<>(persons); // Retourner une copie pour protéger la liste interne
+            return new ArrayList<>(persons);
         } catch (Exception e) {
             LOGGER.error("Error loading Json data: {}", e.getMessage(), e);
         }
-        return List.of(); // Retourner une liste vide pour éviter une exception en aval
+        return List.of();
     }
-
 
     public List<Person> saveAll(List<Person> personList) {
         if (personList == null || personList.isEmpty()) {
-            LOGGER.warn("Attempted to save an empty or null person list.");
+            LOGGER.warn("Attempted to save an empty or null person list");
             return new ArrayList<>(persons); // Retourner l'état actuel sans modification
         }
 
@@ -67,7 +67,7 @@ public class PersonRepository {
             if (wrapperPersons != null) {
                 wrapperPersons.addAll(personList);
             } else {
-                LOGGER.warn("DataBaseInMemoryWrapper persons list is null, skipping wrapper update.");
+                LOGGER.warn("Nothing  persons found:");
             }
 
             LOGGER.info("Successfully registered {} persons.", personList.size());
@@ -80,7 +80,7 @@ public class PersonRepository {
     public Person save(Person person) {
         if (person == null) {
             LOGGER.warn("Attempted to save a null person.");
-            return null; // Indiquer que rien n'a été enregistré
+            return null;
         }
 
         try {
@@ -109,8 +109,8 @@ public class PersonRepository {
             }
 
             return allPersons.stream()
-                    .filter(person -> person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName))
-                    .findFirst();
+                    .filter(person -> person.getFirstName().equalsIgnoreCase(firstName)
+                            && person.getLastName().equalsIgnoreCase(lastName)).findFirst();
         } catch (Exception e) {
             LOGGER.error("Error while searching for person by full name: {}", e.getMessage(), e);
         }
@@ -187,7 +187,7 @@ public class PersonRepository {
         try {
             List<Person> allPersons = dataBaseInMemoryWrapper.getPersons();
             if (allPersons == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper persons list is null.");
+                LOGGER.warn("Nothing  addresses found:");
                 return List.of();
             }
 
@@ -209,7 +209,7 @@ public class PersonRepository {
         try {
             List<Person> allPersons = dataBaseInMemoryWrapper.getPersons();
             if (allPersons == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper persons list is null.");
+                LOGGER.warn("Nothing  address found:");
                 return List.of();
             }
 
@@ -231,7 +231,7 @@ public class PersonRepository {
         try {
             List<Person> allPersons = dataBaseInMemoryWrapper.getPersons();
             if (allPersons == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper persons list is null.");
+                LOGGER.warn("Nothing  lastname found:");
                 return List.of();
             }
 
@@ -253,7 +253,7 @@ public class PersonRepository {
         try {
             List<Person> allPersons = dataBaseInMemoryWrapper.getPersons();
             if (allPersons == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper persons list is null.");
+                LOGGER.warn("Nothing  city found:");
                 return List.of();
             }
 

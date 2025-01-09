@@ -1,7 +1,6 @@
 package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.service.PersonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,14 +54,8 @@ public class PersonController {
             @RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName) {
 
         // http://localhost:8080/person/delete?firstName=John&lastName=Boyd
-        boolean isDeleted = personService.deleteByFullName(firstName, lastName);
-
-        if (isDeleted) {
-            return ResponseEntity.ok().build(); // Retourne 200 si suppression réussie
-        } else {
-            return ResponseEntity.notFound().build(); // Retourne 404 si l'entité n'est pas trouvée
-        }
-
+        personService.deleteByFullName(firstName, lastName);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
 

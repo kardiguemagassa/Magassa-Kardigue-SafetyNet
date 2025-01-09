@@ -63,7 +63,7 @@ public class PersonService {
                     .collect(Collectors.toList());
 
         } catch (ResponseStatusException e) {
-            throw e; // Re-throw HTTP-specific exceptions
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error while retrieving and converting persons: {}", e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -78,22 +78,26 @@ public class PersonService {
                 throw new IllegalArgumentException("Person list cannot be null or empty.");
             }
 
-            // Convertir les DTO en entités
+            // Convert DTO en entity
             List<Person> personEntities = personConvertorDTO.convertDtoToEntity(personDTOList);
 
-            // Sauvegarder les entités dans le repository
+            // Save entities in repository
             List<Person> savedPersonEntities = personRepository.saveAll(personEntities);
 
-            // Convertir les entités sauvegardées en DTO
+            // Convert les entities save DTO
             return personConvertorDTO.convertEntityToDto(savedPersonEntities);
+
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
+            LOGGER.error("Error saving personList: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person data: " + e.getMessage(), e);
+        } catch (RuntimeException e) {
+            LOGGER.error("Runtime error during saving persons: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Database/system error while saving persons: " + e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.error("Error saving persons: {}", e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while saving persons.", e);
         }
-
     }
 
     public PersonDTO save(PersonDTO personDTO) {
@@ -102,22 +106,21 @@ public class PersonService {
                 throw new IllegalArgumentException("PersonDTO cannot be null.");
             }
 
-            // Convertir le DTO en entité
+            // Convert DTO  entity
             Person personEntity = personConvertorDTO.convertDtoToEntity(personDTO);
 
-            // Sauvegarder l'entité dans le repository
+            // Save entity in repository
             Person savedPersonEntity = personRepository.save(personEntity);
 
-            // Convertir l'entité sauvegardée en DTO
+            // Convert entity save DTO
             return personConvertorDTO.convertEntityToDto(savedPersonEntity);
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
+            LOGGER.error("Error person: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person data: " + e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.error("Error saving person: {}", e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while saving the person.", e);
         }
-
     }
 
     public Optional<PersonDTO> update(PersonDTO updatedPersonDTO) {
@@ -127,13 +130,13 @@ public class PersonService {
                 throw new IllegalArgumentException("Updated person data cannot be null.");
             }
 
-            // Convertir le DTO en entité
+            // Convert le DTO entity
             Person personEntity = personConvertorDTO.convertDtoToEntity(updatedPersonDTO);
 
-            // Sauvegarder l'entité dans le repository
+            // Save entity in repository
             Optional<Person> savedPersonEntity = personRepository.update(personEntity);
 
-            // Vérifier si une entité a été sauvegardée
+            // Check if an entity has been saved
             return savedPersonEntity.map(personConvertorDTO::convertEntityToDto);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Validation error: {}", e.getMessage());
@@ -162,9 +165,9 @@ public class PersonService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found for deletion.");
             }
 
-            return isDeleted;
+            return true;
         } catch (ResponseStatusException e) {
-            throw e; // Re-throw HTTP-specific exceptions
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error while deleting person {} {} via repository: {}", firstName, lastName, e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -180,10 +183,10 @@ public class PersonService {
         }
 
         try {
-            List<PersonDTO> residents = personRepository.findByAddresses(addresses).stream()
+            return personRepository.findByAddresses(addresses).stream()
                     .map(personConvertorDTO::convertEntityToDto)
                     .collect(Collectors.toList());
-            return residents;
+
         } catch (Exception e) {
             LOGGER.error("Error while finding persons by addresses: {}", e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while fetching persons by addresses.", e);
@@ -201,7 +204,7 @@ public class PersonService {
         try {
             List<PersonDTO> residents = personRepository.findByAddress(address).stream()
                     .map(personConvertorDTO::convertEntityToDto)
-                    .collect(Collectors.toList());
+                    .toList();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
@@ -410,7 +413,7 @@ public class PersonService {
         try {
             List<PersonDTO> residents = personRepository.findByCity(city).stream()
                     .map(personConvertorDTO::convertEntityToDto)
-                    .collect(Collectors.toList());
+                    .toList();
             if (residents.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No persons found with last name: " + city);
             }
