@@ -3,21 +3,15 @@ package com.openclassrooms.safetynet.repository;
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 
-import com.openclassrooms.safetynet.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 //@Data
@@ -28,7 +22,6 @@ public class MedicalRecordRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MedicalRecordRepository.class);
 
-    // Liste des personnes (sera remplie après le chargement des données)
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
 
@@ -52,7 +45,7 @@ public class MedicalRecordRepository {
         } catch (Exception e) {
             LOGGER.error("Error loading Json data: {}", e.getMessage(), e);
         }
-        return List.of(); // Retourner une liste vide pour éviter une exception en aval
+        return List.of();
     }
 
     public List<MedicalRecord> saveAll(List<MedicalRecord> medicalRecordList) {
@@ -68,7 +61,7 @@ public class MedicalRecordRepository {
             if (wrapperMedicalRecords != null) {
                 wrapperMedicalRecords.addAll(medicalRecordList);
             } else {
-                LOGGER.warn("DataBaseInMemoryWrapper medicalRecords list is null, skipping wrapper update.");
+                LOGGER.warn("Nothing  medicalRecord found:");
             }
 
             LOGGER.info("Successfully registered {} medicalRecords.", medicalRecordList.size());
@@ -101,12 +94,11 @@ public class MedicalRecordRepository {
         return medicalRecord;
     }
 
-
     public Optional<MedicalRecord> findByMedicationsAndAllergies(List<String> medications, List<String> allergies) {
         try {
             List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
             if (allMedicalRecords == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper medical records list is null.");
+                LOGGER.warn("Medical records list is null.");
                 return Optional.empty();
             }
 
@@ -134,12 +126,12 @@ public class MedicalRecordRepository {
 
             if (existingRecord.isEmpty()) {
                 LOGGER.info("Medical record not found, creating new record.");
-                medicalRecords.add(updateMedicalRecord); // Mise à jour de la liste locale
+                medicalRecords.add(updateMedicalRecord);
                 List<MedicalRecord> wrapperRecords = dataBaseInMemoryWrapper.getMedicalRecords();
                 if (wrapperRecords != null) {
-                    wrapperRecords.add(updateMedicalRecord); // Mise à jour du wrapper
+                    wrapperRecords.add(updateMedicalRecord);
                 } else {
-                    LOGGER.warn("DataBaseInMemoryWrapper medical records list is null.");
+                    LOGGER.warn(" medical records list is null.");
                 }
                 return Optional.of(updateMedicalRecord);
             }
@@ -191,7 +183,7 @@ public class MedicalRecordRepository {
         try {
             List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
             if (allMedicalRecords == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper medical records list is null.");
+                LOGGER.warn("medical records list is null.");
                 return null;
             }
 
@@ -203,62 +195,6 @@ public class MedicalRecordRepository {
         } catch (Exception e) {
             LOGGER.error("Error finding medical record {} {}: {}", firstName, lastName, e.getMessage(), e);
             return null;
-        }
-    }
-
-    public Optional<MedicalRecord> findOptionalByFullName(String firstName, String lastName) {
-        try {
-            List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
-            if (allMedicalRecords == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper medical records list is null.");
-                return Optional.empty();
-            }
-
-            return allMedicalRecords.stream()
-                    .filter(record -> record.getFirstName().equalsIgnoreCase(firstName)
-                            && record.getLastName().equalsIgnoreCase(lastName))
-                    .findFirst();
-        } catch (Exception e) {
-            LOGGER.error("Error finding medical record {} {}: {}", firstName, lastName, e.getMessage(), e);
-            return Optional.empty();
-        }
-    }
-
-    /*
-    public MedicalRecord findByPerson(Person person) {
-        return medicalRecords.stream()
-                .filter(record -> record.getFirstName().equalsIgnoreCase(person.getFirstName()) &&
-                        record.getLastName().equalsIgnoreCase(person.getLastName()))
-                .findFirst()
-                .orElse(null);
-    }
-
-     */
-
-
-    public List<Integer> calculateAgeForPersons(List<Person> persons) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
-        try {
-            return persons.stream()
-                    .map(person -> {
-                        MedicalRecord record = findByFullName(person.getFirstName(), person.getLastName());
-                        if (record != null && record.getBirthdate() != null) {
-                            try {
-                                LocalDate birthDate = LocalDate.parse(record.getBirthdate(), formatter);
-                                return Period.between(birthDate, LocalDate.now()).getYears();
-                            } catch (DateTimeParseException e) {
-                                LOGGER.error("Invalid birthdate format for {} {}: {}", person.getFirstName(), person.getLastName(), record.getBirthdate(), e);
-                                return null; // Ignorer cette entrée en cas de format invalide
-                            }
-                        }
-                        return null;
-                    })
-                    .filter(Objects::nonNull) // Supprimer les valeurs nulles
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            LOGGER.error("An unexpected error occurred: {}", e.getMessage(), e);
-            return new ArrayList<>();
         }
     }
 

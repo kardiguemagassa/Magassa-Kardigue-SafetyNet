@@ -22,6 +22,7 @@ public class MedicalRecordService {
 
     private final MedicalRecordRepository medicalRecordRepository;
     private final MedicalRecordConvertorDTO medicalRecordConvertorDTO;
+    private static final String INVALID_NAME_ERROR = "First name or last name cannot be null or empty.";
 
     public MedicalRecordService(MedicalRecordRepository medicalRecordRepository,
                                 MedicalRecordConvertorDTO medicalRecordConvertorDTO) {
@@ -53,32 +54,37 @@ public class MedicalRecordService {
 
     public List<MedicalRecordDTO> saveAll(List<MedicalRecordDTO> medicalRecordDTOList) {
         try {
-            // Validation de la liste d'entrée
+            // Validation of the input list
             validateMedicalRecordDTOList(medicalRecordDTOList);
 
-            // Conversion des DTOs en entités
+            // Conversion DTOs to entities
             List<MedicalRecord> medicalRecordEntities = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTOList);
 
-            // Sauvegarde des entités
+            // save entities
             List<MedicalRecord> savedMedicalRecords = medicalRecordRepository.saveAll(medicalRecordEntities);
 
-            // Logging du succès
+            // Logging du success
             LOGGER.info("Successfully saved {} medical records.", savedMedicalRecords.size());
 
-            // Conversion des entités sauvegardées en DTOs
             return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecords);
 
         } catch (IllegalArgumentException e) {
             LOGGER.error("Validation error while saving medical records: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request: " + e.getMessage(), e);
         } catch (RuntimeException e) {
-            LOGGER.error("Unexpected error encountered in MedicalRecordRepository: {}", e.getMessage(), e);
+            // Handle specific runtime exceptions from the repository (or underlying data layer)
+            LOGGER.error("Runtime error during saving medical records: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An unexpected error occurred while saving medical records. Please try again later.", e);
+                    "Database/system error while saving medical records: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // Catch-all for other unanticipated exceptions
+            LOGGER.error("Unexpected error saving medicalRecord: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An unexpected error occurred while saving medicalRecord.", e);
         }
     }
 
-    // Méthode privée pour valider la liste d'entrée
+    // Private method to validate the input list
     private void validateMedicalRecordDTOList(List<MedicalRecordDTO> medicalRecordDTOList) {
         if (medicalRecordDTOList == null || medicalRecordDTOList.isEmpty()) {
             LOGGER.warn("No medical records found in the provided list.");
@@ -97,7 +103,7 @@ public class MedicalRecordService {
             return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecordEntity);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
+            LOGGER.error("Error saving medicalRecord: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid medicalRecord data: " + e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.error("Error saving medicalRecord: {}", e.getMessage(), e);
@@ -130,7 +136,7 @@ public class MedicalRecordService {
 
         if (firstName == null || firstName.isBlank() || lastName == null || lastName.isBlank()) {
             LOGGER.warn("Invalid parameters: firstName or lastName is null/empty. Cannot perform deletion.");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First name or last name cannot be null or empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_NAME_ERROR);
         }
 
         try {
@@ -144,9 +150,9 @@ public class MedicalRecordService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found for deletion.");
             }
 
-            return isDeleted;
+            return true;
         } catch (ResponseStatusException e) {
-            throw e; // Re-throw HTTP-specific exceptions
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error while deleting person {} {} via repository: {}", firstName, lastName, e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,

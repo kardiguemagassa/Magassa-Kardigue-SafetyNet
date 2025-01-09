@@ -28,6 +28,12 @@ public class MedicalRecordDTO {
         super();
     }
 
+    /*
+    public MedicalRecordDTO(String s, Object o, Object o1) {
+    }
+
+     */
+
     public String getFirstName() {
         return firstName;
     }

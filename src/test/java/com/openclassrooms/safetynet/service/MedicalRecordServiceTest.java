@@ -7,7 +7,7 @@ import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -55,7 +55,7 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
-    void testGetMedicalRecords_Success () {
+    void shouldReturnGetMedicalRecords() {
         // Arrange
         when(medicalRecordRepository.getMedicalRecords()).thenReturn(List.of(medicalRecord1, medicalRecord2));
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
@@ -69,8 +69,8 @@ public class MedicalRecordServiceTest {
 
         assert(medicalRecordDTOList.size() == 2);
         //assertEquals(2, medicalRecordDTOList.size());
-        assert(medicalRecordDTOList.get(0).getFirstName().equals("John"));
-        assert(medicalRecordDTOList.get(1).getFirstName().equals("Jane"));
+        assert(medicalRecordDTOList.get(0).getFirstName().equals(medicalRecordDTO1.getFirstName()));
+        assert(medicalRecordDTOList.get(1).getFirstName().equals(medicalRecordDTO2.getFirstName()));
 
 
         verify(medicalRecordRepository,times(1)).getMedicalRecords();
@@ -79,7 +79,7 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
-    void testGetMedicalRecords_NotFound () {
+    void shouldReturnGetMedicalRecords_NotFound () {
         // Arrange
         when(medicalRecordRepository.getMedicalRecords()).thenReturn(null);
 
@@ -92,7 +92,7 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
-    void testSaveAll_Success () {
+    void shouldReturnSaveAll() {
 
         List<MedicalRecordDTO> medicalRecordDTOList = List.of(medicalRecordDTO1, medicalRecordDTO2);
         List<MedicalRecord> medicalRecordEntities = List.of(medicalRecord1, medicalRecord2);
@@ -105,13 +105,13 @@ public class MedicalRecordServiceTest {
 
         assertNotNull(medicalRecordDTOList);
         assert(result.size() == 2);
-        assert(result.get(0).getFirstName().equals("John"));
-        assert(result.get(1).getFirstName().equals("Jane"));
+        assert(result.get(0).getFirstName().equals(medicalRecordDTO1.getFirstName()));
+        assert(result.get(1).getFirstName().equals(medicalRecordDTO2.getFirstName()));
 
     }
 
     @Test
-    void testSaveAll_NullOrEmptyList() {
+    void shouldReturnSaveAll_NullOrEmptyList() {
         // Test pour une liste nulle
         ResponseStatusException exception1 = assertThrows(ResponseStatusException.class, () -> {
             medicalRecordService.saveAll(null);
@@ -123,10 +123,11 @@ public class MedicalRecordServiceTest {
             medicalRecordService.saveAll(List.of());
         });
         assertEquals(HttpStatus.BAD_REQUEST, exception2.getStatusCode());
-        assertTrue(Objects.requireNonNull(exception1.getReason()).contains("No medical records were provided for saving."));    }
-/*
+        assertTrue(Objects.requireNonNull(exception1.getReason()).contains("No medical records were provided for saving."));
+    }
+
     @Test
-    void testSaveAll_ExceptionThrownByRepository() {
+    void shouldReturnSaveAll_ExceptionThrownByRepository() {
         // Arrange
         List<MedicalRecordDTO> medicalRecordDTOList = List.of(medicalRecordDTO1, medicalRecordDTO2);
         List<MedicalRecord> medicalRecordEntities = List.of(medicalRecord1, medicalRecord2);
@@ -141,15 +142,14 @@ public class MedicalRecordServiceTest {
         // Verify correct exception details
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
         assertTrue(Objects.requireNonNull(exception.getReason())
-                .contains("An unexpected error occurred while saving medical records"));
+                .contains("Database/system error while saving medical records:"));
 
         verify(medicalRecordConvertorDTO, times(1)).convertDtoToEntity(medicalRecordDTOList);
         verify(medicalRecordRepository, times(1)).saveAll(medicalRecordEntities);
     }
- */
 
     @Test
-    void tesSave_Success() {
+    void shouldReturnSave() {
         MedicalRecordDTO medicalRecordDTO = medicalRecordDTO1;
         MedicalRecord medicalRecordEntities = medicalRecord1;
 
@@ -160,8 +160,8 @@ public class MedicalRecordServiceTest {
         MedicalRecordDTO result = medicalRecordService.save(medicalRecordDTO);
 
         assertNotNull(result);
-        assert(result.getFirstName().equals("John"));
-        assert(result.getLastName().equals("Doe"));
+        assert(result.getFirstName().equals(medicalRecordDTO1.getFirstName()));
+        assert(result.getLastName().equals(medicalRecordDTO1.getLastName()));
 
         verify(medicalRecordConvertorDTO, times(1)).convertDtoToEntity(medicalRecordDTO);
         verify(medicalRecordRepository, times(1)).save(medicalRecordEntities);
@@ -169,7 +169,7 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
-    void testUpdate_Success() {
+    void shouldReturnUpdate() {
         MedicalRecordDTO medicalRecordDTO = medicalRecordDTO1;
         MedicalRecord medicalRecordEntities = medicalRecord1;
 
@@ -181,8 +181,8 @@ public class MedicalRecordServiceTest {
 
         assertNotNull(result);
         assert(result.isPresent());
-        assert(result.get().getFirstName().equals("John"));
-        assert(result.get().getLastName().equals("Doe"));
+        assert(result.get().getFirstName().equals(medicalRecordDTO1.getFirstName()));
+        assert(result.get().getLastName().equals(medicalRecordDTO1.getLastName()));
 
         verify(medicalRecordConvertorDTO, times(1)).convertDtoToEntity(medicalRecordDTO);
         verify(medicalRecordRepository, times(1)).update(medicalRecordEntities);
@@ -190,7 +190,7 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
-    void testDelete_Success() {
+    void shouldReturnDeleteByFullName() {
         // set up
         when(medicalRecordRepository.deleteByFullName(medicalRecord1.getFirstName(),medicalRecord1.getLastName())).thenReturn(true);
 
@@ -202,5 +202,4 @@ public class MedicalRecordServiceTest {
         verify(medicalRecordRepository,times(1)).deleteByFullName(medicalRecord1.getFirstName(),medicalRecord1.getLastName());
         verifyNoInteractions(medicalRecordConvertorDTO);
     }
-
 }
