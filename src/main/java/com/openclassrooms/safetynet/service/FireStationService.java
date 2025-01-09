@@ -80,28 +80,32 @@ public class FireStationService {
         }
     }
 
-    public List<FireStationDTO> saveAll (List<FireStationDTO> fireStationDTOList) {
+    public List<FireStationDTO> saveAll(List<FireStationDTO> fireStationDTOList) {
 
         try {
             if (fireStationDTOList == null || fireStationDTOList.isEmpty()) {
-                throw new IllegalArgumentException("Person list cannot be null or empty.");
+                throw new IllegalArgumentException("FireStation list cannot be null or empty.");
             }
 
             List<FireStation> fireStationEntities = fireStationConvertorDTO.convertDtoToEntity(fireStationDTOList);
             List<FireStation> savedFireStationEntities = fireStationRepository.saveAll(fireStationEntities);
+
             return fireStationConvertorDTO.convertEntityToDto(savedFireStationEntities);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
+            LOGGER.error("Error saving fireStationList: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fireStations data: " + e.getMessage(), e);
-        } catch (Exception e) {
-            LOGGER.error("Error saving persons: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while saving fireStations.", e);
-            // return ResponseEntity.status(404).body(List.of("Aucune personne trouvée pour
-            // l'adresse : " + address));
-        }
 
+        } catch (RuntimeException e) {
+            LOGGER.error("Runtime error during saving fire stations: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Database/system error while saving fireStations: " + e.getMessage(), e);
+
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error saving fireStations: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An unexpected error occurred while saving fireStations.", e);
+        }
     }
 
     public FireStationDTO save(FireStationDTO fireStationDTO) {
@@ -110,16 +114,16 @@ public class FireStationService {
                 throw new IllegalArgumentException("fireStationDTO cannot be null.");
             }
 
-            // Convertir le DTO en entité
+            // Convert DTO to entity
             FireStation fireStationEntity = fireStationConvertorDTO.convertDtoToEntity(fireStationDTO);
 
-            // Sauvegarder l'entité dans le repository
+            // Save the entity to the repository
             FireStation savedFireStationEntity = fireStationRepository.save(fireStationEntity);
 
-            // Convertir l'entité sauvegardée en DTO
+            // Convert entity saving in DTO
             return fireStationConvertorDTO.convertEntityToDto(savedFireStationEntity);
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
+            LOGGER.error("Error saving fireStation: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fireStation data: " + e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.error("Error saving fireStation: {}", e.getMessage(), e);
@@ -140,7 +144,7 @@ public class FireStationService {
             return savedFireStationEntity.map(fireStationConvertorDTO::convertEntityToDto);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
+            LOGGER.error("Error updating fireStation: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fireStation data: " + e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.error("Error updating fireStation: {}", e.getMessage(), e);
@@ -168,11 +172,11 @@ public class FireStationService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FireStation not found for deletion.");
             }
 
-            return isDeleted;
+            return true;
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            LOGGER.error("Error while deleting address {} {} via repository: {}", address, e.getMessage(), e);
+            LOGGER.error(address, e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "An error occurred while deleting the address.", e);
         }

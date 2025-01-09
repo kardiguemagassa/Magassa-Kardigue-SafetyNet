@@ -32,7 +32,7 @@ public class FireStationRepository {
     public List<FireStation> getFireStations() {
         try {
             List<FireStation> loadedFireStations = dataBaseInMemoryWrapper.getFireStations();
-            if (fireStations == null || fireStations.isEmpty()) {
+            if (fireStations.isEmpty()) {
                 LOGGER.warn("No fire stations found in the database.");
 
                 if (loadedFireStations != null) {
@@ -62,8 +62,7 @@ public class FireStationRepository {
             if (allFireStations != null) {
                 allFireStations.addAll(fireStationList); // Mise à jour du wrapper
             } else {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null. Creating a new list.");
-                //dataBaseInMemoryWrapper.setFireStations(new ArrayList<>(fireStationList));
+                LOGGER.warn("fire stations list is null. Creating a new list.");
             }
 
             LOGGER.info("Successfully saved {} fire stations.", fireStationList.size());
@@ -86,7 +85,6 @@ public class FireStationRepository {
                 allFireStations.add(fireStation); // Mise à jour du wrapper
             } else {
                 LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null. Creating a new list.");
-                //dataBaseInMemoryWrapper.setFirestations(new ArrayList<>(List.of(fireStation)));
             }
 
             LOGGER.info("Successfully saved fire station: {}", fireStation);
@@ -155,31 +153,10 @@ public class FireStationRepository {
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null.");
+                LOGGER.warn("Nothing  station found:");
                 return Collections.emptyList();
             }
 
-            // Filtrer les stations par numéro et collecter uniquement les adresses
-            return allFireStations.stream()
-                    .filter(station -> station.getStation() != null
-                            && station.getStation().equals(String.valueOf(stationNumber)))
-                    .map(FireStation::getAddress) // Extraire uniquement les adresses
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            LOGGER.error("Error finding fire stations by station number {}: {}", stationNumber, e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
-    public List<String> findAddressesByStationNumberSt(String stationNumber) {
-        try {
-            List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
-            if (allFireStations == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null.");
-                return Collections.emptyList();
-            }
-
-            // Filtrer les stations par numéro et collecter uniquement les adresses
             return allFireStations.stream()
                     .filter(station -> station.getStation() != null
                             && station.getStation().equals(String.valueOf(stationNumber)))
@@ -200,7 +177,7 @@ public class FireStationRepository {
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null.");
+                LOGGER.warn("Nothing  int found:");
                 return Collections.emptyList();
             }
 

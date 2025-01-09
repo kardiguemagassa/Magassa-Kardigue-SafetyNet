@@ -11,13 +11,11 @@ public class FireStationDTO {
     private String address;
     private String station;
 
+    public FireStationDTO() {}
+
     public FireStationDTO(String address, String station) {
         this.address = address;
         this.station = station;
-    }
-
-    public FireStationDTO() {
-
     }
 
     public String getAddress() {
