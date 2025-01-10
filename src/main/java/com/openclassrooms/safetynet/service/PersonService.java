@@ -223,6 +223,7 @@ public class PersonService {
                                             .map(householdMember -> Map.of(
                                                     "child", resident,
                                                     "householdMember", householdMember
+                                                    //"age",age
                                             ));
                                 }
                             } catch (DateTimeParseException e) {
