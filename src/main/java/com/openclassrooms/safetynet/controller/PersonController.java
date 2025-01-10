@@ -2,6 +2,7 @@ package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.service.PersonService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,52 +11,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController
-//@AllArgsConstructor
 //@RequestMapping("person")
+@RestController
+@AllArgsConstructor
 public class PersonController {
 
     private final PersonService personService;
 
-    // Constructor for dependency injection
-    public PersonController(PersonService personService) {
-        this.personService = personService;
-    }
-
-    @GetMapping("/persons")
+    @GetMapping("/person")
     public ResponseEntity<List<PersonDTO>> getPersons() {
         List<PersonDTO> personDTOS = personService.getPersons();
         return new ResponseEntity<>(personDTOS, HttpStatus.OK);
     }
 
-    @PostMapping("/person/saveAll")
+    @PostMapping("/person")
     public ResponseEntity<List <PersonDTO>> saveAll(@RequestBody List<PersonDTO> persons) {
 
         List <PersonDTO> personDTOS = personService.saveAll(persons);
-        return new ResponseEntity<>(personDTOS, HttpStatus.OK);
-        //return new ResponseEntity<>(personDTOS, HttpStatus.CREATED);
+        return new ResponseEntity<>(personDTOS, HttpStatus.CREATED);
     }
-
+    /*
     @PostMapping("/person/save")
     public ResponseEntity<PersonDTO> save(@RequestBody PersonDTO personDTO) {
         PersonDTO personDTOSaved = personService.save(personDTO);
         //return new ResponseEntity<>(personDTOSaved, HttpStatus.CREATED);
         return new ResponseEntity<>(personDTOSaved, HttpStatus.OK);
     }
+    */
 
-    @PutMapping("/person/update")
+    @PutMapping("/person")
     public ResponseEntity<PersonDTO> update(@RequestBody PersonDTO updatedPersonDTO) {
         Optional<PersonDTO> updated = personService.update(updatedPersonDTO);
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/person/delete")
+    @DeleteMapping("/person")
     public ResponseEntity<Boolean> deleteByFullName(
             @RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName) {
 
         // http://localhost:8080/person/delete?firstName=John&lastName=Boyd
-        personService.deleteByFullName(firstName, lastName);
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        boolean deleted = personService.deleteByFullName(firstName, lastName);
+        return new ResponseEntity<>(deleted, HttpStatus.OK);
     }
 
 
@@ -63,7 +59,7 @@ public class PersonController {
     // NEW ENDPOINT
     /*
     http://localhost:8080/childAlert?address=<address>
-    http://localhost:8080/person/childAlert?address=1509 Culver St
+    http://localhost:8080/childAlert?address=1509 Culver St
     Cette url doit retourner une liste d'enfants (tout individu âgé de 18 ans ou moins)
     habitant à cette adresse. La liste doit comprendre le prénom et le nom de famille de
     chaque enfant, son âge et une liste des autres membres du foyer. S'il n'y a pas
@@ -74,7 +70,7 @@ public class PersonController {
         List<Map<String, PersonDTO>> children = personService.getChildrenByAddress(address);
         return new ResponseEntity<>(children, HttpStatus.OK);
         //
-        // inachevé
+        // //age : absent
     }
     @GetMapping("/childAlerts")
     public ResponseEntity<List<Map<String, Object>>> getChildrenByAddressObject(@RequestParam("address") String address) {
