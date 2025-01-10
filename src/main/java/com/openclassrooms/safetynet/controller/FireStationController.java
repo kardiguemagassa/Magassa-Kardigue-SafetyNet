@@ -2,6 +2,7 @@ package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 import com.openclassrooms.safetynet.service.FireStationService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +12,10 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@AllArgsConstructor
 public class FireStationController {
 
     private final FireStationService fireStationService;
-
-    public FireStationController(FireStationService fireStationService) {
-        this.fireStationService = fireStationService;
-    }
 
     @GetMapping("/firestation")
     public ResponseEntity<List<FireStationDTO>> getFireStations() {
@@ -26,32 +24,32 @@ public class FireStationController {
         //http://localhost:8080/fireStations
     }
 
-    @PostMapping("/firestation/saveAll")
+    @PostMapping("/firestation")
     public ResponseEntity<List<FireStationDTO>> saveAll(@RequestBody List<FireStationDTO> fireStations) {
         List<FireStationDTO> savedFireStations = fireStationService.saveAll(fireStations);
-        return new ResponseEntity<>(savedFireStations, HttpStatus.OK);
-        // http://localhost:8080/firestation/saveAll
+        return new ResponseEntity<>(savedFireStations, HttpStatus.CREATED);
+        // http://localhost:8080/firestation
     }
-
+    /*
     @PostMapping("/firestation/save")
     public ResponseEntity<FireStationDTO> save(@RequestBody FireStationDTO fireStation) {
         FireStationDTO savedFireStation = fireStationService.save(fireStation);
         return new ResponseEntity<>(savedFireStation, HttpStatus.OK);
-        // http://localhost:8080/firestation/save
+        // http://localhost:8080/firestation
     }
+     */
 
-    @PutMapping("/firestation/update")
+    @PutMapping("/firestation")
     public ResponseEntity<FireStationDTO> update(@RequestBody FireStationDTO fireStation) {
         Optional<FireStationDTO> savedFireStation = fireStationService.update(fireStation);
         return new ResponseEntity<>(savedFireStation.get(), HttpStatus.OK);
-        // http://localhost:8080/firestation/update
+        // http://localhost:8080/firestation
     }
 
-    @DeleteMapping("/firestation/delete")
+    @DeleteMapping("/firestation")
     public ResponseEntity<Boolean> delete(@RequestParam String address) {
-        fireStationService.deleteByAddress(address);
-        return new ResponseEntity<>(true, HttpStatus.OK);
-        // http://localhost:8080/firestation/delete
+        boolean deleted = fireStationService.deleteByAddress(address);
+        return new ResponseEntity<>(deleted, HttpStatus.OK);
         // http://localhost:8080/firestation/delete?address=1509%20Culver%20St
     }
 
@@ -78,7 +76,7 @@ public class FireStationController {
 
         FireStationService.FireStationResponse fireStationDTO = fireStationService.getPersonsByStationA(stationNumber);
 
-        // I like this approach -)
+        // I like this approach -:) return new ResponseEntity<>(true, HttpStatus.OK);
         return new ResponseEntity(fireStationDTO, HttpStatus.OK);
     }
 
@@ -92,7 +90,7 @@ public class FireStationController {
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getPhoneNumbersByStation(@RequestParam("firestation") int stationNumber) {
             List<String> phoneNumbers = fireStationService.getPhoneNumbersByStation(stationNumber);
-            return new ResponseEntity(phoneNumbers, HttpStatus.OK);
+            return new ResponseEntity<>(phoneNumbers, HttpStatus.OK);
     }
 
     /* 3
@@ -107,7 +105,7 @@ public class FireStationController {
     @GetMapping("/flood/stations")
     public ResponseEntity<Object> getFloodInfo (@RequestParam("stations") List < Integer > stations) {
         Map<String, List<Map<String, Object>>> floodInfo = fireStationService.getFloodInfoByStations(stations);
-        return new ResponseEntity(floodInfo, HttpStatus.OK);
+        return new ResponseEntity<>(floodInfo, HttpStatus.OK);
     }
     /*
     @GetMapping("/flood/stations")
@@ -152,7 +150,7 @@ public class FireStationController {
     public ResponseEntity<Object> getResidentsByAddressObject(@RequestParam("address") String address) {
 
         Map<String, Object> result = fireStationService.getResidentsByAddressObject(address);
-        return new ResponseEntity(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/fire")
