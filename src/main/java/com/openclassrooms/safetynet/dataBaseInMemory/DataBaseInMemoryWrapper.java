@@ -7,8 +7,7 @@ import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,20 +19,17 @@ import java.util.List;
 
 @Component
 @Data
-//@AllArgsConstructor
 public class DataBaseInMemoryWrapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataBaseInMemoryWrapper.class);
     private static final String DATA_JSON_PATH = "/data/data.json";
-    private final ObjectMapper objectMapper;
 
+    private DataWrapper dataWrapper;
+
+    private final ObjectMapper objectMapper;
     private final List<Person> persons = new ArrayList<>();
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
     private final List<FireStation> fireStations = new ArrayList<>();
-
-    public DataBaseInMemoryWrapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @PostConstruct
     public void loadData() {
@@ -41,7 +37,7 @@ public class DataBaseInMemoryWrapper {
             LOGGER.info("Loading data from file: {}", DATA_JSON_PATH);
 
             // Load data from JSON file
-            DataWrapper dataWrapper = loadJson(DATA_JSON_PATH, new TypeReference<>() {});
+            dataWrapper = loadJson(DATA_JSON_PATH, new TypeReference<>() {});
 
             if (dataWrapper != null) {
                 // Safely add data to lists
@@ -71,22 +67,5 @@ public class DataBaseInMemoryWrapper {
 
     private <T> List<T> validateList(List<T> list) {
         return (list == null) ? Collections.emptyList() : list;
-    }
-
-    public List<Person> getPersons() {return persons;}
-    public List<FireStation> getFireStations() {return fireStations;}
-    public List<MedicalRecord> getMedicalRecords() {return medicalRecords;}
-
-    // Internal class to map JSON structure
-    @Data
-    @NoArgsConstructor
-    private static class DataWrapper {
-        private List<Person> persons;
-        private List<FireStation> firestations;
-        private List<MedicalRecord> medicalrecords;
-
-        public List<Person> getPersons() {return persons;}
-        public List<FireStation> getFirestations() {return firestations;}
-        public List<MedicalRecord> getMedicalrecords() {return medicalrecords;}
     }
 }
