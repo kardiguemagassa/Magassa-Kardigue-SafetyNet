@@ -3,181 +3,188 @@ package com.openclassrooms.safetynet.repository;
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.FireStation;
 
+import com.openclassrooms.safetynet.utils.CsvUtils;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.openclassrooms.safetynet.constant.FireStationRepositoryConstant.*;
 
-//@Data
+
 @Component
-@Repository
-//@AllArgsConstructor
+@AllArgsConstructor
 public class FireStationRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FireStationRepository.class);
 
     private final List<FireStation> fireStations = new ArrayList<>();
-
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
 
-    public FireStationRepository (DataBaseInMemoryWrapper dataBaseInMemoryWrapper) {
-        this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
-    }
-
-
     public List<FireStation> getFireStations() {
+
         try {
             List<FireStation> loadedFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (fireStations.isEmpty()) {
-                LOGGER.warn("No fire stations found in the database.");
+                LOGGER.warn(FIRE_STATION_List_EMPTY);
 
                 if (loadedFireStations != null) {
+                    saveFireStationToCsv(loadedFireStations);
                     fireStations.addAll(loadedFireStations);
-                    LOGGER.info("Successfully loaded {} medicalRecords.", loadedFireStations.size());
+                    LOGGER.info(FIRE_STATION_LOADED, loadedFireStations.size());
                     return List.of();
                 } else {
-                    LOGGER.warn("No persons found in DataBaseInMemoryWrapper.");
+                    LOGGER.warn(FIRE_STATION_NOT_FOUND);
                 }
             }
-            LOGGER.info("Successfully retrieved {} fire stations.", fireStations.size());
+            LOGGER.info(FIRE_STATION_LOADED_SUCCESS, fireStations.size());
             return fireStations;
         } catch (Exception e) {
-            LOGGER.error("Error retrieving fire stations: {}", e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_LOADING, e.getMessage(), e);
             return List.of();
         }
     }
 
     public List<FireStation> saveAll(List<FireStation> fireStationList) {
+
         if (fireStationList == null || fireStationList.isEmpty()) {
-            LOGGER.warn("Attempted to save an empty or null fire station list.");
-            return getFireStations(); // Retourne la liste actuelle sans modification
+            LOGGER.warn(FIRE_STATION_ERROR_SAVING);
+            return getFireStations();
         }
 
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations != null) {
-                allFireStations.addAll(fireStationList); // Mise à jour du wrapper
+                allFireStations.addAll(fireStationList);
+                saveFireStationToCsv(allFireStations);
             } else {
-                LOGGER.warn("fire stations list is null. Creating a new list.");
+                LOGGER.warn(FIRE_STATION_SAVING_CSV );
             }
 
-            LOGGER.info("Successfully saved {} fire stations.", fireStationList.size());
-            return getFireStations(); // Retourner l'état mis à jour
+            LOGGER.info(FIRE_STATION_SAVING_DATA_BASE, fireStationList.size());
+            return getFireStations();
         } catch (Exception e) {
-            LOGGER.error("Error saving fire stations: {}", e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
             return getFireStations();
         }
     }
 
     public FireStation save(FireStation fireStation) {
+
         if (fireStation == null) {
-            LOGGER.warn("Attempted to save a null fire station.");
+            LOGGER.warn(FIRE_STATION_ERROR);
             return null;
         }
 
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations != null) {
-                allFireStations.add(fireStation); // Mise à jour du wrapper
+                allFireStations.add(fireStation);
+                saveFireStationToCsv(allFireStations);
             } else {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null. Creating a new list.");
+                LOGGER.warn(FIRE_STATION_ERROR_SAVING_CSV_FILE);
             }
 
-            LOGGER.info("Successfully saved fire station: {}", fireStation);
+            LOGGER.info(FIRE_STATION_SAVING_DATA_BASE_SUC, fireStation);
             return fireStation;
         } catch (Exception e) {
-            LOGGER.error("Error saving fire station: {}", e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE_, e.getMessage(), e);
             return null;
         }
     }
 
     public Optional<FireStation> update(FireStation updatedFireStation) {
+
         if (updatedFireStation == null) {
-            LOGGER.warn("Attempted to update a null fire station.");
+            LOGGER.warn(FIRE_STATION_ERROR_UPDATING);
             return Optional.empty();
         }
 
         try {
             FireStation existingFireStation = findByAddress(updatedFireStation.getAddress());
             if (existingFireStation == null) {
-                LOGGER.info("Fire station not found, adding a new one: {}", updatedFireStation);
+                LOGGER.info(FIRE_STATION_NOT_FOUND_UPDATING, updatedFireStation);
                 save(updatedFireStation);
+               saveFireStationToCsv(Collections.singletonList(updatedFireStation));
                 return Optional.of(updatedFireStation);
             }
 
             if (!existingFireStation.getStation().equals(updatedFireStation.getStation())) {
-                LOGGER.info("Updating fire station at address: {}", updatedFireStation.getAddress());
+                LOGGER.info(FIRE_STATION_ERROR_UPDATING_SUCCESS, updatedFireStation.getAddress());
                 existingFireStation.setStation(updatedFireStation.getStation());
             }
 
             return Optional.of(existingFireStation);
         } catch (Exception e) {
-            LOGGER.error("Error updating fire station: {}", e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage(), e);
             return Optional.empty();
         }
     }
 
     public Boolean deleteByAddress(String address) {
+
         if (address == null || address.isBlank()) {
-            LOGGER.warn("Attempted to delete a fire station with a null or blank address.");
+            LOGGER.warn(FIRE_STATION_ERROR_DELETING);
             return false;
         }
-
+        saveFireStationToCsv(Collections.singletonList(findByAddress(address)));
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null. Cannot perform deletion.");
+                LOGGER.warn(FIRE_STATION_NOT_FOUND_DELETING);
                 return false;
             }
 
             boolean isDeleted = allFireStations.removeIf(fireStation -> fireStation.getAddress().equalsIgnoreCase(address));
             if (isDeleted) {
-                LOGGER.info("Fire station at address {} deleted successfully.", address);
+                LOGGER.info(FIRE_STATION_DELETING_SUCCESS, address);
             } else {
-                LOGGER.warn("Fire station at address {} not found.", address);
+                LOGGER.warn(FIRE_STATION_ERROR_DELETING_NOT_FOUND, address);
             }
 
             return isDeleted;
         } catch (Exception e) {
-            LOGGER.error("Error deleting fire station at address {}: {}", address, e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_DELETING_BY_ADDRESS, address, e.getMessage(), e);
             return false;
         }
     }
 
     // NEW ENDPOINT
     public List<String> findAddressesByStationNumber(int stationNumber) {
+
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations == null) {
-                LOGGER.warn("Nothing  station found:");
+                LOGGER.warn(FIRE_STATION_ADDRESS_NUMBER_NOT_FOUND);
                 return Collections.emptyList();
             }
 
             return allFireStations.stream()
                     .filter(station -> station.getStation() != null
                             && station.getStation().equals(String.valueOf(stationNumber)))
-                    .map(FireStation::getAddress) // Extraire uniquement les adresses
+                    .map(FireStation::getAddress)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error("Error finding fire stations by station number {}: {}", stationNumber, e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_ADDRESS_NUMBER, stationNumber, e.getMessage(), e);
             return Collections.emptyList();
         }
     }
 
     public List<String> findAddressesByStationNumbers(List<Integer> stationNumbers) {
+
         if (stationNumbers == null || stationNumbers.isEmpty()) {
-            LOGGER.warn("Attempted to search with a null or empty station numbers list.");
+            LOGGER.warn(FIRE_STATION_ERROR_SEARCHING_ADDRESSES_NUMBERS);
             return Collections.emptyList();
         }
 
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations == null) {
-                LOGGER.warn("Nothing  int found:");
+                LOGGER.warn(FIRE_STATION_ADDRESSES_NUMBERS_NOT_FOUND);
                 return Collections.emptyList();
             }
 
@@ -191,21 +198,22 @@ public class FireStationRepository {
                     .map(FireStation::getAddress)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error("Error finding addresses by station numbers: {}", e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_ADDRESSES_NUMBERS, e.getMessage(), e);
             return Collections.emptyList();
         }
     }
 
     public FireStation findByAddress(String address) {
+
         if (address == null || address.isBlank()) {
-            LOGGER.warn("Attempted to find a fire station with a null or blank address.");
+            LOGGER.warn(FIRE_STATION_ERROR_SEARCHING_ADDRESS);
             return null;
         }
 
         try {
             List<FireStation> allFireStations = dataBaseInMemoryWrapper.getFireStations();
             if (allFireStations == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper fire stations list is null.");
+                LOGGER.warn(FIRE_STATION_ERROR_NULL_ADDRESS);
                 return null;
             }
 
@@ -214,8 +222,13 @@ public class FireStationRepository {
                     .findFirst()
                     .orElse(null);
         } catch (Exception e) {
-            LOGGER.error("Error finding fire station at address {}: {}", address, e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_FINDING_ADDRESS, address, e.getMessage(), e);
             return null;
         }
+    }
+
+    private void saveFireStationToCsv(List<FireStation> fireStationToSave) {
+
+        CsvUtils.saveToCsv(FIRE_STATION_CSV_CONFIG_FILE, fireStationToSave);
     }
 }

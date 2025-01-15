@@ -3,6 +3,7 @@ package com.openclassrooms.safetynet.constant;
 public class PersonRepositoryConstant {
 
     public static final String PERSON_CSV_CONFIG_FILE = "src/main/resources/csv/persons.csv";
+
     public static final String PERSON_List_EMPTY = "Person list is empty, loading data...";
     public static final String PERSON_LOADED = "Successfully loaded {} persons.";
     public static final String PERSON_NOT_FOUND = "No persons found in DataBaseInMemoryWrapper.";
@@ -54,35 +55,6 @@ public class PersonRepositoryConstant {
     public static final String ERROR_CALCULATED_AGE = "Error while calculating age: {}";
 
     public static final String ERROR_INVALID_CSV = "Invalid CSV line: {}";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 

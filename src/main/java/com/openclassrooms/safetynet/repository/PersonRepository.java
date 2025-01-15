@@ -30,6 +30,7 @@ public class PersonRepository {
 
     // CRUD
     public List<Person> getPersons() {
+
         try {
             // Vérifier si la liste est vide
             if (persons.isEmpty()) {
@@ -59,6 +60,7 @@ public class PersonRepository {
     }
 
     public List<Person> saveAll(List<Person> personList) {
+
         if (personList == null || personList.isEmpty()) {
             LOGGER.warn(PERSON_ERROR_SAVING);
             return new ArrayList<>(persons); // Retourner l'état actuel sans modification
@@ -87,6 +89,7 @@ public class PersonRepository {
     }
 
     public Person save(Person person) {
+
         if (person == null) {
             LOGGER.warn(PERSON_ERROR);
             return null;
@@ -167,6 +170,7 @@ public class PersonRepository {
     }
 
     public Boolean deleteByFullName(String firstName, String lastName) {
+
         try {
             List<Person> allPersons = dataBaseInMemoryWrapper.getPersons(); // Recover data
 
@@ -294,6 +298,7 @@ public class PersonRepository {
     }
 
     public int calculateAge(LocalDate birthDate) {
+
         if (birthDate == null) {
             LOGGER.warn(CALCULATED_AGE);
             return 0;
@@ -308,10 +313,12 @@ public class PersonRepository {
     }
 
     private void savePersonsToCsv(List<Person> personsToSave) {
+
         CsvUtils.saveToCsv(PERSON_CSV_CONFIG_FILE, personsToSave);
     }
 
     private List<Person> loadPersonsFromCsv() {
+
         List<Person> collect;
         collect = CsvUtils.loadFromCsv(PERSON_CSV_CONFIG_FILE, line -> {
                     String[] parts = line.split(",");
