@@ -3,20 +3,21 @@ package com.openclassrooms.safetynet.repository;
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 
+import com.openclassrooms.safetynet.utils.CsvUtils;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
 
-@Repository
-//@Data
-//@NoArgsConstructor
-//@AllArgsConstructor
+import static com.openclassrooms.safetynet.constant.MedicalRecordRepositoryConstant.*;
+
+
+@AllArgsConstructor
 @Component
 public class MedicalRecordRepository {
 
@@ -25,32 +26,31 @@ public class MedicalRecordRepository {
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
 
-    public MedicalRecordRepository (DataBaseInMemoryWrapper dataBaseInMemoryWrapper) {
-        this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
-    }
-
     public List<MedicalRecord> getMedicalRecords() {
+
         try {
             if (medicalRecords.isEmpty()) {
-                LOGGER.info("MedicalRecord list is empty, loading data...");
+                LOGGER.info(MEDICAL_RECORD_List_EMPTY);
                 List<MedicalRecord> loadedMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
                 if (loadedMedicalRecords != null) {
+                    saveMedicalRecordToCsv(loadedMedicalRecords);
                     medicalRecords.addAll(loadedMedicalRecords);
-                    LOGGER.info("Successfully loaded {} medicalRecords.", loadedMedicalRecords.size());
+                    LOGGER.info(MEDICAL_RECORD_LOADED, loadedMedicalRecords.size());
                 } else {
-                    LOGGER.warn("No persons found in DataBaseInMemoryWrapper.");
+                    LOGGER.warn(MEDICAL_RECORD_NOT_FOUND);
                 }
             }
             return new ArrayList<>(medicalRecords);
         } catch (Exception e) {
-            LOGGER.error("Error loading Json data: {}", e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_LOADING, e.getMessage(), e);
         }
         return List.of();
     }
 
     public List<MedicalRecord> saveAll(List<MedicalRecord> medicalRecordList) {
+
         if (medicalRecordList == null || medicalRecordList.isEmpty()) {
-            LOGGER.warn("Attempted to save an empty or null person list.");
+            LOGGER.warn(MEDICAL_RECORD_ERROR_SAVING);
             return new ArrayList<>(medicalRecords);
         }
 
@@ -58,22 +58,26 @@ public class MedicalRecordRepository {
             medicalRecords.addAll(medicalRecordList);
 
             List<MedicalRecord> wrapperMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
+
             if (wrapperMedicalRecords != null) {
                 wrapperMedicalRecords.addAll(medicalRecordList);
+                saveMedicalRecordToCsv(wrapperMedicalRecords);
             } else {
-                LOGGER.warn("Nothing  medicalRecord found:");
+                LOGGER.warn(MEDICAL_RECORD_ERROR_SAVING_CSV);
             }
 
-            LOGGER.info("Successfully registered {} medicalRecords.", medicalRecordList.size());
+            LOGGER.info(MEDICAL_RECORD_SAVING_DATA_BASE, medicalRecordList.size());
+
         } catch (Exception e) {
-            LOGGER.error("Error registering medicalRecords: {}", e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
         }
         return new ArrayList<>(medicalRecords);
     }
 
     public MedicalRecord save(MedicalRecord medicalRecord) {
+
         if (medicalRecord == null) {
-            LOGGER.warn("Attempted to save a null medicalRecord.");
+            LOGGER.warn(MEDICAL_RECORD_ERROR);
             return null;
         }
 
@@ -81,24 +85,27 @@ public class MedicalRecordRepository {
             medicalRecords.add(medicalRecord);
 
             List<MedicalRecord> wrapperMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
+
             if (wrapperMedicalRecords != null) {
                 wrapperMedicalRecords.add(medicalRecord);
+                saveMedicalRecordToCsv(wrapperMedicalRecords);
             } else {
-                LOGGER.warn("DataBaseInMemoryWrapper medicalRecords list is null, skipping wrapper update.");
+                LOGGER.warn(MEDICAL_RECORD_ERROR_SAVING_CSV_FILE);
             }
 
-            LOGGER.info("Successfully registered medicalRecord: {}", medicalRecord);
+            LOGGER.info(MEDICAL_RECORD_SAVING_DATA_BASE_SUC, medicalRecord);
         } catch (Exception e) {
-            LOGGER.error("Error registering a medicalRecord {}", e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE_, e.getMessage(), e);
         }
         return medicalRecord;
     }
 
     public Optional<MedicalRecord> findByMedicationsAndAllergies(List<String> medications, List<String> allergies) {
+
         try {
             List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
             if (allMedicalRecords == null) {
-                LOGGER.warn("Medical records list is null.");
+                LOGGER.warn(MEDICAL_RECORD_NOT_FOUND_BY_ALLERGIES);
                 return Optional.empty();
             }
 
@@ -107,14 +114,15 @@ public class MedicalRecordRepository {
                             && medicalRecord.getAllergies().equals(allergies))
                     .findFirst();
         } catch (Exception e) {
-            LOGGER.error("Error searching by medications and allergies: {}", e.getMessage(), e);
+            LOGGER.error(ERROR_MEDICAL_RECORD_NOT_FOUND_BY_ALLERGIES, e.getMessage(), e);
             return Optional.empty();
         }
     }
 
     public Optional<MedicalRecord> update(MedicalRecord updateMedicalRecord) {
+
         if (updateMedicalRecord == null) {
-            LOGGER.warn("Attempted to update a null medical record.");
+            LOGGER.warn(MEDICAL_RECORD_ERROR_UPDATING);
             return Optional.empty();
         }
 
@@ -125,13 +133,17 @@ public class MedicalRecordRepository {
             );
 
             if (existingRecord.isEmpty()) {
-                LOGGER.info("Medical record not found, creating new record.");
+
+                LOGGER.info(MEDICAL_RECORD_NOT_FOUND_UPDATING);
                 medicalRecords.add(updateMedicalRecord);
+
                 List<MedicalRecord> wrapperRecords = dataBaseInMemoryWrapper.getMedicalRecords();
+
                 if (wrapperRecords != null) {
                     wrapperRecords.add(updateMedicalRecord);
+                    saveMedicalRecordToCsv(wrapperRecords);
                 } else {
-                    LOGGER.warn(" medical records list is null.");
+                    LOGGER.warn(MEDICAL_RECORD_ERROR_UPDATING_NULL_CSV);
                 }
                 return Optional.of(updateMedicalRecord);
             }
@@ -141,23 +153,27 @@ public class MedicalRecordRepository {
                 record.setAllergies(updateMedicalRecord.getAllergies());
             });
 
-            LOGGER.info("Medical record updated successfully.");
+            LOGGER.info(MEDICAL_RECORD_ERROR_UPDATING_SUCCESS);
             return existingRecord;
+
         } catch (Exception e) {
-            LOGGER.error("Error updating medical record: {}", e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage(), e);
             return Optional.empty();
         }
     }
 
     public Boolean deleteByFullName(String firstName, String lastName) {
+
         try {
             List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
             if (allMedicalRecords == null) {
-                LOGGER.warn("DataBaseInMemoryWrapper medical records list is null. Cannot perform deletion.");
+                LOGGER.warn(MEDICAL_RECORD_ERROR_DELETING);
                 return false;
             }
 
-            boolean isDeleted = allMedicalRecords.removeIf(record ->
+            saveMedicalRecordToCsv(allMedicalRecords);
+
+            var isDeleted = allMedicalRecords.removeIf(record ->
                     record.getFirstName().equalsIgnoreCase(firstName) &&
                             record.getLastName().equalsIgnoreCase(lastName)
             );
@@ -167,23 +183,24 @@ public class MedicalRecordRepository {
                         record.getFirstName().equalsIgnoreCase(firstName) &&
                                 record.getLastName().equalsIgnoreCase(lastName)
                 );
-                LOGGER.info("Medical record {} {} deleted successfully.", firstName, lastName);
+                LOGGER.info(MEDICAL_RECORD_DELETING_SUCCESS, firstName, lastName);
             } else {
-                LOGGER.warn("Medical record {} {} not found for deletion.", firstName, lastName);
+                LOGGER.warn(MEDICAL_RECORD_ERROR_NOT_FOUND, firstName, lastName);
             }
 
             return isDeleted;
         } catch (Exception e) {
-            LOGGER.error("Error deleting medical record {} {}: {}", firstName, lastName, e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_DELETING_BY_FULL_NAME, firstName, lastName, e.getMessage(), e);
             return false;
         }
     }
 
     public MedicalRecord findByFullName(String firstName, String lastName) {
+
         try {
             List<MedicalRecord> allMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
             if (allMedicalRecords == null) {
-                LOGGER.warn("medical records list is null.");
+                LOGGER.warn(FULL_NAME_NOT_FOUND);
                 return null;
             }
 
@@ -193,9 +210,14 @@ public class MedicalRecordRepository {
                     .findFirst()
                     .orElse(null);
         } catch (Exception e) {
-            LOGGER.error("Error finding medical record {} {}: {}", firstName, lastName, e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_FULL_NAME, firstName, lastName, e.getMessage(), e);
             return null;
         }
+    }
+
+    private void saveMedicalRecordToCsv(List<MedicalRecord> medicalRecordToSave) {
+
+        CsvUtils.saveToCsv(MEDICAL_RECORD_CSV_CONFIG_FILE, medicalRecordToSave);
     }
 
 }
