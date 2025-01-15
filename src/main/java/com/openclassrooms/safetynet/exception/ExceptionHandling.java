@@ -1,6 +1,6 @@
 package com.openclassrooms.safetynet.exception;
 
-public class HandleException {
+public class ResourceNotFoundException {
     public static void handleException(Exception e) {
         e.printStackTrace();
     }
