@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.openclassrooms.safetynet.constant.csvUtil.CsvUtilsConstant.*;
+
 public class CsvUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvUtils.class);
@@ -23,10 +25,10 @@ public class CsvUtils {
                     .map(mapper)
                     .toList();
 
-            LOGGER.info("Successfully loaded {} records from CSV file: {}", records.size(), filePath);
+            LOGGER.info(LOADING_SUCCESS, records.size(), filePath);
 
         } catch (IOException ioException) {
-            LOGGER.error("Failed to load records from CSV file: {}", ioException.getMessage(), ioException);
+            LOGGER.error(LOADING_FAILED, ioException.getMessage(), ioException);
         }
         return records;
     }
@@ -37,9 +39,9 @@ public class CsvUtils {
                     .map(Object::toString)
                     .collect(Collectors.joining("\n"));
             fileWriter.write(csvContent);
-            LOGGER.info("Successfully saved {} records to CSV file: {}", records.size(), filePath);
+            LOGGER.info(SAVING_SUCCESS, records.size(), filePath);
         } catch (IOException ioException) {
-            LOGGER.error("Failed to save records to CSV file: {}", ioException.getMessage(), ioException);
+            LOGGER.error(SAVING_FAILED, ioException.getMessage(), ioException);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.openclassrooms.safetynet.service;
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
+import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
@@ -65,7 +66,7 @@ public class PersonServiceTest {
 
     // CRUD
     @Test
-    void shouldReturnGetPersons() { //getPersons
+    void shouldReturnGetPersons() throws PersonNotFoundException { //getPersons
         // Arrange
         // Call personRepository and you will get back to me the list with these 2 people.
         when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
@@ -305,7 +306,7 @@ public class PersonServiceTest {
     }
 
     @Test
-    void shouldReturnGetCommunityEmail() {
+    void shouldReturnGetCommunityEmail() throws PersonNotFoundException {
         // Arrange
         // Call personRepository and you will get back to me the list with these 2 people.
         when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
