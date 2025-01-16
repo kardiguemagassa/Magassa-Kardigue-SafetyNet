@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.constant;
+package com.openclassrooms.safetynet.constant.repository;
 
 public class PersonRepositoryConstant {
 
