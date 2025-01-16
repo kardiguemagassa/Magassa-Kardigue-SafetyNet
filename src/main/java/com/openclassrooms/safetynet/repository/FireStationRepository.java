@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.openclassrooms.safetynet.constant.FireStationRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.repository.FireStationRepositoryConstant.*;
 
 
 @Component

@@ -7,6 +7,7 @@ import com.openclassrooms.safetynet.dto.FireStationDTO;
 
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
+import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 
 import com.openclassrooms.safetynet.model.MedicalRecord;
@@ -32,11 +33,13 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.openclassrooms.safetynet.constant.service.FireStationImplConstant.*;
+
 @Service
+@AllArgsConstructor
 public class FireStationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FireStationService.class);
-
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final FireStationRepository fireStationRepository;
     private final PersonRepository personRepository;
     private final MedicalRecordRepository medicalRecordRepository;
@@ -44,39 +47,25 @@ public class FireStationService {
     private final PersonConvertorDTO personConvertorDTO;
     private final MedicalRecordConvertorDTO medicalRecordConvertorDTO;
 
-    public FireStationService(FireStationRepository fireStationRepository, PersonRepository personRepository,
-                              MedicalRecordRepository medicalRecordRepository,
-                              FireStationConvertorDTO fireStationConvertorDTO,
-                              PersonConvertorDTO personConvertorDTO,
-                              MedicalRecordConvertorDTO medicalRecordConvertorDTO) {
-        this.fireStationRepository = fireStationRepository;
-        this.personRepository = personRepository;
-        this.fireStationConvertorDTO = fireStationConvertorDTO;
-        this.personConvertorDTO = personConvertorDTO;
-        this.medicalRecordRepository = medicalRecordRepository;
-        this.medicalRecordConvertorDTO = medicalRecordConvertorDTO;
-    }
-
     // CRUD
-    public List<FireStationDTO> getFireStations() {
+    public List<FireStationDTO> getFireStations() throws FireStationNotFoundException {
         try {
             List<FireStation> fireStations = fireStationRepository.getFireStations();
 
             if (fireStations == null|| fireStations.isEmpty()) {
-                LOGGER.warn("No fireStation found in the repository.");
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No fireStation found in the repository.");
+                throw new FireStationNotFoundException(FIRE_STATION_NOT_FOUND);
             }
 
             return fireStations.stream()
                     .map(fireStationConvertorDTO::convertEntityToDto)
                     .collect(Collectors.toList());
 
-        } catch (ResponseStatusException e) {
+        } catch (FireStationNotFoundException e) {
+            LOGGER.error(FIRE_STATION_NOT_FOUND, e.getMessage());
             throw e;
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while retrieving the persons.");
+            LOGGER.error(FIRE_STATION_ERROR_CONVERT, e.getMessage());
+            throw new RuntimeException(FIRE_STATION_ERROR_RUN);
         }
     }
 
@@ -84,7 +73,7 @@ public class FireStationService {
 
         try {
             if (fireStationDTOList == null || fireStationDTOList.isEmpty()) {
-                throw new IllegalArgumentException("FireStation list cannot be null or empty.");
+                throw new IllegalArgumentException(FIRE_STATION_ERROR_SAVING);
             }
 
             List<FireStation> fireStationEntities = fireStationConvertorDTO.convertDtoToEntity(fireStationDTOList);
@@ -92,26 +81,21 @@ public class FireStationService {
 
             return fireStationConvertorDTO.convertEntityToDto(savedFireStationEntities);
 
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Error saving fireStationList: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fireStations data: " + e.getMessage(), e);
-
         } catch (RuntimeException e) {
-            LOGGER.error("Runtime error during saving fire stations: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Database/system error while saving fireStations: " + e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE, e.getMessage());
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
+
 
         } catch (Exception e) {
-            LOGGER.error("Unexpected error saving fireStations: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An unexpected error occurred while saving fireStations.", e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
         }
     }
 
     public FireStationDTO save(FireStationDTO fireStationDTO) {
         try {
             if (fireStationDTO == null) {
-                throw new IllegalArgumentException("fireStationDTO cannot be null.");
+                throw new IllegalArgumentException(FIRE_STATION_ERROR);
             }
 
             // Convert DTO to entity
@@ -122,13 +106,14 @@ public class FireStationService {
 
             // Convert entity saving in DTO
             return fireStationConvertorDTO.convertEntityToDto(savedFireStationEntity);
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Error saving fireStation: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fireStation data: " + e.getMessage(), e);
+
+        } catch (RuntimeException e) {
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE_, e.getMessage());
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
+
         } catch (Exception e) {
-            LOGGER.error("Error saving fireStation: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while saving the fireStation.", e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE_, e.getMessage(), e);
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
         }
     }
 
@@ -136,7 +121,7 @@ public class FireStationService {
 
         try {
             if (updatedFireStationDTO == null) {
-                throw new IllegalArgumentException("Updated fireStation data cannot be null.");
+                throw new IllegalArgumentException(FIRE_STATION_ERROR_UPDATING);
             }
 
             FireStation fireStationEntity = fireStationConvertorDTO.convertDtoToEntity(updatedFireStationDTO);
@@ -144,41 +129,39 @@ public class FireStationService {
             return savedFireStationEntity.map(fireStationConvertorDTO::convertEntityToDto);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Error updating fireStation: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid fireStation data: " + e.getMessage(), e);
+            LOGGER.error(FIRE_STATION_NOT_FOUND_UPDATING, e.getMessage());
+            throw new FireStationNotFoundException(FIRE_STATION_NOT_FOUND_UPDATING + e.getMessage(),e);
         } catch (Exception e) {
-            LOGGER.error("Error updating fireStation: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while updating the fireStation.", e);
+            LOGGER.error(FIRE_STATION_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage(), e);
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_UPDATING_SUCCESS + e.getMessage(),e);
         }
     }
 
     public Boolean deleteByAddress(String address) {
 
         if (address == null || address.isBlank()) {
-            LOGGER.warn("Invalid parameters: address is null/empty. Cannot perform deletion.");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "address name or last name cannot be null or empty.");
+            LOGGER.error(FIRE_STATION_ERROR_DELETING);
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_DELETING + address);
         }
 
         try {
             boolean isDeleted = fireStationRepository.deleteByAddress(address);
 
-            LOGGER.info(isDeleted ?
-                    "Address {} {} deleted successfully via repository." :
-                    "Address {} {} not found for deletion in repository.", address);
+            LOGGER.info(isDeleted ? FIRE_STATION_DELETING_SUCCESS : FIRE_STATION_ERROR_DELETING_NOT_FOUND, address);
 
             if (!isDeleted) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FireStation not found for deletion.");
+                throw new FireStationNotFoundException(FIRE_STATION_ERROR_DELETING + address);
             }
 
             return true;
-        } catch (ResponseStatusException e) {
+
+        } catch (FireStationNotFoundException e) {
+            LOGGER.error(address, e.getMessage(),e);
             throw e;
+
         } catch (Exception e) {
             LOGGER.error(address, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while deleting the address.", e);
+            throw new FireStationNotFoundException(FIRE_STATION_ERROR_DELETING_BY_ADDRESS + e.getMessage());
         }
     }
 
@@ -431,29 +414,29 @@ public class FireStationService {
 
     // 2 ok
     public List<String> getPhoneNumbersByStation(int stationNumber) {
-        // Étape 1 : Récupérer les adresses associées à la station
+        // Récupérer les adresses associées à la station
         List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
 
         if (addresses == null || addresses.isEmpty()) {
-            LOGGER.warn("No addresses found for station number {}", stationNumber);
+            LOGGER.error("No addresses found for station number {}", stationNumber);
             return Collections.emptyList(); // Aucune adresse trouvée
         }
 
-        // Étape 2 : Récupérer les résidents associés aux adresses et les convertir en DTOs
+        // Récupérer les résidents associés aux adresses et les convertir en DTOs
         List<PersonDTO> personDTOs = personRepository.findByAddresses(addresses)
                 .stream()
                 .map(personConvertorDTO::convertEntityToDto) // Conversion entité -> DTO
-                .collect(Collectors.toList());
+                .toList();
 
         if (personDTOs.isEmpty()) {
-            LOGGER.warn("No residents found for addresses: {}", addresses);
+            LOGGER.error("No residents found for addresses: {}", addresses);
             return Collections.emptyList(); // Aucun résident trouvé
         }
 
-        // Étape 3 : Extraire les numéros de téléphone des DTOs
+        // Extraire les numéros de téléphone des DTOs
         return personDTOs.stream()
-                .map(PersonDTO::getPhone) // Récupérer les numéros de téléphone depuis les DTOs
-                .filter(Objects::nonNull) // Exclure les numéros nulls
+                .map(PersonDTO::getPhone)
+                .filter(Objects::nonNull)
                 .distinct() // Éliminer les doublons
                 .collect(Collectors.toList());
     }
@@ -561,6 +544,7 @@ public class FireStationService {
                 "station", fireStation.getStation()
         );
     }
+
     // 4
     private Map<String, Object> enrichResidentDetails(PersonDTO resident, DateTimeFormatter formatter) {
         try {
