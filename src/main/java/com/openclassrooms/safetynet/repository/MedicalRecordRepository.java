@@ -14,7 +14,7 @@ import java.util.List;
 
 import java.util.Optional;
 
-import static com.openclassrooms.safetynet.constant.MedicalRecordRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.repository.MedicalRecordRepositoryConstant.*;
 
 
 @AllArgsConstructor
