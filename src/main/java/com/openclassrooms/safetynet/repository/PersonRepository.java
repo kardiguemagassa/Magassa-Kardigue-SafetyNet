@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.openclassrooms.safetynet.constant.PersonRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.repository.PersonRepositoryConstant.*;
 
 @Component
 @AllArgsConstructor
@@ -174,7 +174,7 @@ public class PersonRepository {
         try {
             List<Person> allPersons = dataBaseInMemoryWrapper.getPersons(); // Recover data
 
-            if (allPersons == null) {
+            if (allPersons == null || allPersons.isEmpty()) {
                 LOGGER.warn(PERSON_ERROR_DELETING);
                 return false;
             }
@@ -196,8 +196,9 @@ public class PersonRepository {
             return isDeleted;
         } catch (Exception e) {
             LOGGER.error(PERSON_ERROR_DELETING_BY_FULL_NAME, e.getMessage(), e);
+            return false;
         }
-        return false;
+
     }
 
     // NEW ENDPOINT

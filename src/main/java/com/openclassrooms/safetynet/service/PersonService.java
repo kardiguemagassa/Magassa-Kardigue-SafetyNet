@@ -4,11 +4,15 @@ import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
+import com.openclassrooms.safetynet.exception.person.EmailNotFoundException;
+import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
+
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,162 +28,152 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.openclassrooms.safetynet.constant.service.PersonImpConstant.*;
+
 @Service
-//@AllArgsConstructor
+@AllArgsConstructor
 public class PersonService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PersonService.class);
-
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final PersonRepository personRepository;
     private final PersonConvertorDTO personConvertorDTO;
     private final MedicalRecordRepository medicalRecordRepository;
     private final MedicalRecordConvertorDTO medicalRecordConvertorDTO;
 
-    public PersonService(PersonRepository personRepository, PersonConvertorDTO personConvertorDTO,
-                         MedicalRecordRepository medicalRecordRepository, MedicalRecordConvertorDTO medicalRecordConvertorDTO) {
-        this.personRepository = personRepository;
-        this.personConvertorDTO = personConvertorDTO;
-        this.medicalRecordRepository = medicalRecordRepository;
-        this.medicalRecordConvertorDTO = medicalRecordConvertorDTO;
-    }
+    public List<PersonDTO> getPersons() throws PersonNotFoundException {
 
-    public List<PersonDTO> getPersons() {
         try {
-            /*
-                return personRepository.getPersons().stream()
-                    .map(person -> personConvertorDTO.convertEntityToDto(person)) // Lambda pour appeler la méthode
-                    .collect(Collectors.toList());
-            */
+                /*return personRepository.getPersons().stream()
+                    .map(person -> personConvertorDTO.convertEntityToDto(person)) // Lambda expression
+                    .collect(Collectors.toList());*/
 
             List<Person> persons = personRepository.getPersons();
 
             if (persons == null || persons.isEmpty()) {
-                LOGGER.warn("No persons found in the repository.");
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No persons found.");
+                LOGGER.warn(PERSON_NOT_FOUND);
+                throw new PersonNotFoundException(PERSON_NOT_FOUND);
             }
 
+            // Conversion entity to DTO
             return persons.stream()
                     .map(personConvertorDTO::convertEntityToDto)
                     .collect(Collectors.toList());
 
-        } catch (ResponseStatusException e) {
+        } catch (PersonNotFoundException e) {
+            LOGGER.error(PERSON_NOT_FOUND_MSG, e.getMessage());
             throw e;
+
         } catch (Exception e) {
-            LOGGER.error("Error while retrieving and converting persons: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while retrieving the persons.", e);
+            LOGGER.error(ERROR_CONVERTING, e.getMessage(), e);
+            throw new RuntimeException(PERSON_UNEXPECT);
         }
     }
 
-    public List<PersonDTO> saveAll (List<PersonDTO> personDTOList) {
+    public List<PersonDTO> saveAll(List<PersonDTO> personDTOList) throws PersonNotFoundException {
+
+        if (personDTOList == null || personDTOList.isEmpty()) {
+            LOGGER.error(PERSON_ERROR_SAVING);
+            throw new IllegalArgumentException(PERSON_ERROR_SAVING);
+        }
 
         try {
-            if (personDTOList == null || personDTOList.isEmpty()) {
-                throw new IllegalArgumentException("Person list cannot be null or empty.");
-            }
-
-            // Convert DTO en entity
+            // Convert  DTO to entities
             List<Person> personEntities = personConvertorDTO.convertDtoToEntity(personDTOList);
 
-            // Save entities in repository
+            // save entities in  repository
             List<Person> savedPersonEntities = personRepository.saveAll(personEntities);
 
-            // Convert les entities save DTO
+            // Convert  entities save to DTO
             return personConvertorDTO.convertEntityToDto(savedPersonEntities);
 
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Error saving personList: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person data: " + e.getMessage(), e);
         } catch (RuntimeException e) {
-            LOGGER.error("Runtime error during saving persons: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Database/system error while saving persons: " + e.getMessage(), e);
+            LOGGER.error(PERSON_ERROR_SAVING_DATA_BASE, e.getMessage());
+            throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE + e.getMessage(), e);
         } catch (Exception e) {
-            LOGGER.error("Error saving persons: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while saving persons.", e);
+            LOGGER.error(PERSON_ERROR_SAVING_REPO, e.getMessage(), e);
+            throw new PersonNotFoundException(PERSON_ERROR_SAVING_REPO, e);
         }
     }
 
     public PersonDTO save(PersonDTO personDTO) {
-        try {
-            if (personDTO == null) {
-                throw new IllegalArgumentException("PersonDTO cannot be null.");
-            }
+        if (personDTO == null) {
+            throw new IllegalArgumentException(PERSON_ERROR);
+        }
 
-            // Convert DTO  entity
+        try {
+            // Convert DTO to entity
             Person personEntity = personConvertorDTO.convertDtoToEntity(personDTO);
 
             // Save entity in repository
             Person savedPersonEntity = personRepository.save(personEntity);
 
-            // Convert entity save DTO
+            // Convert saved entity to DTO
             return personConvertorDTO.convertEntityToDto(savedPersonEntity);
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Error person: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person data: " + e.getMessage(), e);
         } catch (Exception e) {
-            LOGGER.error("Error saving person: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while saving the person.", e);
+            LOGGER.error(PERSON_ERROR_SAVING_C, e.getMessage(), e);
+            throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE_, e);
         }
     }
 
     public Optional<PersonDTO> update(PersonDTO updatedPersonDTO) {
+        if (updatedPersonDTO == null) {
+            throw new IllegalArgumentException(PERSON_ERROR_UPDATING);
+        }
 
         try {
-            if (updatedPersonDTO == null) {
-                throw new IllegalArgumentException("Updated person data cannot be null.");
-            }
-
-            // Convert le DTO entity
+            // Convert DTO to entity
             Person personEntity = personConvertorDTO.convertDtoToEntity(updatedPersonDTO);
 
-            // Save entity in repository
-            Optional<Person> savedPersonEntity = personRepository.update(personEntity);
+            // Update entity in repository
+            Optional<Person> updatedPersonEntity = personRepository.update(personEntity);
 
-            // Check if an entity has been saved
-            return savedPersonEntity.map(personConvertorDTO::convertEntityToDto);
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Validation error: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person data: " + e.getMessage(), e);
+            if (updatedPersonEntity.isEmpty()) {
+
+                throw new PersonNotFoundException(PERSON_NOT_FOUND_UPDATING);
+            }
+
+            // Convert updated entity to DTO
+            return updatedPersonEntity.map(personConvertorDTO::convertEntityToDto);
+
         } catch (Exception e) {
-            LOGGER.error("Error updating person: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while updating the person.", e);
+            LOGGER.error(PERSON_ERROR_UPDATING_SUCCESS, e.getMessage(), e);
+            throw new PersonNotFoundException(PERSON_ERROR_UPDATING_SUCCESS, e);
         }
     }
 
-    public Boolean deleteByFullName(String firstName, String lastName) {
+    public Boolean deleteByFullName(String firstName, String lastName) throws PersonNotFoundException {
 
         if (firstName == null || firstName.isBlank() || lastName == null || lastName.isBlank()) {
-            LOGGER.warn("Invalid parameters: firstName or lastName is null/empty. Cannot perform deletion.");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "First name or last name cannot be null or empty.");
+            throw new IllegalArgumentException(PERSON_ERROR_DELETING);
         }
 
         try {
             boolean isDeleted = personRepository.deleteByFullName(firstName, lastName);
 
-            LOGGER.info(isDeleted ?
-                    "Person {} {} deleted successfully via repository." :
-                    "Person {} {} not found for deletion in repository.", firstName, lastName);
-
             if (!isDeleted) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found for deletion.");
+                throw new PersonNotFoundException(firstName + " " + lastName + PERSON_ERROR_DELETING_NOT_FOUND);
             }
-
             return true;
-        } catch (ResponseStatusException e) {
+
+        } catch (PersonNotFoundException e) {
+            LOGGER.error(PERSON_ERROR_DELETING_NOT_, e.getMessage());
             throw e;
-        } catch (Exception e) {
-            LOGGER.error("Error while deleting person {} {} via repository: {}", firstName, lastName, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while deleting the person.", e);
+
+        }catch (IllegalArgumentException e) {
+                throw e;
+
+            } catch (Exception e) {
+            throw new PersonNotFoundException(PERSON_ERROR_DELETING_BY_FULL_NAME, e);
         }
     }
+
+
 
     // NEW ENDPOINT
     public List<PersonDTO> findByAddresses(List<String> addresses) {
         if (addresses == null || addresses.isEmpty()) {
             LOGGER.warn("Invalid addresses: null or empty list provided.");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Addresses list cannot be null or empty.");
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Addresses list cannot be null or empty.");
         }
 
         try {
@@ -189,8 +183,9 @@ public class PersonService {
 
         } catch (Exception e) {
             LOGGER.error("Error while finding persons by addresses: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while fetching persons by addresses.", e);
+            //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while fetching persons by addresses.", e);
         }
+        return new ArrayList<>();
     }
 
 
@@ -198,7 +193,7 @@ public class PersonService {
     public List<Map<String, PersonDTO>> getChildrenByAddress(String address) {
         if (address == null || address.isBlank()) {
             LOGGER.warn("Invalid address: null or empty.");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address cannot be null or empty.");
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address cannot be null or empty.");
         }
 
         try {
@@ -404,19 +399,61 @@ public class PersonService {
         return person;
     }
 
+    public List<String> getCommunityEmails(String city) throws PersonNotFoundException, EmailNotFoundException {
+
+        if (city == null || city.isBlank()) {
+            //LOGGER.warn(EMAIL_NOT_FOUND);
+            throw new IllegalArgumentException(CITY_NOT_FOUND);
+        }
+
+        try {
+            // Récupération des résidents de la ville
+            List<PersonDTO> residents = personRepository.findByCity(city).stream()
+                    .map(personConvertorDTO::convertEntityToDto)
+                    .toList();
+
+            // Vérification si la liste des résidents est vide
+            if (residents.isEmpty()) {
+                LOGGER.error(RESIDENTS_NOT_FOUND, city);
+                throw new PersonNotFoundException(RESIDENTS_NOT_FOUND + city);
+            }
+
+            // Extraction des emails distincts
+            List<String> emails = residents.stream()
+                    .map(PersonDTO::getEmail)
+                    .filter(email -> email != null && !email.isBlank())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            // Vérification si aucun email n'a été trouvé
+            if (emails.isEmpty()) {
+                LOGGER.error(EMAIL_NOT_FOUND, city);
+                throw new EmailNotFoundException(EMAIL_NOT_FOUND + city);
+            }
+
+            return emails;
+
+        } catch (RuntimeException e) {
+            LOGGER.error(PERSON_ERROR_EMAIL, city, e.getMessage(), e);
+            throw new RuntimeException(PERSON_ERROR_EMAIL, e);
+        }
+    }
+
+
 
     // 3
-    public List<String> getCommunityEmails(String city) {
+    /*
+    public List<String> getCommunityEmails(String city) throws PersonNotFoundException, EmailNotFoundException {
         if (city == null || city.isBlank()) {
             LOGGER.warn("Invalid city: null or empty.");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City cannot be null or empty.");
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City cannot be null or empty.");
         }
         try {
             List<PersonDTO> residents = personRepository.findByCity(city).stream()
                     .map(personConvertorDTO::convertEntityToDto)
                     .toList();
             if (residents.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No persons found with last name: " + city);
+                //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No persons found with last name: " + city);
             }
             return residents.stream()
                     .map(PersonDTO::getEmail)
@@ -424,9 +461,11 @@ public class PersonService {
                     .collect(Collectors.toList());
         } catch (ResponseStatusException e) {
             LOGGER.error("Error while retrieving community emails for city {}: {}", city, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while retrieving community emails.", e);
+            //throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while retrieving community emails.", e);
         }
     }
+
+     */
     /*
     public List<PersonDTO> getCommunityEmailsDTO(String city) {
         if (city == null || city.isBlank()) {
