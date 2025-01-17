@@ -1,6 +1,7 @@
 package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
+import com.openclassrooms.safetynet.exception.ExceptionHandling;
 import com.openclassrooms.safetynet.service.MedicalRecordService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-public class MedicalRecordController {
+public class MedicalRecordController extends ExceptionHandling {
 
     private final MedicalRecordService medicalRecordService;
 
@@ -23,32 +24,29 @@ public class MedicalRecordController {
         //http://localhost:8080/medicalRecord
     }
 
-    @PostMapping("/medicalRecord")
+    /*@PostMapping("/medicalRecord")
     public ResponseEntity<List<MedicalRecordDTO>> saveAll (@RequestBody List<MedicalRecordDTO> medicalRecords) {
         List<MedicalRecordDTO> savedMedicalRecords = medicalRecordService.saveAll(medicalRecords);
         return new ResponseEntity<>(savedMedicalRecords, HttpStatus.CREATED);
-        //http://localhost:8080/medicalRecord
-    }
-    /*
+    }*/
+
     @PostMapping("/medicalRecord")
     public ResponseEntity<MedicalRecordDTO> save (@RequestBody MedicalRecordDTO medicalRecord) {
         MedicalRecordDTO savedMedicalRecord = medicalRecordService.save(medicalRecord);
-        return new ResponseEntity<>(savedMedicalRecord, HttpStatus.OK);
-        // http://localhost:8080/medicalRecord
+        return new ResponseEntity<>(savedMedicalRecord, HttpStatus.CREATED);
     }
-     */
+
 
     @PutMapping("/medicalRecord")
     public ResponseEntity<MedicalRecordDTO> update (@RequestBody MedicalRecordDTO medicalRecord) {
         Optional<MedicalRecordDTO> updatedMedicalRecord = medicalRecordService.update(medicalRecord);
         return new ResponseEntity<>(updatedMedicalRecord.get(), HttpStatus.OK);
-        // http://localhost:8080/medicalRecord
     }
 
     @DeleteMapping("/medicalRecord")
     public ResponseEntity<Boolean> delete (@RequestParam String firstName, @RequestParam String lastName) {
         boolean deleted = medicalRecordService.deleteByFullName(firstName, lastName);
-        return new ResponseEntity<>(deleted, HttpStatus.OK);
-        // http://localhost:8080/medicalRecord?firstName=John&lastName=Boyd
+        return new ResponseEntity<>(deleted, HttpStatus.NO_CONTENT);
+        //http://localhost:8080/medicalRecord?firstName=John&lastName=Boyd
     }
 }
