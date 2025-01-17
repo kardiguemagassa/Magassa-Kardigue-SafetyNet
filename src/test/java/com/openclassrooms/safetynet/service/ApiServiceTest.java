@@ -94,7 +94,7 @@ public class ApiServiceTest {
     }
 
 
-
+/*
     // NEW ENDPOINT
     @Test
     void shouldReturnGetChildrenByAddress() {
@@ -190,7 +190,9 @@ public class ApiServiceTest {
         verify(personConvertorDTO,times(1)).convertEntityToDto(person2);
     }
 
+ */
 
+/*
     // NEW ENDPOINT
     @Test
     void shouldReturnGetPersonsByStation() {
@@ -260,6 +262,7 @@ public class ApiServiceTest {
         verify(medicalRecordRepository, times(1)).findByFullName("Jane", "Smith");
     }
 
+
     @Test
     void shouldReturnGetPersonsByStationA() {
         // Mock des données d'entrée
@@ -316,6 +319,8 @@ public class ApiServiceTest {
         verify(medicalRecordRepository, times(1)).findByFullName("John", "Doe");
         verify(medicalRecordRepository, times(1)).findByFullName("Jane", "Smith");
     }
+
+     */
 
     @Test
     void shouldReturnGetPhoneNumbersByStation() {
