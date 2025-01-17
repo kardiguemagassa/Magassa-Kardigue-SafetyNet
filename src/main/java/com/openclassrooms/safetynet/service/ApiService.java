@@ -1,6 +1,8 @@
 package com.openclassrooms.safetynet.service;
 
+import com.openclassrooms.safetynet.convertorDTO.FireStationConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
+import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
@@ -9,7 +11,9 @@ import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
+import com.openclassrooms.safetynet.repository.FireStationRepository;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
+import com.openclassrooms.safetynet.repository.PersonRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -35,8 +39,16 @@ import static com.openclassrooms.safetynet.constant.service.PersonImpConstant.PE
 public class ApiService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
+    private final PersonRepository personRepository;
     private final MedicalRecordRepository medicalRecordRepository;
+    private final FireStationRepository fireStationRepository;
+
     private final MedicalRecordConvertorDTO medicalRecordConvertorDTO;
+    private final PersonConvertorDTO personConvertorDTO;
+    private final FireStationConvertorDTO fireStationConvertorDTO;
+
+
 
 
     // NEW ENDPOINT
@@ -57,6 +69,8 @@ public class ApiService {
         }
         return new ArrayList<>();
     }
+
+
 
 
     // 1
