@@ -1,17 +1,21 @@
 package com.openclassrooms.safetynet.exception;
 
 import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
+import com.openclassrooms.safetynet.exception.medicalRecord.MedicalRecordNotFoundException;
 import com.openclassrooms.safetynet.exception.person.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.HttpResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -32,10 +36,10 @@ public class ExceptionHandling implements ErrorController {
     private static final String INTERNAL_SERVER_ERROR_MSG = "Une erreur s'est produite lors du traitement de la demande.";
     private static final String RESOURCE_NOT_FOUND_MSG = "La ressource demandée n'existe pas.";
     private static final String EMAIL_NOT_FOUND_MSG = "L'addresse email demandée n'existe pas.";
-    private static final String ERROR_PATH = "/error";
-
     private static final String PERSON_NOT_FOUND_MSG = "Aucune person n'a été trouvé";
     private static final String FIRE_STATION_NOT_FOUND_MSG = "Aucune addresse ou Station pompier n'a été trouvé";
+    private static final String MEDICAL_RECORD_NOT_FOUND_MSG = "Aucun Medical Record n'a été trouvé";
+    private static final String ERROR_PATH = "/error";
 
 
     @ExceptionHandler(NoHandlerFoundException.class)
@@ -97,17 +101,23 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(BAD_REQUEST, FIRE_STATION_NOT_FOUND_MSG, request);
     }
 
+    @ExceptionHandler(MedicalRecordNotFoundException.class)
+    public ResponseEntity<HttpResponse> handleMedicalRecordNotFoundException(MedicalRecordNotFoundException exception, WebRequest request) {
+        return createHttpResponse(BAD_REQUEST, MEDICAL_RECORD_NOT_FOUND_MSG, request);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<HttpResponse> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request) {
         //return ResponseEntity.badRequest().body(ex.getMessage());
         return createHttpResponse(BAD_REQUEST, INTERNAL_SERVER_ERROR_MSG, request);
     }
 
-    /* appel plusieur controller confli à resoudre
+    /*
     @RequestMapping(ERROR_PATH)
     public ResponseEntity<HttpResponse> pageNotFound(WebRequest request) {
         return createHttpResponse(NOT_FOUND, RESOURCE_NOT_FOUND_MSG, request);
     }
 
      */
+
 }

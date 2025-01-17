@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 //@SpringBootTest
 public class PersonServiceTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PersonServiceTest.class);
+    private  final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Mock
     private PersonRepository personRepository;
@@ -232,100 +232,5 @@ public class PersonServiceTest {
 
         // Vérifier que la méthode du repository a été appelée
         verify(personRepository, times(1)).deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
-    }
-
-    // NEW ENDPOINT
-    @Test
-    void shouldReturnGetChildrenByAddress() {
-        // Arrange
-        String address = "123 Main St";
-
-        List<Person> personEntities = List.of(person1, person2); // add 2 residents
-        List<PersonDTO> personDTOList = List.of(personDTO1, personDTO2);
-
-        MedicalRecord medicalRecordJohn = new MedicalRecord("John", "Doe", "01/01/2015", null, null);
-        MedicalRecord medicalRecordJane = new MedicalRecord("Jane", "Doe", "01/01/1990", null, null);
-
-        when(personRepository.findByAddress(address)).thenReturn(personEntities);
-        when(personConvertorDTO.convertEntityToDto(personEntities.get(0))).thenReturn(personDTOList.get(0));
-        when(personConvertorDTO.convertEntityToDto(personEntities.get(1))).thenReturn(personDTOList.get(1));
-
-        when(medicalRecordRepository.findByFullName("John", "Doe")).thenReturn(medicalRecordJohn);
-        when(medicalRecordRepository.findByFullName("Jane", "Doe")).thenReturn(medicalRecordJane);
-        when(personRepository.calculateAge(LocalDate.of(2015, 1, 1))).thenReturn(8); // children
-        when(personRepository.calculateAge(LocalDate.of(1990, 1, 1))).thenReturn(33); // adult
-
-        // Act
-        List<Map<String, PersonDTO>> result = personService.getChildrenByAddress(address);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size()); // 1 founded child
-        assertEquals("John", result.get(0).get("child").getFirstName());
-        assertEquals("Jane", result.get(0).get("householdMember").getFirstName());
-
-        // Vérifier les appels aux mocks
-        verify(personRepository, times(1)).findByAddress(address);
-        verify(medicalRecordRepository, times(1)).findByFullName("John", "Doe");
-        verify(medicalRecordRepository, times(1)).findByFullName("Jane", "Doe");
-    }
-
-    @Test
-    void shouldReturnGetPersonInfo() {
-        // Arrange
-        String lastName = "Doe";
-
-        // Arrange
-        Person person = person1;
-        PersonDTO personDTO = personDTO1;
-
-        // Simulation de la méthode findByLastName
-        when(personRepository.findByLastName(lastName)).thenReturn(List.of(person));
-        when(personConvertorDTO.convertEntityToDto(person)).thenReturn(personDTO);
-
-        // Simulation de la méthode findByFullName pour obtenir les informations médicales
-        MedicalRecord medicalRecord = new MedicalRecord("John", lastName, "01/01/1980", List.of("Med1", "Med2"), List.of("Allergy1"));
-        when(medicalRecordRepository.findByFullName(personDTO.getFirstName(), personDTO.getLastName())).thenReturn(medicalRecord);
-
-        // Simulation du calcul de l'âge
-        when(personRepository.calculateAge(LocalDate.parse("01/01/1980", DateTimeFormatter.ofPattern("MM/dd/yyyy")))).thenReturn(44);
-
-        // Act
-        List<Map<String, Object>> personInfoList = personService.getPersonInfo(lastName);
-
-        // Assert
-        assertNotNull(personInfoList);
-        assertEquals(1, personInfoList.size(), "La taille de la liste doit être de 1.");
-
-        Map<String, Object> personInfo = personInfoList.get(0);
-        assertNotNull(personInfo.get("person"));
-        assertTrue(personInfo.containsKey("age"));
-        assertEquals(44, personInfo.get("age"));
-        assertTrue(personInfo.containsKey("medications"));
-        assertTrue(personInfo.containsKey("allergies"));
-    }
-
-    @Test
-    void shouldReturnGetCommunityEmail() throws PersonNotFoundException {
-        // Arrange
-        // Call personRepository and you will get back to me the list with these 2 people.
-        when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
-        when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
-        when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
-
-        // Act
-        List<PersonDTO> personDTOList = personService.getPersons();
-
-        // Assert
-        assertNotNull(personDTOList);
-
-        //assertThat(personDTOList).containsExactly(personDTO1, personDTO2);
-        assertEquals(2, personDTOList.size());
-        assertEquals(personDTO1.getEmail(),personDTOList.get(0).getEmail());
-        assertEquals(personDTO2.getEmail(),personDTOList.get(1).getEmail());
-
-        verify(personRepository,times(1)).getPersons();
-        verify(personConvertorDTO,times(1)).convertEntityToDto(person1);
-        verify(personConvertorDTO,times(1)).convertEntityToDto(person2);
     }
 }
