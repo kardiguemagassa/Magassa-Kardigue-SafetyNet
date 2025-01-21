@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -35,8 +34,8 @@ public class ApiController {
     @GetMapping("/firestation/addressNumber")
     public ResponseEntity<FireStationResponseDTO> getPersonsByStation(@RequestParam("stationNumber") int stationNumber) {
 
-        FireStationResponseDTO fireStationDTO = apiService.getPersonsByStation(stationNumber);
-        return new ResponseEntity<>(fireStationDTO, HttpStatus.OK);
+        FireStationResponseDTO fireStationResponseDTO = apiService.getPersonsByStation(stationNumber);
+        return new ResponseEntity<>(fireStationResponseDTO, HttpStatus.OK);
     }
 
     /*  2
@@ -48,8 +47,8 @@ public class ApiController {
     d'enfant, cette url peut renvoyer une chaîne vide.
     */
     @GetMapping("/childAlert")
-    public ResponseEntity<FireStationResponseDTO> getChildrenByAddressObject(@RequestParam("address") String address) {
-        FireStationResponseDTO children = apiService.getChildrenByAddress(address);
+    public ResponseEntity<List<ResidentInfoDTO>> getChildrenByAddressObject(@RequestParam("address") String address) {
+        List<ResidentInfoDTO> children = apiService.getChildrenByAddress(address);
         return new ResponseEntity<>(children, HttpStatus.OK);
     }
 
@@ -73,13 +72,13 @@ public class ApiController {
     numéro de téléphone, l'âge et les antécédents médicaux (médicaments, posologie et
     allergies) de chaque personne
     http://localhost:8080/fire?address=1509 Culver St
-   */
+    */
     @GetMapping("/fire")
-    public ResponseEntity<FireStationResponseDTO> getResidentsByAddress(@RequestParam("address") String address) {
+    public ResponseEntity<List<ResidentInfoDTO>> getResidentsByAddress(@RequestParam("address") String address) {
 
-        FireStationResponseDTO fireStationResponseDTO = apiService.getResidentsByAddress(address);
+        List<ResidentInfoDTO> residentInfoDTOS = apiService.getResidentsByAddress(address);
 
-        return new ResponseEntity<>(fireStationResponseDTO, HttpStatus.OK);
+        return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
     }
 
     /* 5
@@ -89,12 +88,12 @@ public class ApiController {
     liste doit regrouper les personnes par adresse. Elle doit aussi inclure le nom, le
     numéro de téléphone et l'âge des habitants, et faire figurer leurs antécédents
     médicaux (médicaments, posologie et allergies) à côté de chaque nom.
-    http://localhost:8080/flood/stations?stations=1,2,3
+    http://localhost:8080/flood/stations?stations=1,2,4
     */
     @GetMapping("/flood/stations")
-    public ResponseEntity<Map<String, List<ResidentInfoDTO>>> getFloodInfo (@RequestParam("stations") List < Integer > stations) {
+    public ResponseEntity<List <ResidentInfoDTO>> getFloodInfo (@RequestParam("stations") List < Integer > stations) {
 
-        Map<String, List<ResidentInfoDTO>> response = apiService.getFloodInfoByStations(stations);
+        List<ResidentInfoDTO> response = apiService.getFloodInfoByStations(stations);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

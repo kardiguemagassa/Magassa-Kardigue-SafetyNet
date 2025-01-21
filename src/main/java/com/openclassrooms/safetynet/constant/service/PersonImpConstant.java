@@ -25,8 +25,5 @@ public class PersonImpConstant {
     public static final String PERSON_ERROR_DELETING_NOT_ = "Error while deleting person {} {}: {}";
     public static final String PERSON_ERROR_DELETING_BY_FULL_NAME = "Error while deleting person by full name: look repository: {}";
 
-    public static final String EMAIL_NOT_FOUND = "No emails found for residents in city: {}";
-    public static final String CITY_NOT_FOUND = "City cannot be null or empty.";
-    public static final String RESIDENTS_NOT_FOUND = "No residents found in city: {}";
-    public static final String PERSON_ERROR_EMAIL = "Unexpected error while retrieving community emails for city look repository {}: {}";
+
 }
