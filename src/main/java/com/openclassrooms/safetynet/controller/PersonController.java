@@ -51,9 +51,9 @@ public class PersonController extends ExceptionHandling {
     public ResponseEntity<PersonDTO> save(@RequestBody PersonDTO personDTO)
             {
         PersonDTO personDTOSaved = personService.save(personDTO);
-        //return new ResponseEntity<>(personDTOSaved, HttpStatus.CREATED);
+        return new ResponseEntity<>(personDTOSaved, HttpStatus.CREATED);
         //return new ResponseEntity<>(personDTOSaved, HttpStatus.OK);
-        return ResponseEntity.ok().body(personDTOSaved);
+        //return ResponseEntity.ok().body(personDTOSaved);
     }
 
     @PutMapping("/person")
