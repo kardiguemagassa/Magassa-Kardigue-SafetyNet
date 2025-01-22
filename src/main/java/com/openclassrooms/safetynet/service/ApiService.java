@@ -8,7 +8,8 @@ import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.dto.api.FireStationResponseDTO;
 import com.openclassrooms.safetynet.dto.api.ResidentInfoDTO;
-import com.openclassrooms.safetynet.exception.person.EmailNotFoundException;
+import com.openclassrooms.safetynet.exception.api.ApiNotFoundException;
+import com.openclassrooms.safetynet.exception.api.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.model.MedicalRecord;
@@ -20,20 +21,15 @@ import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.openclassrooms.safetynet.constant.service.ApiImplConstant.*;
-
 
 @Service
 @AllArgsConstructor
@@ -56,15 +52,16 @@ public class ApiService {
         List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
 
         if (addresses == null || addresses.isEmpty()) {
-            LOGGER.error(API_ADDRESS_NUMBER_NOT_FOUND, stationNumber);
-            //return new FireStationResponseDTO();
+            LOGGER.warn(API_ADDRESS_NUMBER_NOT_FOUND, stationNumber);
+            throw new IllegalArgumentException(API_ADDRESS_NUMBER_NOT_FOUND);
+
         }
 
         List<Person> residents = personRepository.findByAddresses(addresses);
 
         if (residents == null || residents.isEmpty()) {
-            LOGGER.warn("No residents found for addresses: {}", addresses);
-            //return new FireStationResponseDTO();
+            LOGGER.warn(API_ADDRESS_NOT_FOUND, addresses);
+            throw new IllegalArgumentException(API_ADDRESS_NOT_FOUND);
         }
 
         List<ResidentInfoDTO> enrichedResidents = residents.stream()
@@ -79,12 +76,11 @@ public class ApiService {
                 ))
                 .toList();
 
-        // Calculer le nombre d'adultes et d'enfants
+        // Calculate the number of adults and children
         long childCount = enrichedResidents.stream().filter(resident -> resident.getAge() <= 18).count();
 
         long adultCount = enrichedResidents.size() - childCount;
 
-        // Créer un objet FireStationResponseDTO avec les informations de résidents et les comptes d'adultes/enfants
         return new FireStationResponseDTO((int) adultCount, (int) childCount, enrichedResidents);
     }
 
@@ -94,8 +90,9 @@ public class ApiService {
         List<Person> residents = personRepository.findByAddress(address);
 
         if (residents == null || residents.isEmpty()) {
-            LOGGER.info("No residents found at address: {}", address);
-            return Collections.emptyList();
+            LOGGER.info(API_ADDRESS_NOT_FOUND, address);
+            throw new IllegalArgumentException(API_ADDRESS_NOT_FOUND);
+
         }
 
         return residents.stream()
@@ -114,7 +111,7 @@ public class ApiService {
 
         List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
         if (addresses == null || addresses.isEmpty()) {
-            LOGGER.error("No addresses found for station number {}", stationNumber);
+            LOGGER.error(API_ADDRESS_NUMBER_NOT_FOUND, stationNumber);
             return Collections.emptyList();
         }
 
@@ -133,8 +130,8 @@ public class ApiService {
         FireStationDTO fireStationDTO = fireStationConvertorDTO.convertEntityToDto(fireStation);
 
         if (fireStationDTO == null) {
-            LOGGER.warn("No fire station found for address: {}", address);
-            throw new IllegalStateException("No fire station found for address: " + address);
+            LOGGER.error(API_ADDRESS_NOT_FOUND, address);
+            throw new IllegalStateException(API_ADDRESS_NOT_FOUND + address);
         }
 
         // Récupérer le numéro de la caserne
@@ -143,8 +140,8 @@ public class ApiService {
         List<Person> residents = personRepository.findByAddress(address);
 
         if (residents == null || residents.isEmpty()) {
-            LOGGER.warn("No residents found for address: {}", address);
-            throw new IllegalStateException("No residents found for address: " + address);
+            LOGGER.error(API_ADDRESS_NOT_FOUND, address);
+            throw new IllegalStateException(API_ADDRESS_NOT_FOUND + address);
         }
 
         List<ResidentInfoDTO> enrichedResidents;
@@ -171,8 +168,8 @@ public class ApiService {
 
 
         if (addresses == null || addresses.isEmpty()) {
-            LOGGER.error("No addresses found for the provided station numbers.");
-            return Collections.emptyList();
+            LOGGER.error(FIRE_STATION_LIST_NOT_FOUND);
+            throw new IllegalArgumentException(FIRE_STATION_LIST_NOT_FOUND);
         }
 
         List<Person> residents = personRepository.findByAddresses(addresses);
@@ -199,12 +196,11 @@ public class ApiService {
     public List<ResidentInfoDTO> getPersonInfo(String lastName) {
 
         if (lastName == null || lastName.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Last name cannot be null or empty.");
+            throw new IllegalArgumentException(LAST_NAME_NOT_NULL);
         }
 
         List<Person> persons = personRepository.findByLastName(lastName);
 
-        // Enrichir les informations des résidents
         List<ResidentInfoDTO> enrichedResidents;
 
         enrichedResidents = persons.stream()
@@ -227,12 +223,12 @@ public class ApiService {
     public List<String> getCommunityEmails(String city) throws PersonNotFoundException, EmailNotFoundException {
 
         if (city == null || city.isBlank()) {
-            LOGGER.info(EMAIL_NOT_FOUND);
+            LOGGER.error(CITY_NOT_FOUND);
             throw new IllegalArgumentException(CITY_NOT_FOUND);
         }
 
         try {
-            // Récupération des résidents de la ville
+            // Recovery of city residents
             List<PersonDTO> residents = personRepository.findByCity(city).stream()
                     .map(personConvertorDTO::convertEntityToDto)
                     .toList();
@@ -245,12 +241,12 @@ public class ApiService {
 
         } catch (RuntimeException e) {
             LOGGER.error(PERSON_ERROR_EMAIL, city, e.getMessage(), e);
-            throw new RuntimeException(PERSON_ERROR_EMAIL, e);
+            throw new EmailNotFoundException(PERSON_ERROR_EMAIL);
         }
     }
 
     // Generic method
-    private <T> ResidentInfoDTO enrichResident(T resident, String address) {
+    private <T> ResidentInfoDTO enrichResident(T resident, String address) throws ApiNotFoundException {
 
         PersonDTO residentDTO;
 
@@ -259,15 +255,15 @@ public class ApiService {
         } else if (resident instanceof PersonDTO dto) {
             residentDTO = dto;
         } else {
-            LOGGER.error("Invalid resident type: {}", resident.getClass().getSimpleName());
-            throw new IllegalArgumentException("Unsupported resident type: " + resident.getClass().getSimpleName());
+            LOGGER.error(RESIDENTS_INVALID, resident.getClass().getSimpleName());
+            throw new IllegalArgumentException(RESIDENTS_INVALID + resident.getClass().getSimpleName());
         }
 
         MedicalRecord medicalRecord = medicalRecordRepository.findByFullName(residentDTO.getFirstName(), residentDTO.getLastName());
         MedicalRecordDTO medicalRecordDTO = medicalRecordConvertorDTO.convertEntityToDto(medicalRecord);
 
         if (medicalRecordDTO == null || medicalRecordDTO.getBirthdate() == null) {
-            LOGGER.error("Missing medical record for {} {}", residentDTO.getFirstName(), residentDTO.getLastName());
+            LOGGER.error(MESSING_MEDICAL, residentDTO.getFirstName(), residentDTO.getLastName());
             return null;
         }
 
@@ -286,13 +282,17 @@ public class ApiService {
                     .allergies(medicalRecord.getAllergies())
                     .build();
 
+        } catch (RuntimeException e) {
+            LOGGER.error(ERROR_REPOSITORIES, e.getMessage());
+            throw new ApiNotFoundException(ERROR_REPOSITORIES + e.getMessage());
+
         } catch (Exception e) {
-            LOGGER.error("Error parsing birthdate for {} {}: {}", residentDTO.getFirstName(), residentDTO.getLastName(), medicalRecord.getBirthdate(), e);
-            return null;
+            LOGGER.error(MESSING_BIRTH_DATE, residentDTO.getFirstName(), residentDTO.getLastName(), medicalRecord.getBirthdate(), e);
+            throw new ApiNotFoundException(MESSING_BIRTH_DATE, e);
         }
     }
 
-    // Méthode utilitaire pour calculer l'âge
+    // Utility method for calculating age
     private int calculateAge(LocalDate birthDate) {
         return (birthDate != null) ? Period.between(birthDate, LocalDate.now()).getYears() : 0;
     }

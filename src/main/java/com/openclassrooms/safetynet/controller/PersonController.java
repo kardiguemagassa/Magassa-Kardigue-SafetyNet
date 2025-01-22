@@ -26,7 +26,6 @@ import static org.springframework.http.HttpStatus.*;
 public class PersonController extends ExceptionHandling {
 
     private final PersonService personService;
-    //private final ErrorAttributes errorAttributes;
 
     @GetMapping("/person")
     public ResponseEntity<List<PersonDTO>> getPersons() {
@@ -38,29 +37,24 @@ public class PersonController extends ExceptionHandling {
         }
     }
 
-    /*
-    @PostMapping("/person")
+    /*@PostMapping("/person")
     public ResponseEntity<List <PersonDTO>> saveAll(@RequestBody List<PersonDTO> persons) {
 
         List <PersonDTO> personDTOS = personService.saveAll(persons);
         return new ResponseEntity<>(personDTOS, HttpStatus.CREATED);
-    }
-    */
+    }*/
 
     @PostMapping("/person")
-    public ResponseEntity<PersonDTO> save(@RequestBody PersonDTO personDTO)
-            {
+    public ResponseEntity<PersonDTO> save(@RequestBody PersonDTO personDTO) {
         PersonDTO personDTOSaved = personService.save(personDTO);
         return new ResponseEntity<>(personDTOSaved, HttpStatus.CREATED);
-        //return new ResponseEntity<>(personDTOSaved, HttpStatus.OK);
-        //return ResponseEntity.ok().body(personDTOSaved);
     }
 
     @PutMapping("/person")
     public ResponseEntity<PersonDTO> update(@RequestBody PersonDTO updatedPersonDTO) throws PersonNotFoundException {
         Optional<PersonDTO> updated = personService.update(updatedPersonDTO);
-        //return new ResponseEntity<>(updated.get(), HttpStatus.OK);
-        return ResponseEntity.ok().body(updated.get());
+        return new ResponseEntity<>(updated.get(), HttpStatus.OK);
+        //return ResponseEntity.ok().body(updated.get());
     }
 
     @DeleteMapping("/person")

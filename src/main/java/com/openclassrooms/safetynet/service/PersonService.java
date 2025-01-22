@@ -1,31 +1,18 @@
 package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
-import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.exception.person.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
-import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
-import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.openclassrooms.safetynet.constant.service.PersonImpConstant.*;
 
@@ -154,7 +141,7 @@ public class PersonService {
             return true;
 
         } catch (PersonNotFoundException e) {
-            LOGGER.error(PERSON_ERROR_DELETING_NOT_, e.getMessage());
+            LOGGER.info(PERSON_ERROR_DELETING_NOT_, e.getMessage());
             throw e;
 
         }catch (IllegalArgumentException e) {
@@ -164,8 +151,5 @@ public class PersonService {
             throw new PersonNotFoundException(PERSON_ERROR_DELETING_BY_FULL_NAME, e);
         }
     }
-
-
-
 
 }

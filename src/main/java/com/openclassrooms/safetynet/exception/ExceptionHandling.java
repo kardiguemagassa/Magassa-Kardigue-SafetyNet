@@ -1,8 +1,9 @@
 package com.openclassrooms.safetynet.exception;
 
+import com.openclassrooms.safetynet.exception.api.ApiNotFoundException;
 import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
 import com.openclassrooms.safetynet.exception.medicalRecord.MedicalRecordNotFoundException;
-import com.openclassrooms.safetynet.exception.person.EmailNotFoundException;
+import com.openclassrooms.safetynet.exception.api.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.HttpResponse;
 
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -39,6 +39,7 @@ public class ExceptionHandling implements ErrorController {
     private static final String PERSON_NOT_FOUND_MSG = "Aucune person n'a été trouvé";
     private static final String FIRE_STATION_NOT_FOUND_MSG = "Aucune addresse ou Station pompier n'a été trouvé";
     private static final String MEDICAL_RECORD_NOT_FOUND_MSG = "Aucun Medical Record n'a été trouvé";
+    private static final String INTERNAL_SERVER_ERROR_API_SERVICE = "Une erreur s'est produite lors du traitement de la demande ApiService";
     private static final String ERROR_PATH = "/error";
 
 
@@ -75,22 +76,6 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG, request);
     }
 
-    private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message, WebRequest request) {
-        HttpResponse response = new HttpResponse(
-                httpStatus.value(),
-                httpStatus,
-                httpStatus.getReasonPhrase().toUpperCase(),
-                message.toUpperCase(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(response, httpStatus);
-    }
-
-    @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<HttpResponse> emailNotFoundException(EmailNotFoundException exception, WebRequest request) {
-        return createHttpResponse(NOT_FOUND, EMAIL_NOT_FOUND_MSG, request);
-    }
-
     @ExceptionHandler(PersonNotFoundException.class)
     public ResponseEntity<HttpResponse> handlePersonNotFoundException(PersonNotFoundException exception, WebRequest request) {
         return createHttpResponse(BAD_REQUEST, PERSON_NOT_FOUND_MSG, request);
@@ -110,6 +95,27 @@ public class ExceptionHandling implements ErrorController {
     public ResponseEntity<HttpResponse> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request) {
         //return ResponseEntity.badRequest().body(ex.getMessage());
         return createHttpResponse(BAD_REQUEST, INTERNAL_SERVER_ERROR_MSG, request);
+    }
+
+    @ExceptionHandler(ApiNotFoundException.class)
+    public ResponseEntity<HttpResponse> handleApiNotFoundException(ApiNotFoundException exception, WebRequest request) {
+        return createHttpResponse(BAD_REQUEST, INTERNAL_SERVER_ERROR_API_SERVICE, request);
+    }
+
+    @ExceptionHandler(EmailNotFoundException.class)
+    public ResponseEntity<HttpResponse> emailNotFoundException(EmailNotFoundException exception, WebRequest request) {
+        return createHttpResponse(NOT_FOUND, EMAIL_NOT_FOUND_MSG, request);
+    }
+
+    private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message, WebRequest request) {
+        HttpResponse response = new HttpResponse(
+                httpStatus.value(),
+                httpStatus,
+                httpStatus.getReasonPhrase().toUpperCase(),
+                message.toUpperCase(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(response, httpStatus);
     }
 
     /*

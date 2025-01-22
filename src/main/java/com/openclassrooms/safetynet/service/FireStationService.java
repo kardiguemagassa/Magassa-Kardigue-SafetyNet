@@ -5,32 +5,20 @@ import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 
-import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
-import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 
-import com.openclassrooms.safetynet.model.MedicalRecord;
-import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
-import lombok.AllArgsConstructor;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
 import static com.openclassrooms.safetynet.constant.service.FireStationImplConstant.*;
 
 @Service
@@ -39,11 +27,7 @@ public class FireStationService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final FireStationRepository fireStationRepository;
-    private final PersonRepository personRepository;
-    private final MedicalRecordRepository medicalRecordRepository;
     private final FireStationConvertorDTO fireStationConvertorDTO;
-    private final PersonConvertorDTO personConvertorDTO;
-    private final MedicalRecordConvertorDTO medicalRecordConvertorDTO;
 
     // CRUD
     public List<FireStationDTO> getFireStations() throws FireStationNotFoundException {

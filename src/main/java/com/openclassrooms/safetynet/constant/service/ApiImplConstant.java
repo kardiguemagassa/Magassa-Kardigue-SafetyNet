@@ -6,32 +6,16 @@ public class ApiImplConstant {
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-    public static final String API_ADDRESS_NUMBER_NOT_FOUND = "No addresses found for station number {}";
-    public static final String ERROR_CONVERTING = "Error while retrieving and converting persons: {}";
-    public static final String PERSON_UNEXPECT = "An unexpected error occurred while processing persons.";
-    public static final String PERSON_NOT_FOUND_MSG = "PersonNotFoundException: {}";
+    public static final String API_ADDRESS_NUMBER_NOT_FOUND = "No addresses number in getPersonsByStation method: {} ";
+    public static final String API_ADDRESS_NOT_FOUND = "No residents found for addresses: {}";
 
-    public static final String PERSON_ERROR_SAVING = "Person list cannot be null or empty.";
-    public static final String PERSON_ERROR_SAVING_DATA_BASE = "System error while saving persons in the repository: {}";
-    public static final String PERSON_ERROR_SAVING_REPO = "Unexpected error occurred while saving look repository: {}";
-
-    public static final String PERSON_ERROR = "PersonDTO cannot be null.";
-    public static final String PERSON_ERROR_SAVING_C = "Error saving person: {}";
-    public static final String PERSON_ERROR_SAVING_DATA_BASE_ = "An error occurred while saving look repository: ";
-
-    public static final String PERSON_ERROR_UPDATING = "Updated person data cannot be null.";
-    public static final String PERSON_NOT_FOUND_UPDATING = "Person not found for update.";
-    public static final String PERSON_ERROR_UPDATING_SUCCESS = "An error occurred while updating the person look {} ";
-    public static final String PERSON_ERROR_SAVING_UPDATING_SUCCESS = "Error updating person: {}";
-
-    public static final String PERSON_ERROR_DELETING = "First name or last name cannot be null or empty.";
-    public static final String PERSON_DELETING_SUCCESS = "Person {} {} deleted successfully.";
-    public static final String PERSON_ERROR_DELETING_NOT_FOUND = " Not found for deletion.";
-    public static final String PERSON_ERROR_DELETING_NOT_ = "Error while deleting person {} {}: {}";
-    public static final String PERSON_ERROR_DELETING_BY_FULL_NAME = "Error while deleting person by full name: look repository: {}";
-
-    public static final String EMAIL_NOT_FOUND = "No emails found for residents in city: {}";
+    public static final String FIRE_STATION_LIST_NOT_FOUND = "No addresses found for the provided station numbers.";
+    public static final String LAST_NAME_NOT_NULL = "Last name cannot be null or empty.";
     public static final String CITY_NOT_FOUND = "City cannot be null or empty.";
-    public static final String RESIDENTS_NOT_FOUND = "No residents found in city: {}";
     public static final String PERSON_ERROR_EMAIL = "Unexpected error while retrieving community emails for city look repository {}: {}";
+
+    public static final String RESIDENTS_INVALID = "Invalid resident type: {}, Unsupported resident type: ";
+    public static final String MESSING_MEDICAL = "Missing medical record for {} {}";
+    public static final String ERROR_REPOSITORIES = "Same thing wrong in repositories look personRepository or medicalRecordRepository: {}";
+    public static final String MESSING_BIRTH_DATE = "Error parsing birthdate for {} {}: {}";
 }

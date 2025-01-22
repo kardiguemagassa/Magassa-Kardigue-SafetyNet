@@ -2,7 +2,8 @@ package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.api.FireStationResponseDTO;
 import com.openclassrooms.safetynet.dto.api.ResidentInfoDTO;
-import com.openclassrooms.safetynet.exception.person.EmailNotFoundException;
+import com.openclassrooms.safetynet.exception.ExceptionHandling;
+import com.openclassrooms.safetynet.exception.api.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.service.ApiService;
 
@@ -17,7 +18,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class ApiController {
+public class ApiController extends ExceptionHandling {
 
     private final ApiService apiService;
 

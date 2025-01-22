@@ -21,8 +21,9 @@ public class ResidentInfoDTO {
     private List<String> allergies;
     private Integer stationNumber;
 
-    // Constructeur existant (avec tous les champs)
-    public ResidentInfoDTO(String firstName, String lastName, String address, String phone, int age, String email, List<String> medications, List<String> allergies, Integer stationNumber) {
+    // Existing Builder (with all fields)
+    protected ResidentInfoDTO(String firstName, String lastName, String address, String phone, int age, String email,
+                              List<String> medications, List<String> allergies, Integer stationNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
