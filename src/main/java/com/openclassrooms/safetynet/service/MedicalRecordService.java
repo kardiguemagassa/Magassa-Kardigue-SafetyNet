@@ -89,19 +89,26 @@ public class MedicalRecordService {
     }
 
     public MedicalRecordDTO save(MedicalRecordDTO medicalRecordDTO) {
+
+        if (medicalRecordDTO == null) {
+            LOGGER.error(MEDICAL_RECORD_ERROR);
+            throw new IllegalArgumentException(MEDICAL_RECORD_ERROR);
+        }
+
         try {
-            if (medicalRecordDTO == null) {
-                LOGGER.error(MEDICAL_RECORD_ERROR);
-                throw new IllegalArgumentException(MEDICAL_RECORD_ERROR);
-            }
 
             MedicalRecord medicalRecordEntity = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTO);
             MedicalRecord savedMedicalRecordEntity = medicalRecordRepository.save(medicalRecordEntity);
+
             return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecordEntity);
 
-        } catch (Exception e) {
+        } catch (MedicalRecordNotFoundException e) {
+            LOGGER.warn(MEDICAL_RECORD_NOT_FOUND, e.getMessage());
+            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND + e.getMessage());
+
+        } catch (RuntimeException e) {
             LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND);
+            throw new RuntimeException(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE);
         }
     }
 

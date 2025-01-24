@@ -75,10 +75,12 @@ public class FireStationService {
     }
 
     public FireStationDTO save(FireStationDTO fireStationDTO) {
+
+        if (fireStationDTO == null) {
+            throw new IllegalArgumentException(FIRE_STATION_ERROR);
+        }
+
         try {
-            if (fireStationDTO == null) {
-                throw new IllegalArgumentException(FIRE_STATION_ERROR);
-            }
 
             // Convert DTO to entity
             FireStation fireStationEntity = fireStationConvertorDTO.convertDtoToEntity(fireStationDTO);
@@ -89,9 +91,13 @@ public class FireStationService {
             // Convert entity saving in DTO
             return fireStationConvertorDTO.convertEntityToDto(savedFireStationEntity);
 
+        } catch (FireStationNotFoundException e) {
+            LOGGER.error(FIRE_STATION_NOT_FOUND, e.getMessage());
+            throw new FireStationNotFoundException(FIRE_STATION_NOT_FOUND);
+
         } catch (RuntimeException e) {
             LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE_, e.getMessage());
-            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
+            throw new RuntimeException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
 
         } catch (Exception e) {
             LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE_, e.getMessage(), e);

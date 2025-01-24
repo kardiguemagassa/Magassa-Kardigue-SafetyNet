@@ -72,7 +72,11 @@ public class ApiService {
                         resident.getLastName(),
                         resident.getAddress(),
                         resident.getPhone(),
-                        resident.getAge()
+                        resident.getAge(),
+                        null,
+                        null,
+                        null,
+                        null
                 ))
                 .toList();
 
@@ -100,7 +104,14 @@ public class ApiService {
                 .map(resident -> new ResidentInfoDTO(
                         resident.getFirstName(),
                         resident.getLastName(),
-                        resident.getAge()
+                        null,
+                        null,
+                        resident.getAge(),
+                        null,
+                        null,
+                        null,
+                        null
+
                 ))
                 //.filter(Objects::nonNull)
                 .toList();
@@ -148,12 +159,15 @@ public class ApiService {
         enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
-                        fireStationNumber,
                         resident.getLastName(),
+                        null,
+                        null,
                         resident.getPhone(),
-                        resident.getAge(),
+                        fireStationNumber,
+                        null,
                         resident.getMedications(),
-                        resident.getAllergies()))
+                        resident.getAllergies(),
+                        resident.getAge()))
                 .toList();
 
         //LOGGER.info("Residents for address {}: {}", address, enrichedResidents);
@@ -179,12 +193,16 @@ public class ApiService {
         enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
-                        resident.getAddress(),
+                        null,
                         resident.getLastName(),
+                        resident.getAddress(),
                         resident.getPhone(),
                         resident.getAge(),
+                        null,
                         resident.getMedications(),
-                        resident.getAllergies()
+                        resident.getAllergies(),
+                        null
+
                 ))
                 //.filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -207,11 +225,14 @@ public class ApiService {
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
                         resident.getLastName(),
+                        null,
                         resident.getAddress(),
+                        null,
                         resident.getAge(),
                         resident.getEmail(),
                         resident.getMedications(),
-                        resident.getAllergies()
+                        resident.getAllergies(),
+                        null
                 ))
                 .toList();
 

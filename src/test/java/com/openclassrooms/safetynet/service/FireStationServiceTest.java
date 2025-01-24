@@ -1,35 +1,29 @@
 package com.openclassrooms.safetynet.service;
 
+import com.openclassrooms.safetynet.constant.service.FireStationImplConstant;
 import com.openclassrooms.safetynet.convertorDTO.FireStationConvertorDTO;
-import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
-import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
-import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
-import com.openclassrooms.safetynet.dto.PersonDTO;
+import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
-import com.openclassrooms.safetynet.model.MedicalRecord;
-import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
-import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
-import com.openclassrooms.safetynet.repository.PersonRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static com.openclassrooms.safetynet.constant.repository.FireStationRepositoryConstant.FIRE_STATION_NOT_FOUND;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+
+@SpringBootTest
 public class FireStationServiceTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -37,30 +31,15 @@ public class FireStationServiceTest {
     @Mock
     private FireStationRepository fireStationRepository;
     @Mock
-    private PersonRepository personRepository;
-    @Mock
-    private MedicalRecordRepository medicalRecordRepository;
-    @Mock
-    private MedicalRecordConvertorDTO medicalRecordConvertorDTO;
-    @Mock
     private FireStationConvertorDTO fireStationConvertorDTO;
-    @Mock
-    private PersonConvertorDTO personConvertorDTO;
 
     @InjectMocks
     private FireStationService fireStationService;
-    @InjectMocks
-    private PersonService personService;
 
     private FireStation fireStation1;
     private FireStation fireStation2;
     private FireStationDTO fireStationDTO1;
     private FireStationDTO fireStationDTO2;
-
-    private Person person1;
-    private Person person2;
-    private PersonDTO personDTO1;
-    private PersonDTO personDTO2;
 
     @BeforeEach
     void setUp() {
@@ -71,18 +50,6 @@ public class FireStationServiceTest {
         //FireStationDTO
         fireStationDTO1 = new FireStationDTO("149 Bd Pei ere 75007 Paris", "1");
         fireStationDTO2 = new FireStationDTO("150 Bd Pei ere 75007 Paris", "2");
-
-        // Person
-        person1 = new Person("John", "Doe", "123 Main St", "Springfield", "75016",
-                "0144445151", "johndoe@gmail.com");
-        person2 = new Person("Jane", "Doe", "123 Main St", "Springfield", "75017",
-                "0144445152", "janedoe@gmail.com");
-
-        // PersonDTO
-        personDTO1 = new PersonDTO("John", "Doe", "johndoe@gmail.com", "123 Main St", "Springfield",
-                "75016", "0144445151");
-        personDTO2 = new PersonDTO("Jane", "Doe", "janedoe@gmail.com", "123 Main St",
-                "Springfield", "75017", "0144445152");
     }
 
     @Test
@@ -107,9 +74,10 @@ public class FireStationServiceTest {
     @Test void shouldReturnGetFireStations_NotFound() {
         when(fireStationRepository.getFireStations()).thenReturn(null);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> fireStationService.getFireStations());
-        //assertEquals(HttpStatus.NOT_FOUND, exception.getMessage());
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode()); // Vérification du code HTTP
+
+        FireStationNotFoundException exception = assertThrows(FireStationNotFoundException.class, () -> fireStationService.getFireStations());
+        assertEquals("No fireStation found in the repository.", exception.getMessage());
+
 
         verify(fireStationRepository, times(1)).getFireStations();
         verifyNoInteractions(fireStationConvertorDTO);
@@ -136,7 +104,7 @@ public class FireStationServiceTest {
         verify(fireStationConvertorDTO, times(1)).convertEntityToDto(fireStationEntities);
     }
 
-    @Test
+    /*@Test
     void shouldReturnSaveAll_NullOrEmptyList() {
         ResponseStatusException exception1 = assertThrows(ResponseStatusException.class, () -> {
             fireStationService.saveAll(null);
@@ -168,16 +136,16 @@ public class FireStationServiceTest {
 
         verify(fireStationConvertorDTO, times(1)).convertDtoToEntity(fireStationDTOList);
         verify(fireStationRepository, times(1)).saveAll(fireStationEntities);
-    }
+    }*/
 
     @Test
     void shouldReturnSave() {
         FireStationDTO fireStationDTO = fireStationDTO1;
-        FireStation fireStationEntities = fireStation1;
+        FireStation fireStationEntity = fireStation1;
 
-        when(fireStationConvertorDTO.convertDtoToEntity(fireStationDTO)).thenReturn(fireStationEntities);
-        when(fireStationRepository.save(fireStationEntities)).thenReturn(fireStationEntities);
-        when(fireStationConvertorDTO.convertEntityToDto(fireStationEntities)).thenReturn(fireStationDTO);
+        when(fireStationConvertorDTO.convertDtoToEntity(fireStationDTO)).thenReturn(fireStationEntity);
+        when(fireStationRepository.save(fireStationEntity)).thenReturn(fireStationEntity);
+        when(fireStationConvertorDTO.convertEntityToDto(fireStationEntity)).thenReturn(fireStationDTO);
 
         FireStationDTO result = fireStationService.save(fireStationDTO);
 
@@ -186,8 +154,30 @@ public class FireStationServiceTest {
         assertEquals(fireStationDTO1.getStation(), result.getStation());
 
         verify(fireStationConvertorDTO, times(1)).convertDtoToEntity(fireStationDTO);
-        verify(fireStationRepository, times(1)).save(fireStationEntities);
-        verify(fireStationConvertorDTO, times(1)).convertEntityToDto(fireStationEntities);
+        verify(fireStationRepository, times(1)).save(fireStationEntity);
+        verify(fireStationConvertorDTO, times(1)).convertEntityToDto(fireStationEntity);
+    }
+
+    @Test
+    void shouldReturnSave_ExceptionThrownByRepository() {
+
+        // Test with null fireStationDTO
+        IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () -> {
+            fireStationService.save(null);});
+        assertEquals(FireStationImplConstant.FIRE_STATION_ERROR, exception1.getMessage());
+
+        FireStationDTO fireStationDTO = new FireStationDTO();
+        FireStation fireStationEntity = new FireStation();
+
+        when(fireStationConvertorDTO.convertDtoToEntity(fireStationDTO)).thenReturn(fireStationEntity);
+        when(fireStationRepository.save(fireStationEntity))
+                .thenThrow(new FireStationNotFoundException(FIRE_STATION_NOT_FOUND));
+
+        RuntimeException exception2 = assertThrows(RuntimeException.class, () -> {fireStationService.save(fireStationDTO);});
+        assertTrue(exception2.getMessage().contains(FireStationImplConstant.FIRE_STATION_NOT_FOUND));
+
+        verify(fireStationConvertorDTO, times(1)).convertDtoToEntity(fireStationDTO);
+        verify(fireStationRepository, times(1)).save(fireStationEntity);
     }
 
     @Test

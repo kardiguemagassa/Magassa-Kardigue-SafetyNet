@@ -1,14 +1,18 @@
 package com.openclassrooms.safetynet.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResidentInfoDTO {
 
     private String firstName;
@@ -21,6 +25,7 @@ public class ResidentInfoDTO {
     private List<String> allergies;
     private Integer stationNumber;
 
+    /*
     // Existing Builder (with all fields)
     protected ResidentInfoDTO(String firstName, String lastName, String address, String phone, int age, String email,
                               List<String> medications, List<String> allergies, Integer stationNumber) {
@@ -35,6 +40,8 @@ public class ResidentInfoDTO {
         this.stationNumber = stationNumber;
     }
 
+     */
+
     /* 1
     http://localhost:8080/firestation?stationNumber=<station_number>
     Cette url doit retourner une liste des personnes couvertes par la caserne de pompiers
@@ -45,6 +52,7 @@ public class ResidentInfoDTO {
     moins) dans la zone desservie.
     http://localhost:8080/firestation/addressNumber?stationNumber=1
     */
+    /*
     public ResidentInfoDTO(String firstName, String lastName, String address, String phone, int age) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -52,6 +60,8 @@ public class ResidentInfoDTO {
         this.phone = phone;
         this.age = age;
     }
+
+     */
 
     /*  2
     http://localhost:8080/childAlert?address=<address>
@@ -61,12 +71,15 @@ public class ResidentInfoDTO {
     chaque enfant, son âge et une liste des autres membres du foyer. S'il n'y a pas
     d'enfant, cette url peut renvoyer une chaîne vide.
     */
+    /*
     public ResidentInfoDTO(String firstName, String lastName, int age) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
 
     }
+
+     */
 
     /* 4
    http://localhost:8080/fire?address=<address>
@@ -76,6 +89,7 @@ public class ResidentInfoDTO {
    allergies) de chaque personne
    http://localhost:8080/fire?address=1509 Culver St
   */
+    /*
     public ResidentInfoDTO(Integer stationNumber,String lastName, String phone, int age, List<String> medications, List<String> allergies) {
         this.stationNumber = stationNumber;
         this.lastName = lastName;
@@ -86,6 +100,8 @@ public class ResidentInfoDTO {
 
     }
 
+     */
+
     /* 5
     http://localhost:8080/flood/stations?stations=<a list of
     station_numbers>
@@ -95,6 +111,7 @@ public class ResidentInfoDTO {
     médicaux (médicaments, posologie et allergies) à côté de chaque nom.
     http://localhost:8080/flood/stations?stations=1,2,4
     */
+    /*
     public ResidentInfoDTO(String address, String lastName, String phone, int age, List<String> medications, List<String> allergies) {
         this.address = address;
         this.lastName = lastName;
@@ -104,6 +121,8 @@ public class ResidentInfoDTO {
         this.allergies = allergies;
     }
 
+     */
+
     /* 6
     http://localhost:8080/personInfolastName=<lastName>
     http://localhost:8080/personInfolastName?lastName=Boyd
@@ -111,6 +130,7 @@ public class ResidentInfoDTO {
     médicaux (médicaments, posologie et allergies) de chaque habitant. Si plusieurs
     personnes portent le même nom, elles doivent toutes apparaître.
     */
+    /*
     public ResidentInfoDTO(String lastName, String address, int age, String email, List<String> medications, List<String> allergies) {
         this.lastName = lastName;
         this.address = address;
@@ -119,5 +139,7 @@ public class ResidentInfoDTO {
         this.medications = medications;
         this.allergies = allergies;
     }
+
+     */
 
 }

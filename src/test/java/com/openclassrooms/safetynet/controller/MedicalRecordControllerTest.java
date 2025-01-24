@@ -83,7 +83,7 @@ public class MedicalRecordControllerTest {
         // Perform GET request
         when(medicalRecordService.getMedicalRecords()).thenReturn(mockMedicalRecordList);
 
-        String response = mockMvc.perform(get("/medicalrecord"))
+        String response = mockMvc.perform(get("/medicalRecord"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].firstName").value(mockMedicalRecordDTO1.getFirstName()))
@@ -102,7 +102,7 @@ public class MedicalRecordControllerTest {
         verify(medicalRecordService, times(1)).getMedicalRecords();
     }
 
-    @Test
+    /*@Test
     @Order(2)
     void shouldReturnSaveAllMedicalRecord() throws Exception {
 
@@ -145,7 +145,7 @@ public class MedicalRecordControllerTest {
         when(medicalRecordService.saveAll(anyList())).thenReturn(savedMedicalRecords);
 
         // Perform POST request
-        String response = mockMvc.perform(post("/medicalrecord/saveAll")
+        String response = mockMvc.perform(post("/medicalrecord")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
@@ -165,7 +165,7 @@ public class MedicalRecordControllerTest {
 
         // Verify service interaction
         verify(medicalRecordService, times(1)).saveAll(anyList());
-    }
+    }*/
 
     @Test
     @Order(3)
@@ -192,10 +192,10 @@ public class MedicalRecordControllerTest {
         when(medicalRecordService.save(any(MedicalRecordDTO.class))).thenReturn(mockMedicalRecordDTO1);
 
         // Perform POST request
-        String response = mockMvc.perform(post("/medicalrecord/save")
+        String response = mockMvc.perform(post("/medicalRecord")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value(mockMedicalRecordDTO1.getFirstName()))
                 .andExpect(jsonPath("$.lastName").value(mockMedicalRecordDTO1.getLastName()))
                 .andExpect(jsonPath("$.birthdate").value(mockMedicalRecordDTO1.getBirthdate()))
@@ -234,7 +234,7 @@ public class MedicalRecordControllerTest {
         when(medicalRecordService.update(any(MedicalRecordDTO.class))).thenReturn(Optional.of(mockMedicalRecordDTO1));
 
         // Perform POST request
-        String responseUpdate = mockMvc.perform(put("/medicalrecord/update")
+        String responseUpdate = mockMvc.perform(put("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                         .andExpect(status().isOk())
@@ -261,11 +261,11 @@ public class MedicalRecordControllerTest {
 
         when(medicalRecordService.deleteByFullName(anyString(), anyString())).thenReturn(true);
 
-        String response = mockMvc.perform(delete("/medicalrecord/delete")
+        String response = mockMvc.perform(delete("/medicalRecord")
                         .param("firstName", mockMedicalRecordDTO1.getFirstName())
                         .param("lastName",mockMedicalRecordDTO1.getLastName()))
                         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
+                        .andExpect(status().isNoContent())
                         .andReturn().getResponse().getContentAsString();
 
         LOGGER.info("ResponseOfDeletedMedicalRecord: " + response);

@@ -81,6 +81,7 @@ public class PersonService {
     }
 
     public PersonDTO save(PersonDTO personDTO) {
+
         if (personDTO == null) {
             throw new IllegalArgumentException(PERSON_ERROR);
         }
@@ -94,9 +95,14 @@ public class PersonService {
 
             // Convert saved entity to DTO
             return personConvertorDTO.convertEntityToDto(savedPersonEntity);
+
+        } catch (PersonNotFoundException e) {
+            LOGGER.warn(PERSON_ERROR_SAVING_DATA_BASE, e.getMessage());
+            throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE + e.getMessage(), e);
+
         } catch (Exception e) {
             LOGGER.error(PERSON_ERROR_SAVING_C, e.getMessage(), e);
-            throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE_, e);
+            throw new RuntimeException(PERSON_ERROR_SAVING_C);
         }
     }
 

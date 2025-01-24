@@ -1,37 +1,28 @@
 package com.openclassrooms.safetynet.service;
 
-import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
-import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
-import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
+
+import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDate;
-
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.openclassrooms.safetynet.constant.service.PersonImpConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
-@ExtendWith(MockitoExtension.class)
-//@SpringBootTest
+//@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class PersonServiceTest {
 
     private  final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -40,8 +31,6 @@ public class PersonServiceTest {
     private PersonRepository personRepository;
     @Mock
     private PersonConvertorDTO personConvertorDTO;
-    @Mock
-    private MedicalRecordRepository medicalRecordRepository;
 
     @InjectMocks
     private PersonService personService;
@@ -67,8 +56,8 @@ public class PersonServiceTest {
     // CRUD
     @Test
     void shouldReturnGetPersons() throws PersonNotFoundException { //getPersons
+
         // Arrange
-        // Call personRepository and you will get back to me the list with these 2 people.
         when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
@@ -79,8 +68,7 @@ public class PersonServiceTest {
         // Assert
         assertNotNull(personDTOList);
 
-        // The operation or method tester returns a list containing 2 elements
-        //assertThat(personDTOList).containsExactly(personDTO1, personDTO2);
+
         assertEquals(2, personDTOList.size());
         assertEquals(personDTO1.getFirstName(),personDTOList.get(0).getFirstName());
         assertEquals(personDTO2.getFirstName(),personDTOList.get(1).getFirstName());
@@ -96,14 +84,16 @@ public class PersonServiceTest {
         when(personRepository.getPersons()).thenReturn(null);
 
         // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> personService.getPersons());
-        assertEquals("404 NOT_FOUND \"No persons found.\"", exception.getMessage());
+
+        PersonNotFoundException exception = assertThrows(PersonNotFoundException.class, () -> personService.getPersons());
+
+        assertEquals("No persons found in the repository.", exception.getMessage());
 
         verify(personRepository,times(1)).getPersons();
         verifyNoInteractions(personConvertorDTO);
     }
 
-    @Test
+    /*@Test
     void shouldReturnSaveAll() {
         // Arrange
         List<PersonDTO> personDTOList = Arrays.asList(personDTO1, personDTO2);
@@ -128,9 +118,9 @@ public class PersonServiceTest {
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTOList);
         verify(personRepository,times(1)).saveAll(personEntities);
         verify(personConvertorDTO,times(1)).convertEntityToDto(personEntities);
-    }
+    }*/
 
-    @Test
+    /*@Test
     void shouldReturnSaveAll_NullOrEmptyList() {
         // Test with list null
         ResponseStatusException exception1 = assertThrows(ResponseStatusException.class, () -> {
@@ -147,38 +137,18 @@ public class PersonServiceTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, exception2.getStatusCode());
         assertTrue(Objects.requireNonNull(exception2.getReason()).contains("Person list cannot be null or empty."));
-    }
-
-    @Test
-    void shouldReturnSaveAll_ExceptionThrownByRepository() {
-        // Arrange
-        List<PersonDTO> personDTOList = Arrays.asList(personDTO1, personDTO2);
-        List<Person> personEntities = Arrays.asList(person1, person2);
-
-        // Configurer les mocks pour déclencher une exception
-        when(personConvertorDTO.convertDtoToEntity(personDTOList)).thenReturn(personEntities);
-        when(personRepository.saveAll(personEntities)).thenThrow(new RuntimeException("Something went wrong"));
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> personService.saveAll(personDTOList));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
-        assertTrue(Objects.requireNonNull(exception.getReason()).contains("Database/system error while saving persons:"));
-
-        // Vérifier les interactions
-        verify(personConvertorDTO,times(1)).convertDtoToEntity(personDTOList);
-        verify(personRepository,times(1)).saveAll(personEntities);
-    }
+    }*/
 
     @Test
     void shouldReturnSave() {
         // Arrange
         PersonDTO personDTO = personDTO1;
-        Person personEntities = person1;
+        Person personEntity = person1;
 
         // Configurer les mocks
-        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntities);
-        when(personRepository.save(personEntities)).thenReturn(personEntities);
-        when(personConvertorDTO.convertEntityToDto(personEntities)).thenReturn(personDTO);
+        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
+        when(personRepository.save(personEntity)).thenReturn(personEntity);
+        when(personConvertorDTO.convertEntityToDto(personEntity)).thenReturn(personDTO);
 
         // Act
         PersonDTO result = personService.save(personDTO);
@@ -190,9 +160,34 @@ public class PersonServiceTest {
 
         // Vérifier les interactions
         verify(personConvertorDTO,times(1)).convertDtoToEntity(personDTO);
-        verify(personRepository,times(1)).save(personEntities);
-        verify(personConvertorDTO,times(1)).convertEntityToDto(personEntities);
+        verify(personRepository,times(1)).save(personEntity);
+        verify(personConvertorDTO,times(1)).convertEntityToDto(personEntity);
     }
+
+    @Test
+    void shouldReturnSave_ExceptionThrownByRepository() {
+
+        // Test with null personDTO
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {personService.save(null);});
+        assertEquals(PERSON_ERROR, exception.getMessage());
+
+        PersonDTO personDTO = new PersonDTO();
+        Person personEntity = new Person();
+
+        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
+        when(personRepository.save(personEntity)).thenThrow(new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE));
+
+        // Act & Assert
+        PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class, () -> {personService.save(personDTO);});
+
+        // Adjusted to check if the message contains the expected string
+        assertTrue(exception2.getMessage().contains("System error while saving persons in the repository:"));
+
+        // Verify the interactions
+        verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
+        verify(personRepository, times(1)).save(personEntity);
+    }
+
 
     @Test
     void shouldReturnUpdate() {

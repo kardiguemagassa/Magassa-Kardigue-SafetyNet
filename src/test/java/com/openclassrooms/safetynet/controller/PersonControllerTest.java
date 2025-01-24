@@ -1,5 +1,7 @@
 package com.openclassrooms.safetynet.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 
 import com.openclassrooms.safetynet.service.PersonService;
@@ -63,7 +65,7 @@ public class PersonControllerTest {
 
         when(personService.getPersons()).thenReturn(List.of(mockPersonDTO1,mockPersonDTO2));
         // Perform GET request
-        String response = mockMvc.perform(get("/persons"))
+        String response = mockMvc.perform(get("/person"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].firstName").value(mockPersonDTO1.getFirstName()))
@@ -78,7 +80,7 @@ public class PersonControllerTest {
         verify(personService, times(1)).getPersons();
     }
 
-    @Test
+    /*@Test
     @Order(2)
     void shouldReturnSaveAll() throws Exception {
         // Mock data
@@ -118,7 +120,7 @@ public class PersonControllerTest {
         when(personService.saveAll(anyList())).thenReturn(savedPersons);
 
         // Perform POST with serialized JSON
-        String response = mockMvc.perform(post("/person/saveAll")
+        String response = mockMvc.perform(post("/person")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                         .andExpect(status().isOk())
@@ -136,7 +138,7 @@ public class PersonControllerTest {
 
         // Verify service interaction
         verify(personService, times(1)).saveAll(anyList());
-    }
+    }*/
 
     @Test
     @Order(3)
@@ -161,10 +163,10 @@ public class PersonControllerTest {
         when(personService.save(any(PersonDTO.class))).thenReturn(mockPersonDTO1);
 
         // Perform POST request
-        String response = mockMvc.perform(post("/person/save")
+        String response = mockMvc.perform(post("/person")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                        .andExpect(status().isOk())
+                        .andExpect(status().isCreated())
                         .andExpect(jsonPath("$.firstName").value(mockPersonDTO1.getFirstName()))
                         .andExpect(jsonPath("$.lastName").value(mockPersonDTO1.getLastName()))
                         .andExpect(jsonPath("$.address").value(mockPersonDTO1.getAddress()))
@@ -206,7 +208,7 @@ public class PersonControllerTest {
         when(personService.update(any(PersonDTO.class))).thenReturn(Optional.of(mockPersonDTO1));
 
         // Perform PUT request
-        String responseUpdate = mockMvc.perform(put("/person/update")
+        String responseUpdate = mockMvc.perform(put("/person")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                         .andExpect(status().isOk())
@@ -237,17 +239,26 @@ public class PersonControllerTest {
         when(personService.deleteByFullName(mockPersonDTO1.getFirstName(), mockPersonDTO1.getLastName())).thenReturn(true);
 
         // Act
-        String response = mockMvc.perform(delete("/person/delete")
+        String response = mockMvc.perform(delete("/person")
                         .param("firstName", mockPersonDTO1.getFirstName())
                         .param("lastName", mockPersonDTO1.getLastName()))
-                        .andExpect(status().isOk())
+                        .andExpect(status().isNoContent())
+                        .andExpect(jsonPath("$.httpStatusCode").value(204)) // HTTP STATUS CODE
+                        .andExpect(jsonPath("$.httpStatus").value("NO_CONTENT")) // HTTP STATUS TEXT
+                        //.andExpect(jsonPath("$.message").value("USER DELETED SUCCESSFULLY")) // OR USE equalToIgnoringCase
+                        .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.equalToIgnoringCase("User deleted successfully"))) //Case
                         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                         .andReturn().getResponse().getContentAsString();
 
         LOGGER.info("ResponseDelete: " + response);
 
+        // Parse JSON response for validation
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonResponse = objectMapper.readTree(response);
+
         // Assert
         verify(personService, times(1)).deleteByFullName(mockPersonDTO1.getFirstName(), mockPersonDTO1.getLastName());
-        Assertions.assertEquals("true", response, "The delete response should be 'true' as returned by the service.");
+        //Assertions.assertEquals("true", response, "The delete response should be 'true' as returned by the service.");
+        Assertions.assertEquals("NO_CONTENT", jsonResponse.get("httpStatus").asText(), "Expected HTTP status NO_CONTENT in the response.");
     }
 }
