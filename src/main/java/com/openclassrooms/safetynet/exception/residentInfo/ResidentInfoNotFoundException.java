@@ -1,12 +1,12 @@
-package com.openclassrooms.safetynet.exception.api;
+package com.openclassrooms.safetynet.exception.residentInfo;
 
-public class ApiNotFoundException extends RuntimeException {
+public class ResidentInfoNotFoundException extends RuntimeException {
 
-    public ApiNotFoundException(String message) {
+    public ResidentInfoNotFoundException(String message) {
         super(message);
     }
 
-    public ApiNotFoundException(String message, Throwable cause) {
+    public ResidentInfoNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 }
