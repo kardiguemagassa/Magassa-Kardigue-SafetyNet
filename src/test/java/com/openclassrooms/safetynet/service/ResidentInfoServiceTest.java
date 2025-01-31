@@ -11,7 +11,8 @@ import com.openclassrooms.safetynet.repository.FireStationRepository;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,8 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ResidentInfoServiceTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -80,7 +80,6 @@ public class ResidentInfoServiceTest {
 
         //int age1 = Period.between(birthDate1, LocalDate.now()).getYears();
         //int age2 = Period.between(birthDate2, LocalDate.now()).getYears();
-
 
         // Person
         person1 = Person.builder()
@@ -398,11 +397,6 @@ public class ResidentInfoServiceTest {
                 .thenReturn(List.of(fireStation1.getAddress(), fireStation2.getAddress()));
         LOGGER.debug("Mocked fire station addresses: {}, {}", fireStation1.getAddress(), fireStation2.getAddress());
 
-        // Mock FireStation conversion
-        when(fireStationConvertorDTO.convertEntityToDto(fireStation1)).thenReturn(fireStationDTO1);
-        when(fireStationConvertorDTO.convertEntityToDto(fireStation2)).thenReturn(fireStationDTO2);
-        LOGGER.debug("Converted FireStation entities to DTOs");
-
         // Mock residents at addresses
         when(personRepository.findByAddresses(List.of(fireStationDTO1.getAddress(), fireStationDTO2.getAddress())))
                 .thenReturn(List.of(person1, person2));
@@ -482,72 +476,4 @@ public class ResidentInfoServiceTest {
 
         LOGGER.info("Test shouldReturnPersonInfoByLastName completed successfully");
     }
-
-
-    //==================================================================================================================>
-    /*@Test
-    void shouldEnrichResident() {
-        // Arrange
-        Person resident = person1;
-        String address = "123 Main St";
-
-        // Mock de la conversion Person -> PersonDTO
-        when(personConvertorDTO.convertEntityToDto(resident)).thenReturn(personDTO1);
-
-        // Mock des dossiers médicaux
-        when(medicalRecordRepository.findByFullName("John", "Doe")).thenReturn(medicalRecord1);
-        when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
-
-        // Act
-        ResidentInfoDTO enrichedResident = residentInfoService.enrichResident(resident, address);
-
-        // Assert
-        assertNotNull(enrichedResident);
-        assertEquals("John", enrichedResident.getFirstName());
-        assertEquals("Doe", enrichedResident.getLastName());
-        assertEquals("123 Main St", enrichedResident.getAddress());
-        assertEquals("0144445151", enrichedResident.getPhone());
-        assertEquals(35, enrichedResident.getAge()); // date de naissance "01/01/1990"
-        assertEquals(List.of("aznol:350mg", "hydrapermazol:100mg"), enrichedResident.getMedications());
-        assertEquals(List.of("nillacilan"), enrichedResident.getAllergies());
-    }
-
-    @Test
-    void shouldEnrichPerson() {
-        // Arrange
-        Person resident = person1;
-        when(personConvertorDTO.convertEntityToDto(resident)).thenReturn(personDTO1);
-
-        // Act
-        PersonDTO result = residentInfoService.enrichPerson(resident);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
-        assertEquals("123 Main St", result.getAddress());
-        assertEquals("0144445151", result.getPhone());
-        assertEquals("johndoe@gmail.com", result.getEmail());
-    }
-
-    @Test
-    void shouldEnrichMedicalRecord() {
-        // Arrange
-        when(medicalRecordRepository.findByFullName("John", "Doe")).thenReturn(medicalRecord1);
-        when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
-
-        // Act
-        MedicalRecordDTO result = residentInfoService.enrichMedicalRecord("John", "Doe");
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("John", result.getFirstName());
-        assertEquals("Doe", result.getLastName());
-        assertEquals("01/01/1990", result.getBirthdate());
-        assertEquals(List.of("aznol:350mg", "hydrapermazol:100mg"), result.getMedications());
-        assertEquals(List.of("nillacilan"), result.getAllergies());
-    }
-
-     */
-
 }

@@ -6,7 +6,8 @@ import com.openclassrooms.safetynet.exception.medicalRecord.MedicalRecordNotFoun
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,7 +25,7 @@ import static com.openclassrooms.safetynet.constant.service.MedicalRecordImplCon
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class MedicalRecordServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MedicalRecordServiceTest.class);
