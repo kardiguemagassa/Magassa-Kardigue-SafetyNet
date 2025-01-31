@@ -25,9 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(FireStationController.class)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FireStationControllerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FireStationControllerTest.class);
@@ -85,45 +82,6 @@ public class FireStationControllerTest {
         verify(fireStationService, times(1)).getFireStations();
     }
 
-    /*@Test
-    void shouldReturnSaveAll() throws Exception {
-
-        String json = """
-                [
-                    {
-                    "address": "149 Bd Pei ere 75007 Paris",
-                    "station": "1"
-                    },
-                    {
-                    "address": "150 Bd Pei ere 75007 Paris",
-                    "station": "2"
-                    }
-                ]
-                """;
-        mockFireStationDTO1 = new FireStationDTO();
-        mockFireStationDTO1.setAddress("149 Bd Pei ere 75007 Paris");
-        mockFireStationDTO1.setStation("1");
-
-        mockFireStationDTO2 = new FireStationDTO();
-        mockFireStationDTO2.setAddress("150 Bd Pei ere 75007 Paris");
-        mockFireStationDTO2.setStation("2");
-
-        List<FireStationDTO> saveFireStations = List.of(mockFireStationDTO1,mockFireStationDTO2);
-
-        when(fireStationService.saveAll(anyList())).thenReturn(saveFireStations);
-
-        String response = mockMvc.perform(post("/firestation")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$[0].address").value(mockFireStationDTO1.getAddress()))
-                        .andExpect(jsonPath("$[0].station").value(mockFireStationDTO1.getStation()))
-                        .andExpect(jsonPath("$[1].address").value(mockFireStationDTO2.getAddress()))
-                        .andExpect(jsonPath("$[1].station").value(mockFireStationDTO2.getStation()))
-                        .andReturn().getResponse().getContentAsString();
-
-        LOGGER.info("ResponseSaveList: " + response);
-    }*/
 
     @Test
     void shouldReturnSave() throws Exception {

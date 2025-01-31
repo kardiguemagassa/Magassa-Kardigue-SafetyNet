@@ -38,30 +38,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ResidentInfoController.class)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ResidentInfoControllerTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    /*
-    @Mock
-    private MedicalRecordConvertorDTO medicalRecordConvertorDTO;
-    @Mock
-    private FireStationConvertorDTO fireStationConvertorDTO;
-    @Mock
-    private PersonConvertorDTO personConvertorDTO;
-    @Mock
-    private PersonRepository personRepository;
-    @Mock
-    private MedicalRecordRepository medicalRecordRepository;
 
-     */
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Mock
-    private FireStationRepository fireStationRepository;
+    @MockitoBean
+    private ResidentInfoService residentInfoService;
 
     /*
     private Person person1;
@@ -84,12 +71,6 @@ public class ResidentInfoControllerTest {
 
     private ResidentInfoDTO residentInfoDTO1;
     private ResidentInfoDTO residentInfoDTO2;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
-    private ResidentInfoService residentInfoService;
 
     @BeforeEach
     void setUp() {
@@ -417,7 +398,9 @@ public class ResidentInfoControllerTest {
 
         // Mock addresses associated with stations
         List<String> mockAddresses = List.of(address1, address2);
-        when(fireStationRepository.findAddressesByStationNumbers(stationNumbers)).thenReturn(mockAddresses);
+
+        // appel à une méthode, mais le test n'en a pas besoin.
+        //when(fireStationRepository.findAddressesByStationNumbers(stationNumbers)).thenReturn(mockAddresses);
         LOGGER.info("Mocked addresses for stations {}: {}", stationNumbers, mockAddresses);
 
         // Mock enriched residents

@@ -24,7 +24,6 @@ import java.time.LocalDate;
 import java.time.Period;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
 
@@ -63,19 +62,14 @@ public class ResidentInfoService {
 
         List<ResidentInfoDTO> enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
-                .map(resident -> new ResidentInfoDTO(
-                        resident.getFirstName(),
-                        resident.getLastName(),
-                        resident.getAddress(),
-                        resident.getPhone(),
-                        resident.getAge(),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                ))
-                .toList();
+                .map(resident -> {
+                    resident.setEmail(null);
+                    resident.setMedications(null);
+                    resident.setAllergies(null);
+                    resident.setStationNumber(null);
+                    resident.setHouseholdMembers(null);
+                    return resident;
+                }).toList();
 
         // Calculate the number of adults and children
         long childCount = enrichedResidents.stream().filter(resident -> resident.getAge() <= 18).count();
@@ -98,44 +92,42 @@ public class ResidentInfoService {
                 .map(person -> enrichResident(person, person.getAddress()))
                 .filter(Objects::nonNull)
                 .filter(resident -> resident.getAge() <= 18)
-                .map(resident -> new ResidentInfoDTO(
-                        resident.getFirstName(),
-                        resident.getLastName(),
-                        null, null,
-                        resident.getAge(),
-                        null,
-                        null, null, null,
-                        null
-                ))
-                .toList();
+                .map(resident -> {
+                    resident.setAddress(null);
+                    resident.setPhone(null);
+                    resident.setEmail(null);
+                    resident.setMedications(null);
+                    resident.setAllergies(null);
+                    resident.setStationNumber(null);
+                    resident.setHouseholdMembers(null);
+                    return resident;
+                }).toList();
 
         // If no children, returns an empty list
         if (children.isEmpty()) {
             return Collections.emptyList();
         }
 
-
         List<ResidentInfoDTO> householdMembers = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress()))
                 .filter(Objects::nonNull)
                 .filter(resident -> resident.getAge() > 18)
-                .map(resident -> new ResidentInfoDTO(
-                        resident.getFirstName(),
-                        resident.getLastName(),
-                        null, null,
-                        resident.getAge(),
-                        null,
-                        null, null, null,
-                        null
-                ))
-                .toList();
+                .map(resident -> {
+                    resident.setAddress(null);
+                    resident.setPhone(null);
+                    resident.setEmail(null);
+                    resident.setMedications(null);
+                    resident.setAllergies(null);
+                    resident.setStationNumber(null);
+                    resident.setHouseholdMembers(null);
+                    return resident;
+                }).toList();
 
         // Involves other household members with the children
         children.forEach(child -> child.setHouseholdMembers(new ArrayList<>(householdMembers)));
 
         return children;
     }
-
 
 
     // 4 FINISH
@@ -162,20 +154,15 @@ public class ResidentInfoService {
         List<ResidentInfoDTO> enrichedResidents;
         enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
-                .map(resident -> new ResidentInfoDTO(
-                        null,
-                        resident.getLastName(),
-                        null,
-                        resident.getPhone(),
-                        resident.getAge(),
-                        null,
-                        resident.getMedications(),
-                        resident.getAllergies(),
-                        fireStationNumber,
-                        null
+                .map(resident -> {
+                    resident.setFirstName(null);
+                    resident.setAddress(null);
+                    resident.setEmail(null);
+                    resident.setStationNumber(fireStationNumber);
+                    resident.setHouseholdMembers(null);
+                    return resident;
+                }).toList();
 
-                )).toList();
-        //LOGGER.info("Residents for address {}: {}", address, enrichedResidents);
         return enrichedResidents;
     }
 
@@ -195,21 +182,13 @@ public class ResidentInfoService {
         List<ResidentInfoDTO> enrichedResidents;
         enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
-                .map(resident -> new ResidentInfoDTO(
-                        null,
-                        resident.getLastName(),
-                        resident.getAddress(),
-                        resident.getPhone(),
-                        resident.getAge(),
-                        null,
-                        resident.getMedications(),
-                        resident.getAllergies(),
-                        null,
-                        null
-
-                ))
-                //.filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(resident -> {
+                    resident.setFirstName(null);
+                    resident.setEmail(null);
+                    resident.setStationNumber(null);
+                    resident.setHouseholdMembers(null);
+                    return resident;
+                }).toList();
 
         return enrichedResidents;
     }
@@ -227,19 +206,13 @@ public class ResidentInfoService {
 
         enrichedResidents = persons.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
-                .map(resident -> new ResidentInfoDTO(
-                        null,
-                        resident.getLastName(),
-                        resident.getAddress(),
-                        null,
-                        resident.getAge(),
-                        resident.getEmail(),
-                        resident.getMedications(),
-                        resident.getAllergies(),
-                        null,
-                        null
-                ))
-                .toList();
+                .map(resident -> {
+                    resident.setFirstName(null);
+                    resident.setPhone(null);
+                    resident.setStationNumber(null);
+                    resident.setHouseholdMembers(null);
+                    return resident;
+                }).toList();
 
         return enrichedResidents;
     }
@@ -280,31 +253,6 @@ public class ResidentInfoService {
         }
     }
 
-    /*
-    public PersonDTO enrichPerson(Person resident) {
-        if (resident == null) {
-            LOGGER.error("The resident object cannot be null.");
-            throw new IllegalArgumentException("The resident object cannot be null.");
-        }
-        return personConvertorDTO.convertEntityToDto(resident);
-    }
-
-    // Méthode pour enrichir les informations médicales
-    public MedicalRecordDTO enrichMedicalRecord(String firstName, String lastName) {
-
-        MedicalRecord medicalRecord = medicalRecordRepository.findByFullName(firstName, lastName);
-        MedicalRecordDTO medicalRecordDTO = medicalRecordConvertorDTO.convertEntityToDto(medicalRecord);
-
-        if (medicalRecordDTO == null || medicalRecordDTO.getBirthdate() == null) {
-            LOGGER.error(MESSING_MEDICAL, firstName, lastName);
-            return null;
-        }
-
-        return medicalRecordDTO;
-    }
-
-     */
-
     // Method to enrich the person's information
     private PersonDTO enrichPerson(Person resident) {
 
@@ -314,8 +262,6 @@ public class ResidentInfoService {
                     return new ResidentInfoNotFoundException(PERSON_NOT_FOUND);
                 });
     }
-
-
 
     // Method for enriching medical information
     private MedicalRecordDTO enrichMedicalRecord(String firstName, String lastName) {
@@ -330,7 +276,7 @@ public class ResidentInfoService {
     }
 
     // Utility method for calculating age
-    public int calculateAge(LocalDate birthDate) {
+    private int calculateAge(LocalDate birthDate) {
         return (birthDate != null) ? Period.between(birthDate, LocalDate.now()).getYears() : 0;
     }
 

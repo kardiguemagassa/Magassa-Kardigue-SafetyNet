@@ -1,6 +1,8 @@
 package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
@@ -28,7 +30,7 @@ import java.util.List;
 import java.util.*;
 
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class CityEmailAndPhoneNumberByStationServiceTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());

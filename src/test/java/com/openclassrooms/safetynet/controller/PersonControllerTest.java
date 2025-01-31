@@ -28,15 +28,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PersonController.class)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PersonControllerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonControllerTest.class);
 
     @Autowired
     private MockMvc mockMvc; // make requests on the controller
+
     @MockitoBean // Inject personService
     private PersonService personService;
 
@@ -52,13 +51,6 @@ public class PersonControllerTest {
                 "Springfield", "75016", "0144445151");
         LOGGER.info("@BeforeEach executes before the execution of every test method in this class");
     }
-    @AfterEach
-    public void tearDownAfterEach() {LOGGER.info("Running @AfterEach");}
-    @BeforeAll
-    static void setUpBeforeClass() {LOGGER.info("@BeforeAll executes only once before all test methods execute in this class");}
-    @AfterAll
-    static void tearDownAfterAll() {LOGGER.info("@AfterAll executes only once after all test methods execute in this class");}
-
 
     @Test
     @Order(1)
@@ -80,66 +72,6 @@ public class PersonControllerTest {
         // Verify service interaction
         verify(personService, times(1)).getPersons();
     }
-
-    /*@Test
-    @Order(2)
-    void shouldReturnSaveAll() throws Exception {
-        // Mock data
-        // JSON request to send
-        String json = """
-        [
-            {
-                "firstName": "John",
-                "lastName": "Doe",
-                "address": "123 Main St",
-                "email": "johndoe@gmail.com"
-            },
-            {
-                "firstName": "Jane",
-                "lastName": "Doe",
-                "address": "123 Main St",
-                "email": "janedoe@gmail.com"
-            }
-        ]
-        """;
-        // Prepare PersonDTO that mocks will use
-        mockPersonDTO1 = new PersonDTO();
-        mockPersonDTO1.setFirstName("John");
-        mockPersonDTO1.setLastName("Doe");
-        mockPersonDTO1.setAddress("123 Main St");
-        mockPersonDTO1.setEmail("johndoe@gmail.com");
-
-        mockPersonDTO2 = new PersonDTO();
-        mockPersonDTO2.setFirstName("Jane");
-        mockPersonDTO2.setLastName("Doe");
-        mockPersonDTO2.setAddress("123 Main St");
-        mockPersonDTO2.setEmail("janedoe@gmail.com");
-
-        List<PersonDTO> savedPersons = List.of(mockPersonDTO1, mockPersonDTO2);
-
-        // Mock the service to expect and return the PersonDTO list
-        when(personService.saveAll(anyList())).thenReturn(savedPersons);
-
-        // Perform POST with serialized JSON
-        String response = mockMvc.perform(post("/person")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$[0].firstName").value(mockPersonDTO1.getFirstName()))
-                        .andExpect(jsonPath("$[0].lastName").value(mockPersonDTO1.getLastName()))
-                        .andExpect(jsonPath("$[0].address").value(mockPersonDTO1.getAddress()))
-                        .andExpect(jsonPath("$[0].email").value(mockPersonDTO1.getEmail()))
-                        .andExpect(jsonPath("$[1].firstName").value(mockPersonDTO2.getFirstName()))
-                        .andExpect(jsonPath("$[1].lastName").value(mockPersonDTO2.getLastName()))
-                        .andExpect(jsonPath("$[1].address").value(mockPersonDTO2.getAddress()))
-                        .andExpect(jsonPath("$[1].email").value(mockPersonDTO2.getEmail()))
-                        .andReturn().getResponse().getContentAsString();
-
-        LOGGER.info("ResponseSaveList: " + response);
-
-        // Verify service interaction
-        verify(personService, times(1)).saveAll(anyList());
-    }*/
 
     @Test
     @Order(3)

@@ -48,6 +48,7 @@ public class ResidentInfoController extends ExceptionHandling {
     */
     @GetMapping("/childAlert")
     public ResponseEntity<List<ResidentInfoDTO>> getChildrenByAddress(@RequestParam("address") String address) {
+
         List<ResidentInfoDTO> children = residentInfoService.getChildrenByAddress(address);
         return new ResponseEntity<>(children, HttpStatus.OK);
     }
@@ -64,7 +65,6 @@ public class ResidentInfoController extends ExceptionHandling {
     public ResponseEntity<List<ResidentInfoDTO>> getResidentsByAddress(@RequestParam("address") String address) {
 
         List<ResidentInfoDTO> residentInfoDTOS = residentInfoService.getResidentsByAddress(address);
-
         return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
     }
 

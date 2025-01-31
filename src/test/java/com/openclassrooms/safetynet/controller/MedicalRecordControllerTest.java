@@ -28,10 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MedicalRecordController.class)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-//@TestMethodOrder(MethodOrderer.MethodName.class)
-//@TestMethodOrder(MethodOrderer.DisplayName.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MedicalRecordControllerTest {
 
@@ -40,6 +36,7 @@ public class MedicalRecordControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private MedicalRecordService medicalRecordService;
+
     private MedicalRecordDTO mockMedicalRecordDTO1;
     private MedicalRecordDTO mockMedicalRecordDTO2;
 
@@ -55,23 +52,6 @@ public class MedicalRecordControllerTest {
         LOGGER.info("@BeforeEach executes before the execution of every test method in this class");
     }
 
-    @AfterEach
-    public void tearDownAfterEach() {
-        LOGGER.info("Running @AfterEach");
-        System.out.println();
-    }
-
-    @BeforeAll
-    static void setUpBeforeClass() {
-        LOGGER.info("@BeforeAll executes only once before all test methods execute in this class");
-        System.out.println();
-    }
-
-    @AfterAll
-    static void tearDownAfterAll() {
-        LOGGER.info("@AfterAll executes only once after all test methods execute in this class");
-        System.out.println();
-    }
 
     @Test
     @Order(1)
@@ -101,71 +81,6 @@ public class MedicalRecordControllerTest {
         // Verify service interaction
         verify(medicalRecordService, times(1)).getMedicalRecords();
     }
-
-    /*@Test
-    @Order(2)
-    void shouldReturnSaveAllMedicalRecord() throws Exception {
-
-        String json = """
-                [
-                    {
-                    "firstName": "John",
-                    "lastName": "Doe",
-                    "medications": ["Allergy", "Flu"],
-                    "allergies": ["Allergy", "Flu"],
-                    "birthdate": "1990-01-01"
-                    },
-                    {
-                    "firstName": "Jane",
-                    "lastName": "Doe",
-                    "medications": ["Allergy", "Flu"],
-                    "allergies": ["Allergy", "Flu"],
-                    "birthdate": "01/01/2000"
-                    }
-                ]
-                """;
-
-        mockMedicalRecordDTO1 = new MedicalRecordDTO();
-        mockMedicalRecordDTO1.setFirstName("John");
-        mockMedicalRecordDTO1.setLastName("Doe");
-        mockMedicalRecordDTO1.setMedications(List.of("Allergy", "Flu"));
-        mockMedicalRecordDTO1.setAllergies(List.of("Allergy", "Flu"));
-        mockMedicalRecordDTO1.setBirthdate("1990-01-01");
-
-        mockMedicalRecordDTO2 = new MedicalRecordDTO();
-        mockMedicalRecordDTO2.setFirstName("Jane");
-        mockMedicalRecordDTO2.setLastName("Doe");
-        mockMedicalRecordDTO2.setMedications(List.of("Allergy", "Flu"));
-        mockMedicalRecordDTO2.setAllergies(List.of("Allergy", "Flu"));
-        mockMedicalRecordDTO2.setBirthdate("01/01/2000");
-
-        List<MedicalRecordDTO> savedMedicalRecords = List.of(mockMedicalRecordDTO1, mockMedicalRecordDTO2);
-
-        // Mock data
-        when(medicalRecordService.saveAll(anyList())).thenReturn(savedMedicalRecords);
-
-        // Perform POST request
-        String response = mockMvc.perform(post("/medicalrecord")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstName").value(mockMedicalRecordDTO1.getFirstName()))
-                .andExpect(jsonPath("$[0].lastName").value(mockMedicalRecordDTO1.getLastName()))
-                .andExpect(jsonPath("$[0].birthdate").value(mockMedicalRecordDTO1.getBirthdate()))
-                .andExpect(jsonPath("$[0].medications[0]").value(mockMedicalRecordDTO1.getMedications().get(0)))
-                .andExpect(jsonPath("$[0].allergies[1]").value(mockMedicalRecordDTO1.getAllergies().get(1)))
-                .andExpect(jsonPath("$[1].firstName").value(mockMedicalRecordDTO2.getFirstName()))
-                .andExpect(jsonPath("$[1].lastName").value(mockMedicalRecordDTO2.getLastName()))
-                .andExpect(jsonPath("$[1].birthdate").value(mockMedicalRecordDTO2.getBirthdate()))
-                .andExpect(jsonPath("$[1].medications[0]").value(mockMedicalRecordDTO2.getMedications().get(0)))
-                .andExpect(jsonPath("$[1].allergies[1]").value(mockMedicalRecordDTO2.getAllergies().get(1)))
-                .andReturn().getResponse().getContentAsString();
-
-        LOGGER.info("ResponseSaveList: " + response);
-
-        // Verify service interaction
-        verify(medicalRecordService, times(1)).saveAll(anyList());
-    }*/
 
     @Test
     @Order(3)

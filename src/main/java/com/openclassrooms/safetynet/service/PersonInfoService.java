@@ -20,7 +20,7 @@ import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplCons
 
 @Service
 @AllArgsConstructor
-public class CityEmailAndPhoneNumberByStationService {
+public class PersonInfoService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 

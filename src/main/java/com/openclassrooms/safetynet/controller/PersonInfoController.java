@@ -2,7 +2,7 @@ package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
-import com.openclassrooms.safetynet.service.CityEmailAndPhoneNumberByStationService;
+import com.openclassrooms.safetynet.service.PersonInfoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +14,9 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class CityEmailAndPhoneNumberByStationController {
+public class PersonInfoController {
 
-    private final CityEmailAndPhoneNumberByStationService cityEmailAndPhoneNumberByStationService;
+    private final PersonInfoService cityEmailAndPhoneNumberByStationService;
 
 
     /* 3
@@ -28,6 +28,7 @@ public class CityEmailAndPhoneNumberByStationController {
    */
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getPhoneNumbersByStation(@RequestParam("firestation") int stationNumber) {
+
         List<String> phoneNumbers = cityEmailAndPhoneNumberByStationService.getPhoneNumbersByStation(stationNumber);
         return new ResponseEntity<>(phoneNumbers, HttpStatus.OK);
     }
@@ -42,7 +43,6 @@ public class CityEmailAndPhoneNumberByStationController {
             throws EmailNotFoundException, PersonNotFoundException, IllegalArgumentException {
 
         List<String> emails = cityEmailAndPhoneNumberByStationService.getCommunityEmails(city);
-
         return ResponseEntity.ok(emails);
     }
 }

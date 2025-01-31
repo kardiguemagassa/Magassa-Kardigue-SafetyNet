@@ -5,7 +5,7 @@ import com.openclassrooms.safetynet.dto.*;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
-import com.openclassrooms.safetynet.service.CityEmailAndPhoneNumberByStationService;
+import com.openclassrooms.safetynet.service.PersonInfoService;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,23 +28,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(CityEmailAndPhoneNumberByStationController.class)
+@WebMvcTest(PersonInfoController.class)
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class CityEmailAndPhoneNumberByStationControllerTest {
+public class PersonInfoControllerTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    @Mock
-    private PersonRepository personRepository;
-    @Mock
-    private FireStationRepository fireStationRepository;
     @Autowired
     private MockMvc mockMvc;
+
     @MockitoBean
-    private CityEmailAndPhoneNumberByStationService cityEmailAndPhoneNumberByStationService;
+    private PersonInfoService cityEmailAndPhoneNumberByStationService;
 
     private Person person1;
     private Person person2;
@@ -102,10 +96,6 @@ public class CityEmailAndPhoneNumberByStationControllerTest {
                 .address("149 Bd Pei ere 75007 Paris")
                 .station("1")
                 .build();
-        fireStationDTO2 = FireStationDTO.builder()
-                .address("150 Bd Pei ere 75007 Paris")
-                .station("2")
-                .build();
     }
 
 
@@ -114,14 +104,6 @@ public class CityEmailAndPhoneNumberByStationControllerTest {
 
         // Arrange
         int stationNumber = Integer.parseInt(fireStationDTO1.getStation());
-
-        // addresses linked to the barracks number
-        List<String> mockAddresses = List.of(fireStationDTO1.getAddress(), fireStationDTO2.getAddress());
-        when(fireStationRepository.findAddressesByStationNumber(stationNumber)).thenReturn(mockAddresses);
-
-        // residents with phone numbers
-        List<Person> mockPersons = List.of(person1,person2);
-        when(personRepository.findByAddresses(mockAddresses)).thenReturn(mockPersons);
 
         // retrieve phone numbers
         List<String> mockPhoneNumbers = List.of(person1.getPhone(), person2.getPhone());
