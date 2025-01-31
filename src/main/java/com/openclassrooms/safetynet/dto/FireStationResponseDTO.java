@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.dto.api;
+package com.openclassrooms.safetynet.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

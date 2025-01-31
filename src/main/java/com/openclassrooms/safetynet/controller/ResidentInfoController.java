@@ -3,7 +3,7 @@ package com.openclassrooms.safetynet.controller;
 import com.openclassrooms.safetynet.dto.FireStationResponseDTO;
 import com.openclassrooms.safetynet.dto.ResidentInfoDTO;
 import com.openclassrooms.safetynet.exception.ExceptionHandling;
-import com.openclassrooms.safetynet.service.ApiService;
+import com.openclassrooms.safetynet.service.ResidentInfoService;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +16,9 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class ApiController extends ExceptionHandling {
+public class ResidentInfoController extends ExceptionHandling {
 
-    private final ApiService apiService;
+    private final ResidentInfoService residentInfoService;
 
     /* 1
     http://localhost:8080/firestation?stationNumber=<station_number>
@@ -33,21 +33,22 @@ public class ApiController extends ExceptionHandling {
     @GetMapping("/firestation/addressNumber")
     public ResponseEntity<FireStationResponseDTO> getPersonsByStation(@RequestParam("stationNumber") int stationNumber) {
 
-        FireStationResponseDTO fireStationResponseDTO = apiService.getPersonsByStation(stationNumber);
+        FireStationResponseDTO fireStationResponseDTO = residentInfoService.getPersonsByStation(stationNumber);
         return new ResponseEntity<>(fireStationResponseDTO, HttpStatus.OK);
     }
 
     /*  2
     http://localhost:8080/childAlert?address=<address>
     http://localhost:8080/childAlert?address=1509 Culver St
+    http://localhost:8080/childAlert?address=29 15th St
     Cette url doit retourner une liste d'enfants (tout individu âgé de 18 ans ou moins)
     habitant à cette adresse. La liste doit comprendre le prénom et le nom de famille de
     chaque enfant, son âge et une liste des autres membres du foyer. S'il n'y a pas
     d'enfant, cette url peut renvoyer une chaîne vide.
     */
     @GetMapping("/childAlert")
-    public ResponseEntity<List<ResidentInfoDTO>> getChildrenByAddressObject(@RequestParam("address") String address) {
-        List<ResidentInfoDTO> children = apiService.getChildrenByAddress(address);
+    public ResponseEntity<List<ResidentInfoDTO>> getChildrenByAddress(@RequestParam("address") String address) {
+        List<ResidentInfoDTO> children = residentInfoService.getChildrenByAddress(address);
         return new ResponseEntity<>(children, HttpStatus.OK);
     }
 
@@ -62,7 +63,7 @@ public class ApiController extends ExceptionHandling {
     @GetMapping("/fire")
     public ResponseEntity<List<ResidentInfoDTO>> getResidentsByAddress(@RequestParam("address") String address) {
 
-        List<ResidentInfoDTO> residentInfoDTOS = apiService.getResidentsByAddress(address);
+        List<ResidentInfoDTO> residentInfoDTOS = residentInfoService.getResidentsByAddress(address);
 
         return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
     }
@@ -79,7 +80,7 @@ public class ApiController extends ExceptionHandling {
     @GetMapping("/flood/stations")
     public ResponseEntity<List <ResidentInfoDTO>> getFloodInfo (@RequestParam("stations") List < Integer > stations) {
 
-        List<ResidentInfoDTO> response = apiService.getFloodInfoByStations(stations);
+        List<ResidentInfoDTO> response = residentInfoService.getFloodInfoByStations(stations);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -95,7 +96,7 @@ public class ApiController extends ExceptionHandling {
     @GetMapping("/personInfolastName")
     public ResponseEntity<List <ResidentInfoDTO>>getPersonInfo (@RequestParam String lastName) {
 
-        List<ResidentInfoDTO> residentInfoDTOS = apiService.getPersonInfo(lastName);
+        List<ResidentInfoDTO> residentInfoDTOS = residentInfoService.getPersonInfo(lastName);
 
         return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
     }

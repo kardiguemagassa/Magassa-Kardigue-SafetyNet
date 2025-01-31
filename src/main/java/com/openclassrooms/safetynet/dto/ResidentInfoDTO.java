@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.dto.api;
+package com.openclassrooms.safetynet.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -24,6 +24,7 @@ public class ResidentInfoDTO {
     private List<String> medications;
     private List<String> allergies;
     private Integer stationNumber;
+    private List<ResidentInfoDTO> householdMembers; // ENVOIE D'UN POSSIBLE LISTE VIDE
 
     /*
     // Existing Builder (with all fields)

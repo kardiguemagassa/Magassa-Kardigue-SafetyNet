@@ -1,9 +1,9 @@
 package com.openclassrooms.safetynet.exception;
 
-import com.openclassrooms.safetynet.exception.api.ApiNotFoundException;
+import com.openclassrooms.safetynet.exception.residentInfo.ResidentInfoNotFoundException;
 import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
 import com.openclassrooms.safetynet.exception.medicalRecord.MedicalRecordNotFoundException;
-import com.openclassrooms.safetynet.exception.api.EmailNotFoundException;
+import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
 import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.HttpResponse;
 
@@ -97,8 +97,8 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(BAD_REQUEST, INTERNAL_SERVER_ERROR_MSG, request);
     }
 
-    @ExceptionHandler(ApiNotFoundException.class)
-    public ResponseEntity<HttpResponse> handleApiNotFoundException(ApiNotFoundException exception, WebRequest request) {
+    @ExceptionHandler(ResidentInfoNotFoundException.class)
+    public ResponseEntity<HttpResponse> handleApiNotFoundException(ResidentInfoNotFoundException exception, WebRequest request) {
         return createHttpResponse(BAD_REQUEST, INTERNAL_SERVER_ERROR_API_SERVICE, request);
     }
 

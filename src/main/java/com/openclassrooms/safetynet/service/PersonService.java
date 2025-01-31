@@ -147,8 +147,8 @@ public class PersonService {
             return true;
 
         } catch (PersonNotFoundException e) {
-            LOGGER.info(PERSON_ERROR_DELETING_NOT_, e.getMessage());
-            throw e;
+            LOGGER.error(PERSON_ERROR_DELETING_NOT, e.getMessage());
+            throw new PersonNotFoundException("Person not found");
 
         }catch (IllegalArgumentException e) {
                 throw e;

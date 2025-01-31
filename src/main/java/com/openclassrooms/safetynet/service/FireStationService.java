@@ -1,16 +1,11 @@
 package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.FireStationConvertorDTO;
-import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
-import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 
 import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
-
 import com.openclassrooms.safetynet.repository.FireStationRepository;
-import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
-import com.openclassrooms.safetynet.repository.PersonRepository;
 
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
