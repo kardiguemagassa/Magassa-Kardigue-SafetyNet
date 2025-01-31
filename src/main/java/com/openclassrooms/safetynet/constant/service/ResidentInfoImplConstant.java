@@ -2,7 +2,7 @@ package com.openclassrooms.safetynet.constant.service;
 
 import java.time.format.DateTimeFormatter;
 
-public class ApiImplConstant {
+public class ResidentInfoImplConstant {
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
@@ -18,4 +18,6 @@ public class ApiImplConstant {
     public static final String MESSING_MEDICAL = "Missing medical record for {} {}";
     public static final String ERROR_REPOSITORIES = "Same thing wrong in repositories look personRepository or medicalRecordRepository: {}";
     public static final String MESSING_BIRTH_DATE = "Error parsing birthdate for {} {}: {}";
+
+    public static final String PERSON_NOT_FOUND = "No person found for fullName:";
 }

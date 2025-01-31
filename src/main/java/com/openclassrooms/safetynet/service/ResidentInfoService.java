@@ -6,13 +6,10 @@ import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.dto.api.FireStationResponseDTO;
-import com.openclassrooms.safetynet.dto.api.ResidentInfoDTO;
-import com.openclassrooms.safetynet.exception.api.ApiNotFoundException;
-import com.openclassrooms.safetynet.exception.api.EmailNotFoundException;
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
+import com.openclassrooms.safetynet.dto.FireStationResponseDTO;
+import com.openclassrooms.safetynet.dto.ResidentInfoDTO;
+import com.openclassrooms.safetynet.exception.residentInfo.ResidentInfoNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
-import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
@@ -29,11 +26,11 @@ import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.openclassrooms.safetynet.constant.service.ApiImplConstant.*;
+import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
 
 @Service
 @AllArgsConstructor
-public class ApiService {
+public class ResidentInfoService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -65,8 +62,7 @@ public class ApiService {
         }
 
         List<ResidentInfoDTO> enrichedResidents = residents.stream()
-                .map(person -> enrichResident(person, person.getAddress()))
-                .filter(Objects::nonNull)
+                .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
                         resident.getFirstName(),
                         resident.getLastName(),
@@ -76,13 +72,13 @@ public class ApiService {
                         null,
                         null,
                         null,
+                        null,
                         null
                 ))
                 .toList();
 
         // Calculate the number of adults and children
         long childCount = enrichedResidents.stream().filter(resident -> resident.getAge() <= 18).count();
-
         long adultCount = enrichedResidents.size() - childCount;
 
         return new FireStationResponseDTO((int) adultCount, (int) childCount, enrichedResidents);
@@ -95,43 +91,52 @@ public class ApiService {
 
         if (residents == null || residents.isEmpty()) {
             LOGGER.info(API_ADDRESS_NOT_FOUND, address);
-            throw new IllegalArgumentException(API_ADDRESS_NOT_FOUND);
-
-        }
-
-        return residents.stream()
-                .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
-                .map(resident -> new ResidentInfoDTO(
-                        resident.getFirstName(),
-                        resident.getLastName(),
-                        null,
-                        null,
-                        resident.getAge(),
-                        null,
-                        null,
-                        null,
-                        null
-
-                ))
-                //.filter(Objects::nonNull)
-                .toList();
-    }
-
-    // 3 FINISH
-    public List<String> getPhoneNumbersByStation(int stationNumber) {
-
-        List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
-        if (addresses == null || addresses.isEmpty()) {
-            LOGGER.error(API_ADDRESS_NUMBER_NOT_FOUND, stationNumber);
             return Collections.emptyList();
         }
 
-        return personRepository.findByAddresses(addresses).stream()
-                .map(Person::getPhone)
+        List<ResidentInfoDTO> children = residents.stream()
+                .map(person -> enrichResident(person, person.getAddress()))
                 .filter(Objects::nonNull)
-                .distinct()
+                .filter(resident -> resident.getAge() <= 18)
+                .map(resident -> new ResidentInfoDTO(
+                        resident.getFirstName(),
+                        resident.getLastName(),
+                        null, null,
+                        resident.getAge(),
+                        null,
+                        null, null, null,
+                        null
+                ))
                 .toList();
+
+        // If no children, returns an empty list
+        if (children.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+
+        List<ResidentInfoDTO> householdMembers = residents.stream()
+                .map(person -> enrichResident(person, person.getAddress()))
+                .filter(Objects::nonNull)
+                .filter(resident -> resident.getAge() > 18)
+                .map(resident -> new ResidentInfoDTO(
+                        resident.getFirstName(),
+                        resident.getLastName(),
+                        null, null,
+                        resident.getAge(),
+                        null,
+                        null, null, null,
+                        null
+                ))
+                .toList();
+
+        // Involves other household members with the children
+        children.forEach(child -> child.setHouseholdMembers(new ArrayList<>(householdMembers)));
+
+        return children;
     }
+
+
 
     // 4 FINISH
     public List<ResidentInfoDTO> getResidentsByAddress(String address) {
@@ -145,9 +150,8 @@ public class ApiService {
             throw new IllegalStateException(API_ADDRESS_NOT_FOUND + address);
         }
 
-        // Récupérer le numéro de la caserne
+        // Retrieve the barracks number
         int fireStationNumber = Integer.parseInt(fireStationDTO.getStation());
-
         List<Person> residents = personRepository.findByAddress(address);
 
         if (residents == null || residents.isEmpty()) {
@@ -159,19 +163,19 @@ public class ApiService {
         enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
+                        null,
                         resident.getLastName(),
                         null,
-                        null,
                         resident.getPhone(),
-                        fireStationNumber,
+                        resident.getAge(),
                         null,
                         resident.getMedications(),
                         resident.getAllergies(),
-                        resident.getAge()))
-                .toList();
+                        fireStationNumber,
+                        null
 
+                )).toList();
         //LOGGER.info("Residents for address {}: {}", address, enrichedResidents);
-
         return enrichedResidents;
     }
 
@@ -189,7 +193,6 @@ public class ApiService {
         List<Person> residents = personRepository.findByAddresses(addresses);
 
         List<ResidentInfoDTO> enrichedResidents;
-
         enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
@@ -201,6 +204,7 @@ public class ApiService {
                         null,
                         resident.getMedications(),
                         resident.getAllergies(),
+                        null,
                         null
 
                 ))
@@ -224,14 +228,15 @@ public class ApiService {
         enrichedResidents = persons.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
                 .map(resident -> new ResidentInfoDTO(
-                        resident.getLastName(),
                         null,
+                        resident.getLastName(),
                         resident.getAddress(),
                         null,
                         resident.getAge(),
                         resident.getEmail(),
                         resident.getMedications(),
                         resident.getAllergies(),
+                        null,
                         null
                 ))
                 .toList();
@@ -239,57 +244,19 @@ public class ApiService {
         return enrichedResidents;
     }
 
+    // Main method that uses the two separate methods
+    private ResidentInfoDTO enrichResident(Person resident, String address) {
 
-    // 7 FINISH
-    public List<String> getCommunityEmails(String city) throws PersonNotFoundException, EmailNotFoundException {
+        PersonDTO residentDTO = enrichPerson(resident);
+        MedicalRecordDTO medicalRecordDTO = enrichMedicalRecord(residentDTO.getFirstName(), residentDTO.getLastName());
 
-        if (city == null || city.isBlank()) {
-            LOGGER.error(CITY_NOT_FOUND);
-            throw new IllegalArgumentException(CITY_NOT_FOUND);
+        if (medicalRecordDTO == null || medicalRecordDTO.getBirthdate().isEmpty()) {
+            throw new IllegalArgumentException(RESIDENTS_INVALID + residentDTO.getFirstName() + residentDTO.getLastName());
         }
 
         try {
-            // Recovery of city residents
-            List<PersonDTO> residents = personRepository.findByCity(city).stream()
-                    .map(personConvertorDTO::convertEntityToDto)
-                    .toList();
 
-            return residents.stream()
-                    .map(PersonDTO::getEmail)
-                    .filter(email -> email != null && !email.isBlank())
-                    .distinct()
-                    .toList();
-
-        } catch (RuntimeException e) {
-            LOGGER.error(PERSON_ERROR_EMAIL, city, e.getMessage(), e);
-            throw new EmailNotFoundException(PERSON_ERROR_EMAIL);
-        }
-    }
-
-    // Generic method
-    private <T> ResidentInfoDTO enrichResident(T resident, String address) throws ApiNotFoundException {
-
-        PersonDTO residentDTO;
-
-        if (resident instanceof Person person) {
-            residentDTO = personConvertorDTO.convertEntityToDto(person);
-        } else if (resident instanceof PersonDTO dto) {
-            residentDTO = dto;
-        } else {
-            LOGGER.error(RESIDENTS_INVALID, resident.getClass().getSimpleName());
-            throw new IllegalArgumentException(RESIDENTS_INVALID + resident.getClass().getSimpleName());
-        }
-
-        MedicalRecord medicalRecord = medicalRecordRepository.findByFullName(residentDTO.getFirstName(), residentDTO.getLastName());
-        MedicalRecordDTO medicalRecordDTO = medicalRecordConvertorDTO.convertEntityToDto(medicalRecord);
-
-        if (medicalRecordDTO == null || medicalRecordDTO.getBirthdate() == null) {
-            LOGGER.error(MESSING_MEDICAL, residentDTO.getFirstName(), residentDTO.getLastName());
-            return null;
-        }
-
-        try {
-            LocalDate birthDate = LocalDate.parse(medicalRecord.getBirthdate(), DATE_FORMATTER);
+            LocalDate birthDate = LocalDate.parse(medicalRecordDTO.getBirthdate(), DATE_FORMATTER);
             int age = calculateAge(birthDate);
 
             return ResidentInfoDTO.builder()
@@ -299,22 +266,71 @@ public class ApiService {
                     .phone(residentDTO.getPhone())
                     .age(age)
                     .email(residentDTO.getEmail())
-                    .medications(medicalRecord.getMedications())
-                    .allergies(medicalRecord.getAllergies())
+                    .medications(medicalRecordDTO.getMedications())
+                    .allergies(medicalRecordDTO.getAllergies())
                     .build();
 
         } catch (RuntimeException e) {
             LOGGER.error(ERROR_REPOSITORIES, e.getMessage());
-            throw new ApiNotFoundException(ERROR_REPOSITORIES + e.getMessage());
+            throw new ResidentInfoNotFoundException(ERROR_REPOSITORIES + e.getMessage());
 
         } catch (Exception e) {
-            LOGGER.error(MESSING_BIRTH_DATE, residentDTO.getFirstName(), residentDTO.getLastName(), medicalRecord.getBirthdate(), e);
-            throw new ApiNotFoundException(MESSING_BIRTH_DATE, e);
+            LOGGER.error(MESSING_BIRTH_DATE, residentDTO.getFirstName(), residentDTO.getLastName(), medicalRecordDTO.getBirthdate(), e);
+            throw new ResidentInfoNotFoundException(MESSING_BIRTH_DATE, e);
         }
     }
 
+    /*
+    public PersonDTO enrichPerson(Person resident) {
+        if (resident == null) {
+            LOGGER.error("The resident object cannot be null.");
+            throw new IllegalArgumentException("The resident object cannot be null.");
+        }
+        return personConvertorDTO.convertEntityToDto(resident);
+    }
+
+    // Méthode pour enrichir les informations médicales
+    public MedicalRecordDTO enrichMedicalRecord(String firstName, String lastName) {
+
+        MedicalRecord medicalRecord = medicalRecordRepository.findByFullName(firstName, lastName);
+        MedicalRecordDTO medicalRecordDTO = medicalRecordConvertorDTO.convertEntityToDto(medicalRecord);
+
+        if (medicalRecordDTO == null || medicalRecordDTO.getBirthdate() == null) {
+            LOGGER.error(MESSING_MEDICAL, firstName, lastName);
+            return null;
+        }
+
+        return medicalRecordDTO;
+    }
+
+     */
+
+    // Method to enrich the person's information
+    private PersonDTO enrichPerson(Person resident) {
+
+        return Optional.ofNullable(resident).map(personConvertorDTO::convertEntityToDto)
+                .orElseThrow(() -> {
+                    LOGGER.error(PERSON_NOT_FOUND);
+                    return new ResidentInfoNotFoundException(PERSON_NOT_FOUND);
+                });
+    }
+
+
+
+    // Method for enriching medical information
+    private MedicalRecordDTO enrichMedicalRecord(String firstName, String lastName) {
+
+        return Optional.ofNullable(medicalRecordRepository.findByFullName(firstName, lastName))
+                .map(medicalRecordConvertorDTO::convertEntityToDto)
+                .filter(medicalRecordDTO -> medicalRecordDTO.getBirthdate() != null && !medicalRecordDTO.getBirthdate().isEmpty())
+                .orElseThrow(() -> {
+                    LOGGER.error(MESSING_MEDICAL, firstName, lastName);
+                    return new IllegalArgumentException(MESSING_MEDICAL + firstName + lastName);
+                });
+    }
+
     // Utility method for calculating age
-    private int calculateAge(LocalDate birthDate) {
+    public int calculateAge(LocalDate birthDate) {
         return (birthDate != null) ? Period.between(birthDate, LocalDate.now()).getYears() : 0;
     }
 

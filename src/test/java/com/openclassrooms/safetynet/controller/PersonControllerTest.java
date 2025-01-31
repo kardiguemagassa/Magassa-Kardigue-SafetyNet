@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PersonControllerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonControllerTest.class);
+
     @Autowired
     private MockMvc mockMvc; // make requests on the controller
     @MockitoBean // Inject personService

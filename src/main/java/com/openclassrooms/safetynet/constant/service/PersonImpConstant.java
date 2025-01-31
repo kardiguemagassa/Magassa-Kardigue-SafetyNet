@@ -20,7 +20,7 @@ public class PersonImpConstant {
 
     public static final String PERSON_ERROR_DELETING = "First name or last name cannot be null or empty.";
     public static final String PERSON_ERROR_DELETING_NOT_FOUND = " Not found for deletion.";
-    public static final String PERSON_ERROR_DELETING_NOT_ = "Error while deleting person {} {}: {}";
+    public static final String PERSON_ERROR_DELETING_NOT = "Error while deleting person ";
     public static final String PERSON_ERROR_DELETING_BY_FULL_NAME = "Error while deleting person by full name: look repository: {}";
 
 

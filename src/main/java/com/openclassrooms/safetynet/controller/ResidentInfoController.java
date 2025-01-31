@@ -1,10 +1,8 @@
 package com.openclassrooms.safetynet.controller;
 
-import com.openclassrooms.safetynet.dto.api.FireStationResponseDTO;
-import com.openclassrooms.safetynet.dto.api.ResidentInfoDTO;
+import com.openclassrooms.safetynet.dto.FireStationResponseDTO;
+import com.openclassrooms.safetynet.dto.ResidentInfoDTO;
 import com.openclassrooms.safetynet.exception.ExceptionHandling;
-import com.openclassrooms.safetynet.exception.api.EmailNotFoundException;
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.service.ApiService;
 
 import lombok.AllArgsConstructor;
@@ -51,19 +49,6 @@ public class ApiController extends ExceptionHandling {
     public ResponseEntity<List<ResidentInfoDTO>> getChildrenByAddressObject(@RequestParam("address") String address) {
         List<ResidentInfoDTO> children = apiService.getChildrenByAddress(address);
         return new ResponseEntity<>(children, HttpStatus.OK);
-    }
-
-    /* 3
-    http://localhost:8080/phoneAlert?firestation=<firestation_number>
-    Cette url doit retourner une liste des numéros de téléphone des résidents desservis
-    par la caserne de pompiers. Nous l'utiliserons pour envoyer des messages texte
-    d'urgence à des foyers spécifiques.
-    http://localhost:8080/phoneAlert?firestation=1
-   */
-    @GetMapping("/phoneAlert")
-    public ResponseEntity<List<String>> getPhoneNumbersByStation(@RequestParam("firestation") int stationNumber) {
-        List<String> phoneNumbers = apiService.getPhoneNumbersByStation(stationNumber);
-        return new ResponseEntity<>(phoneNumbers, HttpStatus.OK);
     }
 
     /* 4
@@ -113,20 +98,6 @@ public class ApiController extends ExceptionHandling {
         List<ResidentInfoDTO> residentInfoDTOS = apiService.getPersonInfo(lastName);
 
         return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
-    }
-
-    /* 7
-    http://localhost:8080/communityEmail?city=<city>
-    http://localhost:8080/communityEmail?city=Culver
-    Cette url doit retourner les adresses mail de tous les habitants de la ville
-    */
-    @GetMapping("/communityEmail")
-    public ResponseEntity<List<String>> getCommunityEmails(@RequestParam("city") String city)
-            throws EmailNotFoundException, PersonNotFoundException, IllegalArgumentException {
-
-        List<String> emails = apiService.getCommunityEmails(city);
-
-        return ResponseEntity.ok(emails);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.exception.api;
+package com.openclassrooms.safetynet.exception.residentInfo;
 
 public class EmailNotFoundException extends Exception {
     public EmailNotFoundException(String message) {
