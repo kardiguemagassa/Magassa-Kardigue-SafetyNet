@@ -1,23 +1,11 @@
 package com.openclassrooms.safetynet.controller;
 
-import com.openclassrooms.safetynet.convertorDTO.FireStationConvertorDTO;
-import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
-import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.*;
-import com.openclassrooms.safetynet.model.FireStation;
-import com.openclassrooms.safetynet.model.MedicalRecord;
-import com.openclassrooms.safetynet.model.Person;
-import com.openclassrooms.safetynet.repository.FireStationRepository;
-import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
-import com.openclassrooms.safetynet.repository.PersonRepository;
 
 import com.openclassrooms.safetynet.service.ResidentInfoService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,31 +31,11 @@ public class ResidentInfoControllerTest {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
     private ResidentInfoService residentInfoService;
-
-    /*
-    private Person person1;
-    private Person person2;
-    private PersonDTO personDTO1;
-    private PersonDTO personDTO2;
-
-    private MedicalRecord medicalRecord1;
-    private MedicalRecord medicalRecord2;
-    private MedicalRecordDTO medicalRecordDTO1;
-    private MedicalRecordDTO medicalRecordDTO2;
-
-    private FireStation fireStation1;
-    private FireStation fireStation2;
-    private FireStationDTO fireStationDTO1;
-    private FireStationDTO fireStationDTO2;
-
-     */
-
 
     private ResidentInfoDTO residentInfoDTO1;
     private ResidentInfoDTO residentInfoDTO2;
@@ -80,101 +48,6 @@ public class ResidentInfoControllerTest {
 
         int age1 = Period.between(birthDate1, LocalDate.now()).getYears();
         int age2 = Period.between(birthDate2, LocalDate.now()).getYears();
-
-        /*
-        // Person
-        person1 = Person.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .address("123 Main St")
-                .city("Springfield")
-                .zip("75016")
-                .phone("0144445151")
-                .email("johndoe@gmail.com")
-                .build();
-        person2 = Person.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .address("123 Main St")
-                .city("Springfield")
-                .zip("75017")
-                .phone("0144445152")
-                .email("janedoe@gmail.com")
-                .build();
-
-        // PersonDTO
-        personDTO1 = PersonDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .address("123 Main St")
-                .city("Springfield")
-                .zip("75016")
-                .phone("0144445151")
-                .email("johndoe@gmail.com")
-                .build();
-        personDTO2 = PersonDTO.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .address("123 Main St")
-                .city("Springfield")
-                .zip("75017")
-                .phone("0144445152")
-                .email("janedoe@gmail.com")
-                .build();
-
-        // MedicalRecord
-        medicalRecord1 = MedicalRecord.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .birthdate("01/01/1990")
-                .medications(List.of("aznol:350mg", "hydrapermazol:100mg"))
-                .allergies(List.of("nillacilan"))
-                .build();
-        medicalRecord2 = MedicalRecord.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .birthdate("01/01/2000")
-                .medications(List.of("aznol:350mg", "hydrapermazol:100mg"))
-                .allergies(List.of("nillacilan"))
-                .build();
-
-        // MedicalRecordDTO
-        medicalRecordDTO1 = MedicalRecordDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .birthdate("01/01/1990")
-                .medications(List.of("aznol:350mg", "hydrapermazol:100mg"))
-                .allergies(List.of("nillacilan"))
-                .build();
-        medicalRecordDTO2 = MedicalRecordDTO.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .birthdate("01/01/2000")
-                .medications(List.of("aznol:350mg", "hydrapermazol:100mg"))
-                .allergies(List.of("nillacilan"))
-                .build();
-
-        // FireStations
-        fireStation1 = FireStation.builder()
-                .address("149 Bd Pei ere 75007 Paris")
-                .station("1")
-                .build();
-        fireStation2 = FireStation.builder()
-                .address("150 Bd Pei ere 75007 Paris")
-                .station("2")
-                .build();
-
-        // FireStationDTO
-        fireStationDTO1 = FireStationDTO.builder()
-                .address("149 Bd Pei ere 75007 Paris")
-                .station("1")
-                .build();
-        fireStationDTO2 = FireStationDTO.builder()
-                .address("150 Bd Pei ere 75007 Paris")
-                .station("2")
-                .build();
-
-         */
 
         residentInfoDTO1 = ResidentInfoDTO.builder()
                 .firstName("John")

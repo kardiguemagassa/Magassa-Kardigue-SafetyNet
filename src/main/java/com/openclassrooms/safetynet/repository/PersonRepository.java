@@ -3,14 +3,15 @@ package com.openclassrooms.safetynet.repository;
 import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.utils.CsvUtils;
-import lombok.AllArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.Period;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,74 +19,48 @@ import java.util.stream.Collectors;
 import static com.openclassrooms.safetynet.constant.repository.PersonRepositoryConstant.*;
 
 @Component
-@AllArgsConstructor
 public class PersonRepository {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    // Liste des personnes (sera remplie après le chargement des données)
+    // List of people (will be filled after data loading)
     private final List<Person> persons = new ArrayList<>();
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
 
+    private boolean isLoading = false;
+
+    @Autowired
+    public PersonRepository(DataBaseInMemoryWrapper dataBaseInMemoryWrapper) {
+        this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
+    }
 
     // CRUD
     public List<Person> getPersons() {
-
         try {
-            // Vérifier si la liste est vide
-            if (persons.isEmpty()) {
+            if (persons.isEmpty() && !isLoading) {
+                isLoading = true;
                 LOGGER.info(PERSON_List_EMPTY);
 
-                // Charger les données depuis la base de données en mémoire
-                dataBaseInMemoryWrapper.loadData();
                 List<Person> loadedPersons = dataBaseInMemoryWrapper.getPersons();
 
-                // Si des données ont été chargées, les écrire dans le fichier CSV
                 if (loadedPersons != null && !loadedPersons.isEmpty()) {
-                    savePersonsToCsv(loadedPersons);
-                    //loadPersonsFromCsv();
+
                     persons.addAll(loadedPersons);
+                    savePersonsToCsv(loadedPersons);
+
                     LOGGER.info(PERSON_LOADED, loadedPersons.size());
                 } else {
                     LOGGER.warn(PERSON_NOT_FOUND);
                 }
+                isLoading = false;
             }
-
-            // Retourner une copie de la liste des personnes
             return new ArrayList<>(persons);
         } catch (Exception e) {
-            LOGGER.error(PERSON_ERROR_LOADING, e.getMessage(), e);
-            return List.of();
+            isLoading = false;
+            LOGGER.error(PERSON_ERROR_LOADING, e.getMessage());
+
+            return Collections.emptyList();
         }
-    }
-
-    public List<Person> saveAll(List<Person> personList) {
-
-        if (personList == null || personList.isEmpty()) {
-            LOGGER.warn(PERSON_ERROR_SAVING);
-            return new ArrayList<>(persons); // Retourner l'état actuel sans modification
-        }
-
-        try {
-            //persons.addAll(personList);
-
-            List<Person> wrapperPersons = dataBaseInMemoryWrapper.getPersons();
-            if (wrapperPersons != null) {
-                wrapperPersons.addAll(personList);
-                savePersonsToCsv(wrapperPersons);
-                //LOGGER.info("Successfully loaded {} persons.=======>", wrapperPersons.size());
-                //LOGGER.info(PERSON_SAVING_CSV, wrapperPersons.size());
-
-            } else {
-                //LOGGER.warn("Nothing  persons found:");
-                LOGGER.warn(PERSON_ERROR_SAVING_CSV);
-            }
-
-            LOGGER.info(PERSON_SAVING_DATA_BASE, personList.size());
-        } catch (Exception e) {
-            LOGGER.error(PERSON_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
-        }
-        return new ArrayList<>(persons); // Retourner une copie immuable
     }
 
     public Person save(Person person) {
@@ -103,13 +78,12 @@ public class PersonRepository {
                 wrapperPersons.add(person);
                 savePersonsToCsv(wrapperPersons);
                 LOGGER.info(PERSON_SAVING_CSV, wrapperPersons.size());
-            } else {
-                LOGGER.warn(PERSON_ERROR_SAVING_CSV_FILE);
             }
 
             LOGGER.info(PERSON_SAVING_DATA_BASE_SUC, person);
+
         } catch (Exception e) {
-            LOGGER.error(PERSON_ERROR_SAVING_DATA_BASE_, e.getMessage(), e);
+            LOGGER.error(PERSON_ERROR_SAVING_DATA_BASE_, e.getMessage());
         }
         return person;
     }
@@ -117,7 +91,7 @@ public class PersonRepository {
     public Optional<Person> findByFullName(String firstName, String lastName) {
 
         try {
-            List<Person> allPersons = dataBaseInMemoryWrapper.getPersons(); // Récupérer les données du wrapper
+            List<Person> allPersons = dataBaseInMemoryWrapper.getPersons(); // Retrieve data from the wrapper
 
             if (allPersons == null) {
                 LOGGER.warn(FULL_NAME_NOT_FOUND);
@@ -128,7 +102,7 @@ public class PersonRepository {
                     .filter(person -> person.getFirstName().equalsIgnoreCase(firstName)
                             && person.getLastName().equalsIgnoreCase(lastName)).findFirst();
         } catch (Exception e) {
-            LOGGER.error(ERROR_SEARCHING_FULL_NAME, e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_FULL_NAME, e.getMessage());
         }
         return Optional.empty();
     }
@@ -164,7 +138,7 @@ public class PersonRepository {
             LOGGER.info(PERSON_ERROR_UPDATING_SUCCESS, updatedPerson);
             return existingPerson;
         } catch (Exception e) {
-            LOGGER.error(PERSON_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage(), e);
+            LOGGER.error(PERSON_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage());
         }
         return Optional.empty();
     }
@@ -183,19 +157,15 @@ public class PersonRepository {
 
             boolean isDeleted = allPersons.removeIf(person ->
                     person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName));
-            //savePersonsToCsv(allPersons);
+
 
             if (isDeleted) {
-                persons.removeIf(person ->
-                        person.getFirstName().equalsIgnoreCase(firstName) && person.getLastName().equalsIgnoreCase(lastName));
                 LOGGER.info(PERSON_DELETING_SUCCESS, firstName, lastName);
-            } else {
-                LOGGER.warn(PERSON_ERROR_DELETING_NOT_FOUND, firstName, lastName);
             }
 
             return isDeleted;
         } catch (Exception e) {
-            LOGGER.error(PERSON_ERROR_DELETING_BY_FULL_NAME, e.getMessage(), e);
+            LOGGER.error(PERSON_ERROR_DELETING_BY_FULL_NAME, e.getMessage());
             return false;
         }
 
@@ -220,7 +190,7 @@ public class PersonRepository {
                     .filter(person -> addresses.contains(person.getAddress()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error(ERROR_SEARCHING_ADDRESSES, e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_ADDRESSES, e.getMessage());
         }
         return List.of();
     }
@@ -243,7 +213,7 @@ public class PersonRepository {
                     .filter(person -> person.getAddress().equalsIgnoreCase(address))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error(ERROR_SEARCHING_ADDRESS, e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_ADDRESS, e.getMessage());
         }
         return List.of();
     }
@@ -266,7 +236,7 @@ public class PersonRepository {
                     .filter(person -> person.getLastName().equalsIgnoreCase(lastName))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            LOGGER.error(LAST_NAME_ERROR_SEARCHING_ADDRESS, e.getMessage(), e);
+            LOGGER.error(LAST_NAME_ERROR_SEARCHING_ADDRESS, e.getMessage());
         }
         return List.of();
     }
@@ -293,24 +263,9 @@ public class PersonRepository {
             LOGGER.debug(FILTERED_CITY, city, filteredPersons.size());
             return filteredPersons;
         } catch (Exception e) {
-            LOGGER.error(CITY_ERROR_SEARCHING, e.getMessage(), e);
+            LOGGER.error(CITY_ERROR_SEARCHING, e.getMessage());
         }
         return List.of();
-    }
-
-    public int calculateAge(LocalDate birthDate) {
-
-        if (birthDate == null) {
-            LOGGER.warn(CALCULATED_AGE);
-            return 0;
-        }
-
-        try {
-            return Period.between(birthDate, LocalDate.now()).getYears();
-        } catch (Exception e) {
-            LOGGER.error(ERROR_CALCULATED_AGE, e.getMessage(), e);
-        }
-        return 0;
     }
 
     private void savePersonsToCsv(List<Person> personsToSave) {
@@ -318,19 +273,4 @@ public class PersonRepository {
         CsvUtils.saveToCsv(PERSON_CSV_CONFIG_FILE, personsToSave);
     }
 
-    private List<Person> loadPersonsFromCsv() {
-
-        List<Person> collect;
-        collect = CsvUtils.loadFromCsv(PERSON_CSV_CONFIG_FILE, line -> {
-                    String[] parts = line.split(",");
-                    if (parts.length < 7) {
-                        LOGGER.warn(ERROR_INVALID_CSV, line);
-                        return null;
-                    }
-                    return new Person(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
-                }).stream()
-                .filter(person -> person != null)
-                .collect(Collectors.toList());
-        return collect;
-    }
 }

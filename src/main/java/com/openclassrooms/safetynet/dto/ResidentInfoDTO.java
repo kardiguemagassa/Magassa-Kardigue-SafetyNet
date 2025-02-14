@@ -24,6 +24,6 @@ public class ResidentInfoDTO {
     private List<String> medications;
     private List<String> allergies;
     private Integer stationNumber;
-    private List<ResidentInfoDTO> householdMembers; // ENVOIE D'UN POSSIBLE LISTE VIDE
+    private List<ResidentInfoDTO> householdMembers;
 
 }

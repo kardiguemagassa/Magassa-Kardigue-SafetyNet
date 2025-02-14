@@ -123,7 +123,6 @@ public class ExceptionHandling implements ErrorController {
     public ResponseEntity<HttpResponse> pageNotFound(WebRequest request) {
         return createHttpResponse(NOT_FOUND, RESOURCE_NOT_FOUND_MSG, request);
     }
-
      */
 
 }

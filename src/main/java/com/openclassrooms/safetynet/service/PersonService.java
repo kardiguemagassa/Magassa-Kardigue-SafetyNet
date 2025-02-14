@@ -28,9 +28,6 @@ public class PersonService {
     public List<PersonDTO> getPersons() throws PersonNotFoundException {
 
         try {
-                /*return personRepository.getPersons().stream()
-                    .map(person -> personConvertorDTO.convertEntityToDto(person)) // Lambda expression
-                    .collect(Collectors.toList());*/
 
             List<Person> persons = personRepository.getPersons();
 
@@ -48,36 +45,10 @@ public class PersonService {
             LOGGER.error(PERSON_NOT_FOUND_MSG, e.getMessage());
             throw e;
 
-        } catch (Exception e) {
+        } /*catch (Exception e) {
             LOGGER.error(ERROR_CONVERTING, e.getMessage(), e);
             throw new RuntimeException(PERSON_UNEXPECT);
-        }
-    }
-
-    public List<PersonDTO> saveAll(List<PersonDTO> personDTOList) throws PersonNotFoundException {
-
-        if (personDTOList == null || personDTOList.isEmpty()) {
-            LOGGER.error(PERSON_ERROR_SAVING);
-            throw new IllegalArgumentException(PERSON_ERROR_SAVING);
-        }
-
-        try {
-            // Convert  DTO to entities
-            List<Person> personEntities = personConvertorDTO.convertDtoToEntity(personDTOList);
-
-            // save entities in  repository
-            List<Person> savedPersonEntities = personRepository.saveAll(personEntities);
-
-            // Convert  entities save to DTO
-            return personConvertorDTO.convertEntityToDto(savedPersonEntities);
-
-        } catch (RuntimeException e) {
-            LOGGER.error(PERSON_ERROR_SAVING_DATA_BASE, e.getMessage());
-            throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE + e.getMessage(), e);
-        } catch (Exception e) {
-            LOGGER.error(PERSON_ERROR_SAVING_REPO, e.getMessage(), e);
-            throw new PersonNotFoundException(PERSON_ERROR_SAVING_REPO, e);
-        }
+        }*/
     }
 
     public PersonDTO save(PersonDTO personDTO) {
@@ -100,10 +71,10 @@ public class PersonService {
             LOGGER.warn(PERSON_ERROR_SAVING_DATA_BASE, e.getMessage());
             throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE + e.getMessage(), e);
 
-        } catch (Exception e) {
+        } /*catch (Exception e) {
             LOGGER.error(PERSON_ERROR_SAVING_C, e.getMessage(), e);
             throw new RuntimeException(PERSON_ERROR_SAVING_C);
-        }
+        }*/
     }
 
     public Optional<PersonDTO> update(PersonDTO updatedPersonDTO) {
@@ -118,44 +89,47 @@ public class PersonService {
             // Update entity in repository
             Optional<Person> updatedPersonEntity = personRepository.update(personEntity);
 
-            if (updatedPersonEntity.isEmpty()) {
-
+            /*if (updatedPersonEntity.isEmpty()) {
                 throw new PersonNotFoundException(PERSON_NOT_FOUND_UPDATING);
-            }
+            }*/
 
             // Convert updated entity to DTO
             return updatedPersonEntity.map(personConvertorDTO::convertEntityToDto);
 
-        } catch (Exception e) {
+        } catch (PersonNotFoundException e) {
+            LOGGER.error(PERSON_ERROR_UPDATING_SUCCESS, e.getMessage());
+            throw new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE + e.getMessage());
+        /*catch (Exception e) {
             LOGGER.error(PERSON_ERROR_UPDATING_SUCCESS, e.getMessage(), e);
             throw new PersonNotFoundException(PERSON_ERROR_UPDATING_SUCCESS, e);
+        }*/
         }
     }
 
     public Boolean deleteByFullName(String firstName, String lastName) throws PersonNotFoundException {
 
-        if (firstName == null || firstName.isBlank() || lastName == null || lastName.isBlank()) {
+        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty()) {
             throw new IllegalArgumentException(PERSON_ERROR_DELETING);
         }
 
         try {
             boolean isDeleted = personRepository.deleteByFullName(firstName, lastName);
 
-            if (!isDeleted) {
+            /*if (!isDeleted) {
                 throw new PersonNotFoundException(firstName + " " + lastName + PERSON_ERROR_DELETING_NOT_FOUND);
-            }
+            }*/
             return true;
 
         } catch (PersonNotFoundException e) {
             LOGGER.error(PERSON_ERROR_DELETING_NOT, e.getMessage());
-            throw new PersonNotFoundException("Person not found");
+            throw new PersonNotFoundException(firstName + " " + lastName + PERSON_ERROR_DELETING_NOT_FOUND);
 
-        }catch (IllegalArgumentException e) {
+        }/*catch (PersonNotFoundException e) {
                 throw e;
 
             } catch (Exception e) {
             throw new PersonNotFoundException(PERSON_ERROR_DELETING_BY_FULL_NAME, e);
-        }
+        }*/
     }
 
 }

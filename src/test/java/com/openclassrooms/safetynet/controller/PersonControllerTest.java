@@ -8,8 +8,6 @@ import com.openclassrooms.safetynet.service.PersonService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PersonController.class)
 @ExtendWith(MockitoExtension.class)
-//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PersonControllerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonControllerTest.class);

@@ -42,7 +42,6 @@ public class ResidentInfoService {
     private final FireStationConvertorDTO fireStationConvertorDTO;
 
 
-    // 1 FINISH
     public FireStationResponseDTO getPersonsByStation(int stationNumber) {
 
         List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
@@ -78,7 +77,6 @@ public class ResidentInfoService {
         return new FireStationResponseDTO((int) adultCount, (int) childCount, enrichedResidents);
     }
 
-    // 2 FINISH
     public List<ResidentInfoDTO> getChildrenByAddress(String address) {
 
         List<Person> residents = personRepository.findByAddress(address);
@@ -129,8 +127,6 @@ public class ResidentInfoService {
         return children;
     }
 
-
-    // 4 FINISH
     public List<ResidentInfoDTO> getResidentsByAddress(String address) {
 
         FireStation fireStation = fireStationRepository.findByAddress(address);
@@ -166,7 +162,6 @@ public class ResidentInfoService {
         return enrichedResidents;
     }
 
-    // 5 FINISH
     public List<ResidentInfoDTO> getFloodInfoByStations(List<Integer> stationNumbers) {
 
         List<String> addresses = fireStationRepository.findAddressesByStationNumbers(stationNumbers);
@@ -193,7 +188,6 @@ public class ResidentInfoService {
         return enrichedResidents;
     }
 
-    // 6 FINISH
     public List<ResidentInfoDTO> getPersonInfo(String lastName) {
 
         if (lastName == null || lastName.isBlank()) {

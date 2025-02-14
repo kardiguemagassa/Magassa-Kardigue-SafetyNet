@@ -1,18 +1,14 @@
 package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.*;
-
 import com.openclassrooms.safetynet.model.Person;
-import com.openclassrooms.safetynet.repository.FireStationRepository;
-import com.openclassrooms.safetynet.repository.PersonRepository;
 import com.openclassrooms.safetynet.service.PersonInfoService;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
+
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

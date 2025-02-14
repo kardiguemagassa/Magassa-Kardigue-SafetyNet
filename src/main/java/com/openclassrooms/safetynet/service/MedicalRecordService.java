@@ -53,41 +53,6 @@ public class MedicalRecordService {
         }
     }
 
-    public List<MedicalRecordDTO> saveAll(List<MedicalRecordDTO> medicalRecordDTOList) {
-        try {
-            // Validation of the input list
-            validateMedicalRecordDTOList(medicalRecordDTOList);
-
-            // Conversion DTOs to entities
-            List<MedicalRecord> medicalRecordEntities = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTOList);
-
-            // save entities
-            List<MedicalRecord> savedMedicalRecords = medicalRecordRepository.saveAll(medicalRecordEntities);
-
-            // Logging du success  Validation error while saving medical records: {}
-            //LOGGER.info("Successfully saved {} medical records.", savedMedicalRecords.size());
-
-            return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecords);
-
-        } catch (RuntimeException e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE, e.getMessage());
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE);
-
-        } catch (Exception e) {
-            // Catch-all for other unanticipated exceptions
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_REPO, e.getMessage(), e);
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_ERROR_SAVING_REPO);
-        }
-    }
-
-    // Private method to validate the input list
-    private void validateMedicalRecordDTOList(List<MedicalRecordDTO> medicalRecordDTOList) {
-        if (medicalRecordDTOList == null || medicalRecordDTOList.isEmpty()) {
-            LOGGER.warn(MEDICAL_RECORD_ERROR_SAVING);
-            throw new IllegalArgumentException(MEDICAL_RECORD_ERROR_SAVING);
-        }
-    }
-
     public MedicalRecordDTO save(MedicalRecordDTO medicalRecordDTO) {
 
         if (medicalRecordDTO == null) {

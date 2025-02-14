@@ -4,12 +4,13 @@ import com.openclassrooms.safetynet.dataBaseInMemory.DataBaseInMemoryWrapper;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 
 import com.openclassrooms.safetynet.utils.CsvUtils;
-import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import java.util.Optional;
@@ -17,7 +18,6 @@ import java.util.Optional;
 import static com.openclassrooms.safetynet.constant.repository.MedicalRecordRepositoryConstant.*;
 
 
-@AllArgsConstructor
 @Component
 public class MedicalRecordRepository {
 
@@ -26,52 +26,42 @@ public class MedicalRecordRepository {
     private final List<MedicalRecord> medicalRecords = new ArrayList<>();
     private final DataBaseInMemoryWrapper dataBaseInMemoryWrapper;
 
+    private boolean isLoading = false;
+
+    @Autowired
+    public MedicalRecordRepository(DataBaseInMemoryWrapper dataBaseInMemoryWrapper) {
+        this.dataBaseInMemoryWrapper = dataBaseInMemoryWrapper;
+    }
+
     public List<MedicalRecord> getMedicalRecords() {
 
         try {
-            if (medicalRecords.isEmpty()) {
+            if (medicalRecords.isEmpty() && !isLoading) {
+                isLoading = true;
                 LOGGER.info(MEDICAL_RECORD_List_EMPTY);
+
                 List<MedicalRecord> loadedMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
-                if (loadedMedicalRecords != null) {
+
+                if (loadedMedicalRecords != null && !loadedMedicalRecords.isEmpty()) {
+
                     saveMedicalRecordToCsv(loadedMedicalRecords);
                     medicalRecords.addAll(loadedMedicalRecords);
+
                     LOGGER.info(MEDICAL_RECORD_LOADED, loadedMedicalRecords.size());
+
                 } else {
                     LOGGER.warn(MEDICAL_RECORD_NOT_FOUND);
                 }
-            }
-            return new ArrayList<>(medicalRecords);
-        } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_LOADING, e.getMessage(), e);
-        }
-        return List.of();
-    }
-
-    public List<MedicalRecord> saveAll(List<MedicalRecord> medicalRecordList) {
-
-        if (medicalRecordList == null || medicalRecordList.isEmpty()) {
-            LOGGER.warn(MEDICAL_RECORD_ERROR_SAVING);
-            return new ArrayList<>(medicalRecords);
-        }
-
-        try {
-            medicalRecords.addAll(medicalRecordList);
-
-            List<MedicalRecord> wrapperMedicalRecords = dataBaseInMemoryWrapper.getMedicalRecords();
-
-            if (wrapperMedicalRecords != null) {
-                wrapperMedicalRecords.addAll(medicalRecordList);
-                saveMedicalRecordToCsv(wrapperMedicalRecords);
-            } else {
-                LOGGER.warn(MEDICAL_RECORD_ERROR_SAVING_CSV);
+                isLoading = false;
             }
 
-            LOGGER.info(MEDICAL_RECORD_SAVING_DATA_BASE, medicalRecordList.size());
+            return new ArrayList<>(medicalRecords);
 
         } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
+            isLoading = false;
+            LOGGER.error(MEDICAL_RECORD_ERROR_LOADING, e.getMessage());
         }
-        return new ArrayList<>(medicalRecords);
+        return Collections.emptyList();
     }
 
     public MedicalRecord save(MedicalRecord medicalRecord) {
@@ -95,7 +85,7 @@ public class MedicalRecordRepository {
 
             LOGGER.info(MEDICAL_RECORD_SAVING_DATA_BASE_SUC, medicalRecord);
         } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE_, e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE_, e.getMessage());
         }
         return medicalRecord;
     }
@@ -114,7 +104,7 @@ public class MedicalRecordRepository {
                             && medicalRecord.getAllergies().equals(allergies))
                     .findFirst();
         } catch (Exception e) {
-            LOGGER.error(ERROR_MEDICAL_RECORD_NOT_FOUND_BY_ALLERGIES, e.getMessage(), e);
+            LOGGER.error(ERROR_MEDICAL_RECORD_NOT_FOUND_BY_ALLERGIES, e.getMessage());
             return Optional.empty();
         }
     }
@@ -157,7 +147,7 @@ public class MedicalRecordRepository {
             return existingRecord;
 
         } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage());
             return Optional.empty();
         }
     }
@@ -179,10 +169,6 @@ public class MedicalRecordRepository {
             );
 
             if (isDeleted) {
-                medicalRecords.removeIf(record ->
-                        record.getFirstName().equalsIgnoreCase(firstName) &&
-                                record.getLastName().equalsIgnoreCase(lastName)
-                );
                 LOGGER.info(MEDICAL_RECORD_DELETING_SUCCESS, firstName, lastName);
             } else {
                 LOGGER.warn(MEDICAL_RECORD_ERROR_NOT_FOUND, firstName, lastName);
@@ -190,7 +176,7 @@ public class MedicalRecordRepository {
 
             return isDeleted;
         } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_DELETING_BY_FULL_NAME, firstName, lastName, e.getMessage(), e);
+            LOGGER.error(MEDICAL_RECORD_ERROR_DELETING_BY_FULL_NAME, firstName, lastName, e.getMessage());
             return false;
         }
     }
@@ -210,7 +196,7 @@ public class MedicalRecordRepository {
                     .findFirst()
                     .orElse(null);
         } catch (Exception e) {
-            LOGGER.error(ERROR_SEARCHING_FULL_NAME, firstName, lastName, e.getMessage(), e);
+            LOGGER.error(ERROR_SEARCHING_FULL_NAME, firstName, lastName, e.getMessage());
             return null;
         }
     }

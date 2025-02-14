@@ -44,11 +44,10 @@ public class FireStationServiceTest {
 
     @BeforeEach
     void setUp() {
-        // FireStations
         fireStation1 = new FireStation("149 Bd Pei ere 75007 Paris", "1");
         fireStation2 = new FireStation("150 Bd Pei ere 75007 Paris", "2");
 
-        //FireStationDTO
+
         fireStationDTO1 = new FireStationDTO("149 Bd Pei ere 75007 Paris", "1");
         fireStationDTO2 = new FireStationDTO("150 Bd Pei ere 75007 Paris", "2");
     }

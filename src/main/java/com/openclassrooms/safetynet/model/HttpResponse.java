@@ -28,4 +28,5 @@ public class HttpResponse {
         this.message = message;
         this.details = details;
     }
+
 }

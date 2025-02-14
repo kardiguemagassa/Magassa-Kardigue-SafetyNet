@@ -83,8 +83,11 @@ public class PersonServiceTest {
         LOGGER.info("Test shouldReturnGetPersons completed successfully");
     }
 
+    // 'annotation @Test(expected = IndexOutOfBoundsException.class)
+    // attend une IndexOutOfBoundsException, mais dans le code, on utilise
+    //@Test (expected=IndexOutOfBoundsException.class) // JUnit 4
     @Test
-    void shouldReturnGetPersons_NotFound() {
+    void shouldReturnGetPersonsNotFound() {
 
         // Arrange
         LOGGER.info("Arranging the test: mocking person repository to return null");
@@ -105,6 +108,7 @@ public class PersonServiceTest {
 
         LOGGER.info("Test shouldReturnGetPersons_NotFound completed successfully");
     }
+
 
     @Test
     void shouldReturnSave() {
@@ -142,12 +146,12 @@ public class PersonServiceTest {
     }
 
     @Test
-    void shouldReturnSave_ExceptionThrownByRepository() {
+    void shouldReturnSaveException() {
 
         // Test with null personDTO
         LOGGER.info("Testing: Null PersonDTO passed to save method.");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {personService.save(null);});
-        LOGGER.info("Asserting the exception message for null PersonDTO.");
+
         assertEquals(PERSON_ERROR, exception.getMessage());
 
         PersonDTO personDTO = new PersonDTO();
@@ -159,7 +163,6 @@ public class PersonServiceTest {
         // Act & Assert
         PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class, () -> {personService.save(personDTO);});
 
-        // Adjusted to check if the message contains the expected string
         assertTrue(exception2.getMessage().contains("System error while saving persons in the repository:"));
 
         // Verify the interactions
@@ -203,6 +206,32 @@ public class PersonServiceTest {
     }
 
     @Test
+    void shouldReturnUpdateException() {
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {personService.update(null);});
+        LOGGER.info("Asserting the exception message for null PersonDTO.");
+        assertEquals(PERSON_ERROR_UPDATING, exception.getMessage());
+
+        PersonDTO personDTO = new PersonDTO();
+        Person personEntity = new Person();
+
+        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
+        when(personRepository.update(personEntity)).thenThrow(new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE));
+        PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class, () -> {personService.update(personDTO);});
+
+        assertTrue(exception2.getMessage().contains("System error while saving persons in the repository:"));
+
+        // Verify the interactions
+        LOGGER.info("Verifying that convertDtoToEntity was called once.");
+        verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
+        verify(personRepository, times(1)).update(personEntity);
+
+        LOGGER.info("Test shouldReturnSave_ExceptionThrownByRepository completed successfully");
+
+    }
+
+
+    @Test
     void shouldReturnDeleteByFullName() {
 
         // Arrange
@@ -211,7 +240,7 @@ public class PersonServiceTest {
         when(personRepository.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName())).thenReturn(true);
 
         // Act
-        LOGGER.info("Calling personService.deleteByFullName() with the mock person full name.");
+
         Boolean result = personService.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
 
         // Assert
@@ -223,4 +252,62 @@ public class PersonServiceTest {
 
         LOGGER.info("Test shouldReturnDeleteByFullName completed successfully");
     }
+
+    @Test
+    void shouldReturnDeleteByFullNameException() {
+        // Given
+        PersonDTO personDTO = new PersonDTO();
+        personDTO.setFirstName("kara");
+        personDTO.setLastName("Maga");
+
+        // Simuler le comportement du repository pour lever une exception
+        doThrow(new PersonNotFoundException("Person not found"))
+                .when(personRepository).deleteByFullName(personDTO.getFirstName(), personDTO.getLastName());
+
+        // When & Then
+        PersonNotFoundException exception = assertThrows(PersonNotFoundException.class, () ->
+                personService.deleteByFullName(personDTO.getFirstName(), personDTO.getLastName()));
+
+        //assertTrue(exception.getMessage().contains("Person not found"));
+
+        // Vérification de l’appel au repository
+        verify(personRepository, times(1)).deleteByFullName(personDTO.getFirstName(), personDTO.getLastName());
+    }
+
+
+    @Test
+    void shouldReturnDeleteByFullNameExceptionNull() {
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            personService.deleteByFullName(null, null);
+        });
+
+        assertEquals(PERSON_ERROR_DELETING, exception.getMessage());
+
+        /*PersonDTO personDTO = new PersonDTO();
+        Person personEntity = new Person();
+
+        // Mocking the conversion and repository call
+        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
+        when(personRepository.deleteByFullName(personEntity.getFirstName(), personEntity.getLastName()))
+                .thenThrow(new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE));
+
+        // Case when the person is not found in the database
+        PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class,
+                () -> personService.deleteByFullName(personDTO.getFirstName(), personDTO.getLastName()));
+
+        assertTrue(exception2.getMessage().contains(PERSON_ERROR_SAVING_DATA_BASE));
+
+        // Verifying the interactions
+        LOGGER.info("Verifying that convertDtoToEntity was called once.");
+        verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
+        verify(personRepository, times(1)).deleteByFullName(personEntity.getFirstName(), personEntity.getLastName());
+
+        LOGGER.info("Test shouldReturnDeleteByFullNameException completed successfully");
+
+         */
+    }
+
+
+
 }

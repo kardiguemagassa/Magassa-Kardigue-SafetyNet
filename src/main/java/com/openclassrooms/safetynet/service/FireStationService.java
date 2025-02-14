@@ -46,29 +46,6 @@ public class FireStationService {
         }
     }
 
-    public List<FireStationDTO> saveAll(List<FireStationDTO> fireStationDTOList) {
-
-        try {
-            if (fireStationDTOList == null || fireStationDTOList.isEmpty()) {
-                throw new IllegalArgumentException(FIRE_STATION_ERROR_SAVING);
-            }
-
-            List<FireStation> fireStationEntities = fireStationConvertorDTO.convertDtoToEntity(fireStationDTOList);
-            List<FireStation> savedFireStationEntities = fireStationRepository.saveAll(fireStationEntities);
-
-            return fireStationConvertorDTO.convertEntityToDto(savedFireStationEntities);
-
-        } catch (RuntimeException e) {
-            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE, e.getMessage());
-            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
-
-
-        } catch (Exception e) {
-            LOGGER.error(FIRE_STATION_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
-            throw new FireStationNotFoundException(FIRE_STATION_ERROR_SAVING_DATA_BASE + e.getMessage(),e);
-        }
-    }
-
     public FireStationDTO save(FireStationDTO fireStationDTO) {
 
         if (fireStationDTO == null) {

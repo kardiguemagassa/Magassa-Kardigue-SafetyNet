@@ -28,8 +28,6 @@ public class PersonInfoService {
     private final PersonConvertorDTO personConvertorDTO;
     private final FireStationRepository fireStationRepository;
 
-
-    // 3 FINISH
     public List<String> getPhoneNumbersByStation(int stationNumber) {
 
         List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
@@ -48,7 +46,6 @@ public class PersonInfoService {
                 .toList();
     }
 
-    // 7 FINISH
     public List<String> getCommunityEmails(String city) throws EmailNotFoundException {
 
         if (city == null || city.isBlank()) {

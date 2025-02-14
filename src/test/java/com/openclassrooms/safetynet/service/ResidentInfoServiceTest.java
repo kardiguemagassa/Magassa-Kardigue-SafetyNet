@@ -75,13 +75,6 @@ public class ResidentInfoServiceTest {
     @BeforeEach
     void setUp() {
 
-        //LocalDate birthDate1 = LocalDate.parse("01/01/1990", DATE_TIME_FORMATTER);
-        //LocalDate birthDate2 = LocalDate.parse("01/01/2000", DATE_TIME_FORMATTER);
-
-        //int age1 = Period.between(birthDate1, LocalDate.now()).getYears();
-        //int age2 = Period.between(birthDate2, LocalDate.now()).getYears();
-
-        // Person
         person1 = Person.builder()
                 .firstName("John")
                 .lastName("Doe")
@@ -174,33 +167,6 @@ public class ResidentInfoServiceTest {
                 .address("150 Bd Pei ere 75007 Paris")
                 .station("2")
                 .build();
-
-
-    /*
-        residentInfoDTO1 = ResidentInfoDTO.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .address("123 Main St")
-                .phone("0144445151")
-                .age(age1)
-                .email("johndoe@gmail.com")
-                .medications(List.of("aznol:350mg", "hydrapermazol:100mg"))
-                .allergies(List.of("nillacilan"))
-                .stationNumber(1)
-                .build();
-        residentInfoDTO2 = ResidentInfoDTO.builder()
-                .firstName("Jane")
-                .lastName("Doe")
-                .address("123 Main St")
-                .phone("0144445151")
-                .age(age2)
-                .email("janedoe@gmail.com")
-                .medications(List.of("aznol:350mg", "hydrapermazol:100mg"))
-                .allergies(List.of("nillacilan"))
-                .stationNumber(2)
-                .build();
-
-     */
     }
 
     @Test
@@ -267,7 +233,6 @@ public class ResidentInfoServiceTest {
         assertEquals(personDTO2.getLastName(), jane.getLastName());
         assertEquals(personDTO2.getAddress(), jane.getAddress());
         assertEquals(personDTO2.getPhone(), jane.getPhone());
-        //assertEquals(expectedAgeJane, jane.getAge());
 
 
         // Verify interactions
