@@ -5,6 +5,7 @@ import com.openclassrooms.safetynet.model.Person;
 
 import lombok.Builder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +16,10 @@ public class PersonConvertorDTO {
 
     // Convert une entity Person en un DTO
     public PersonDTO convertEntityToDto(Person person) {
+
+        if (person == null) {
+            return null;
+        }
 
         return PersonDTO.builder()
                 .firstName(person.getFirstName())
@@ -30,6 +35,10 @@ public class PersonConvertorDTO {
     // Convert un DTO entities Person
     public Person convertDtoToEntity(PersonDTO personDTO) {
 
+        if (personDTO == null) {
+            return null;
+        }
+
         return Person.builder()
                 .firstName(personDTO.getFirstName())
                 .lastName(personDTO.getLastName())
@@ -43,6 +52,10 @@ public class PersonConvertorDTO {
 
     // Convert list entities Person list DTOs
     public List<PersonDTO> convertEntityToDto(List<Person> entities) {
+
+        if (CollectionUtils.isEmpty(entities)) {
+            return List.of();
+        }
         return entities.stream()
                 .map(this::convertEntityToDto)
                 .collect(Collectors.toList());
@@ -50,6 +63,11 @@ public class PersonConvertorDTO {
 
     // Convert list DTOs list entities Person
     public List<Person> convertDtoToEntity(List<PersonDTO> personDTOS) {
+
+        if (CollectionUtils.isEmpty(personDTOS)) {
+            return List.of();
+        }
+
         return personDTOS.stream()
                 .map(this::convertDtoToEntity)
                 .collect(Collectors.toList());

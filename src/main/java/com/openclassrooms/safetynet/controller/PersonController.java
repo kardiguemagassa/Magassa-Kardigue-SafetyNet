@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,20 +28,9 @@ public class PersonController extends ExceptionHandling {
 
     @GetMapping("/person")
     public ResponseEntity<List<PersonDTO>> getPersons() {
-        try {
-            List<PersonDTO> personDTOS = personService.getPersons();
-            return ResponseEntity.ok(personDTOS);
-        } catch (PersonNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-        }
+        List<PersonDTO> personDTOS = personService.getPersons();
+        return new ResponseEntity<>(personDTOS, HttpStatus.OK);
     }
-
-    /*@PostMapping("/person")
-    public ResponseEntity<List <PersonDTO>> saveAll(@RequestBody List<PersonDTO> persons) {
-
-        List <PersonDTO> personDTOS = personService.saveAll(persons);
-        return new ResponseEntity<>(personDTOS, HttpStatus.CREATED);
-    }*/
 
     @PostMapping("/person")
     public ResponseEntity<PersonDTO> save(@RequestBody PersonDTO personDTO) {
@@ -54,7 +42,6 @@ public class PersonController extends ExceptionHandling {
     public ResponseEntity<PersonDTO> update(@RequestBody PersonDTO updatedPersonDTO) throws PersonNotFoundException {
         Optional<PersonDTO> updated = personService.update(updatedPersonDTO);
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
-        //return ResponseEntity.ok().body(updated.get());
     }
 
     @DeleteMapping("/person")

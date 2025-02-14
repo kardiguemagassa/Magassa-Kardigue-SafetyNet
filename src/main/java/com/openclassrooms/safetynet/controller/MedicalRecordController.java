@@ -17,18 +17,12 @@ public class MedicalRecordController extends ExceptionHandling {
 
     private final MedicalRecordService medicalRecordService;
 
+    //http://localhost:8080/medicalRecord
     @GetMapping("/medicalRecord")
     public ResponseEntity<List<MedicalRecordDTO>> getMedicalRecord () {
         List<MedicalRecordDTO> medicalRecords = medicalRecordService.getMedicalRecords();
         return new ResponseEntity<>(medicalRecords, HttpStatus.OK);
-        //http://localhost:8080/medicalRecord
     }
-
-    /*@PostMapping("/medicalRecord")
-    public ResponseEntity<List<MedicalRecordDTO>> saveAll (@RequestBody List<MedicalRecordDTO> medicalRecords) {
-        List<MedicalRecordDTO> savedMedicalRecords = medicalRecordService.saveAll(medicalRecords);
-        return new ResponseEntity<>(savedMedicalRecords, HttpStatus.CREATED);
-    }*/
 
     @PostMapping("/medicalRecord")
     public ResponseEntity<MedicalRecordDTO> save (@RequestBody MedicalRecordDTO medicalRecord) {
@@ -43,10 +37,11 @@ public class MedicalRecordController extends ExceptionHandling {
         return new ResponseEntity<>(updatedMedicalRecord.get(), HttpStatus.OK);
     }
 
+    //http://localhost:8080/medicalRecord?firstName=John&lastName=Boyd
     @DeleteMapping("/medicalRecord")
     public ResponseEntity<Boolean> delete (@RequestParam String firstName, @RequestParam String lastName) {
         boolean deleted = medicalRecordService.deleteByFullName(firstName, lastName);
         return new ResponseEntity<>(deleted, HttpStatus.NO_CONTENT);
-        //http://localhost:8080/medicalRecord?firstName=John&lastName=Boyd
+
     }
 }

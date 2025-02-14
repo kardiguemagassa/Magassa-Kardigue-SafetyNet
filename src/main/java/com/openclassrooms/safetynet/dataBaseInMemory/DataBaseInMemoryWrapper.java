@@ -13,9 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.List;
 
 import static com.openclassrooms.safetynet.constant.dataBaseInMemory.DataBaseInMemoryWrapperConstant.*;
@@ -28,23 +29,28 @@ public class DataBaseInMemoryWrapper {
     private DataWrapper dataWrapper;
 
     private final ObjectMapper objectMapper;
-    private final List<Person> persons = new ArrayList<>();
-    private final List<MedicalRecord> medicalRecords = new ArrayList<>();
-    private final List<FireStation> fireStations = new ArrayList<>();
+    private List<Person> persons = new ArrayList<>();
+    private List<MedicalRecord> medicalRecords = new ArrayList<>();
+    private List<FireStation> fireStations = new ArrayList<>();
 
     @PostConstruct
     public void loadData() {
         try {
             LOGGER.info(DataBaseInMemoryWrapperConstant.LOADING_JSON_DATA, DATA_JSON_PATH);
 
-            // Load data from JSON file
-            dataWrapper = loadJson(DATA_JSON_PATH, new TypeReference<>() {});
+            // Load data from JSON file directly
+            try (InputStream inputStream = getClass().getResourceAsStream(DATA_JSON_PATH)) {
+                if (inputStream == null) {
+                    LOGGER.error(DATA_JSON_PATH_NOT_FOUND + DATA_JSON_PATH);
+                }
+                dataWrapper = objectMapper.readValue(inputStream, new TypeReference<>() {});
+            }
 
             if (dataWrapper != null) {
-                // Safely add data to lists
-                persons.addAll(validateList(dataWrapper.getPersons()));
-                medicalRecords.addAll(validateList(dataWrapper.getMedicalrecords()));
-                fireStations.addAll(validateList(dataWrapper.getFirestations()));
+                // Initialize the lists directly with ArrayList to ensure they are modifiable
+                persons = new ArrayList<>(dataWrapper.getPersons() != null ? dataWrapper.getPersons() : new ArrayList<>());
+                medicalRecords = new ArrayList<>(dataWrapper.getMedicalrecords() != null ? dataWrapper.getMedicalrecords() : new ArrayList<>());
+                fireStations = new ArrayList<>(dataWrapper.getFirestations() != null ? dataWrapper.getFirestations() : new ArrayList<>());
 
                 LOGGER.info(DataBaseInMemoryWrapperConstant.DATA_LOADED_SUCCESSFULLY, persons.size(), fireStations.size(),
                         medicalRecords.size());
@@ -53,21 +59,10 @@ public class DataBaseInMemoryWrapper {
                 LOGGER.warn(DATA_NOT_LOADED_SUCCESSFULLY);
             }
 
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException(DATA_LOADED_ERROR + e.getMessage());
         } catch (Exception e) {
-            LOGGER.error(DataBaseInMemoryWrapperConstant.DATA_LOADED_ERROR, e.getMessage(), e);
+        throw new RuntimeException(DATA_JSON_PATH_NOT_FOUND + DATA_JSON_PATH + e.getMessage());
         }
-    }
-
-    private <T> T loadJson(String path, TypeReference<T> typeReference) throws Exception {
-        try (InputStream inputStream = getClass().getResourceAsStream(path)) {
-            if (inputStream == null) {
-                throw new IllegalArgumentException(DATA_JSON_PATH_NOT_FOUND + path);
-            }
-            return objectMapper.readValue(inputStream, typeReference);
-        }
-    }
-
-    private <T> List<T> validateList(List<T> list) {
-        return (list == null) ? Collections.emptyList() : list;
     }
 }

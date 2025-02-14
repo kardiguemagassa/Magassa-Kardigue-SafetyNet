@@ -4,16 +4,10 @@ public class FireStationRepositoryConstant {
 
     public static final String FIRE_STATION_CSV_CONFIG_FILE = "src/main/resources/csv/fireStations.csv";
 
-    public static final String FIRE_STATION_List_EMPTY = "No fire stations found in the database.";
+    public static final String FIRE_STATION_List_EMPTY = "The list of fireStation is empty, loading...";
     public static final String FIRE_STATION_LOADED = "Successfully loaded {} fireStation.";
-    public static final String FIRE_STATION_LOADED_SUCCESS = "Successfully retrieved {} fire stations.";
     public static final String FIRE_STATION_NOT_FOUND = "No fire found in DataBaseInMemoryWrapper.";
     public static final String FIRE_STATION_ERROR_LOADING = "Error retrieving fire stations: {}";
-
-    public static final String FIRE_STATION_ERROR_SAVING = "Attempted to save an empty or null fire station list.";
-    public static final String FIRE_STATION_SAVING_CSV = "Updated the database and saved to CSV with a total";
-    public static final String FIRE_STATION_SAVING_DATA_BASE = "Successfully saved {} fire stations.";
-    public static final String FIRE_STATION_ERROR_SAVING_DATA_BASE = "Error saving fire stations: {}";
 
     public static final String FIRE_STATION_ERROR = "Attempted to save a null fire station.";
     public static final String FIRE_STATION_ERROR_SAVING_CSV_FILE = "DataBaseInMemoryWrapper fire stations list is null. Creating a new list.";

@@ -32,7 +32,6 @@ public class ResidentInfoController extends ExceptionHandling {
     */
     @GetMapping("/firestation/addressNumber")
     public ResponseEntity<FireStationResponseDTO> getPersonsByStation(@RequestParam("stationNumber") int stationNumber) {
-
         FireStationResponseDTO fireStationResponseDTO = residentInfoService.getPersonsByStation(stationNumber);
         return new ResponseEntity<>(fireStationResponseDTO, HttpStatus.OK);
     }
@@ -48,7 +47,6 @@ public class ResidentInfoController extends ExceptionHandling {
     */
     @GetMapping("/childAlert")
     public ResponseEntity<List<ResidentInfoDTO>> getChildrenByAddress(@RequestParam("address") String address) {
-
         List<ResidentInfoDTO> children = residentInfoService.getChildrenByAddress(address);
         return new ResponseEntity<>(children, HttpStatus.OK);
     }
@@ -63,7 +61,6 @@ public class ResidentInfoController extends ExceptionHandling {
     */
     @GetMapping("/fire")
     public ResponseEntity<List<ResidentInfoDTO>> getResidentsByAddress(@RequestParam("address") String address) {
-
         List<ResidentInfoDTO> residentInfoDTOS = residentInfoService.getResidentsByAddress(address);
         return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
     }
@@ -79,9 +76,7 @@ public class ResidentInfoController extends ExceptionHandling {
     */
     @GetMapping("/flood/stations")
     public ResponseEntity<List <ResidentInfoDTO>> getFloodInfo (@RequestParam("stations") List < Integer > stations) {
-
         List<ResidentInfoDTO> response = residentInfoService.getFloodInfoByStations(stations);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -95,9 +90,7 @@ public class ResidentInfoController extends ExceptionHandling {
     //@GetMapping("/flood/stations")
     @GetMapping("/personInfolastName")
     public ResponseEntity<List <ResidentInfoDTO>>getPersonInfo (@RequestParam String lastName) {
-
         List<ResidentInfoDTO> residentInfoDTOS = residentInfoService.getPersonInfo(lastName);
-
         return new ResponseEntity<>(residentInfoDTOS, HttpStatus.OK);
     }
 

@@ -9,11 +9,6 @@ public class MedicalRecordRepositoryConstant {
     public static final String MEDICAL_RECORD_NOT_FOUND = "No medical found in DataBaseInMemoryWrapper.";
     public static final String MEDICAL_RECORD_ERROR_LOADING = "Error loading Json data: {}";
 
-    public static final String MEDICAL_RECORD_ERROR_SAVING = "Attempted to save an empty or null medical list.";
-    public static final String MEDICAL_RECORD_ERROR_SAVING_CSV = "Nothing  medical found in csv file:";
-    public static final String MEDICAL_RECORD_SAVING_DATA_BASE = "Successfully registered {} medical in DataBaseInMemoryWrapper.";
-    public static final String MEDICAL_RECORD_ERROR_SAVING_DATA_BASE = "Error registering medical: {}";
-
     public static final String MEDICAL_RECORD_ERROR = "Attempted to save a null medicalRecord.";
     public static final String MEDICAL_RECORD_ERROR_SAVING_CSV_FILE = "Nothing  medical found in csv file =:";
     public static final String MEDICAL_RECORD_SAVING_DATA_BASE_SUC = "Successfully registered medicalRecord: {}";
