@@ -69,7 +69,7 @@ public class FireStationService {
 
         if (address == null || address.isBlank()) {
             LOGGER.error(FIRE_STATION_ERROR_DELETING);
-            throw new FireStationNotFoundException(FIRE_STATION_ERROR_DELETING + address);
+            throw new IllegalArgumentException(FIRE_STATION_ERROR_DELETING);
         }
 
         boolean isDeleted = fireStationRepository.deleteByAddress(address);
@@ -77,7 +77,7 @@ public class FireStationService {
         LOGGER.info(isDeleted ? FIRE_STATION_DELETING_SUCCESS : FIRE_STATION_ERROR_DELETING_NOT_FOUND, address);
 
         if (!isDeleted) {
-            throw new FireStationNotFoundException(FIRE_STATION_ERROR_DELETING + address);
+            throw new IllegalArgumentException(FIRE_STATION_ERROR_DELETING);
         }
 
         return true;

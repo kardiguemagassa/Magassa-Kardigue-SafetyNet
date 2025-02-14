@@ -81,7 +81,7 @@ public class MedicalRecordService {
 
         if (!isDeleted) {
 
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND);
+            throw new IllegalArgumentException(MEDICAL_RECORD_NOT_FOUND);
         }
 
         return true;

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +31,7 @@ public class PersonInfoService {
 
         if (addresses == null || addresses.isEmpty()) {
             LOGGER.error(API_ADDRESS_NUMBER_NOT_FOUND, stationNumber);
-            return Collections.emptyList();
+            throw new IllegalArgumentException(API_ADDRESS_NUMBER_NOT_FOUND);
         }
 
         // Convert Person objects to PersonDTO
@@ -40,7 +39,6 @@ public class PersonInfoService {
                 .map(personConvertorDTO::convertEntityToDto)
                 .map(PersonDTO::getPhone)
                 .filter(Objects::nonNull)
-                //.distinct()
                 .toList();
     }
 

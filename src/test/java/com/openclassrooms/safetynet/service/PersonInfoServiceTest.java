@@ -1,6 +1,5 @@
 package com.openclassrooms.safetynet.service;
 
-import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.API_ADDRESS_NUMBER_NOT_FOUND;
+import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.CITY_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -104,12 +105,11 @@ public class PersonInfoServiceTest {
     @Test
     void shouldReturnGetPhoneNumbersByStation() {
 
-        LOGGER.info("Starting test: shouldReturnGetPhoneNumbersByStation");
+        LOGGER.info("Start method : shouldReturnGetPhoneNumbersByStation");
 
         // Arrange
         int stationNumber = Integer.parseInt(fireStationDTO1.getStation());
         List<String> addresses = Collections.singletonList(fireStationDTO1.getAddress());
-        LOGGER.debug("Mocking fireStationRepository to return addresses: {}", addresses);
 
         // retrieve the repository for addresses
         when(fireStationRepository.findAddressesByStationNumber(stationNumber)).thenReturn(addresses);
@@ -117,7 +117,6 @@ public class PersonInfoServiceTest {
         //retrieve of people associated with addresses
         List<Person> persons = List.of(person1, person2);
 
-        LOGGER.debug("Mocking personRepository to return persons: {}", persons);
         when(personRepository.findByAddresses(addresses)).thenReturn(persons);
 
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
@@ -139,17 +138,26 @@ public class PersonInfoServiceTest {
         verify(personRepository, times(1)).findByAddresses(addresses);
         verify(personConvertorDTO, times(1)).convertEntityToDto(person1);
         verify(personConvertorDTO, times(1)).convertEntityToDto(person2);
+
+        LOGGER.info("End method : shouldReturnGetPhoneNumbersByStation completed successfully");
     }
 
     @Test
-    void shouldReturnGetCommunityEmails() throws EmailNotFoundException {
+    void shouldReturnGetPhoneNumbersByStationNotFoundException() {
+        LOGGER.info("Start method : shouldReturnGetPhoneNumbersByStationNotFoundException");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> cityEmailAndPhoneNumberByStationService.getPhoneNumbersByStation(0));
+        assertNotNull(API_ADDRESS_NUMBER_NOT_FOUND, exception.getMessage());
+        LOGGER.info("Test shouldReturnGetPhoneNumbersByStationNotFoundException passed.");
+    }
 
-        LOGGER.info("Starting test: shouldReturnGetCommunityEmails");
+    @Test
+    void shouldReturnGetCommunityEmails() {
+
+        LOGGER.info("Start METHOD: shouldReturnGetCommunityEmails");
 
         // Arrange
         String city = personDTO1.getCity();
-
-        LOGGER.debug("Mocking personRepository to return persons for city: {}", city);
 
         when(personRepository.findByCity(city)).thenReturn(Arrays.asList(person1, person2));
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
@@ -169,6 +177,18 @@ public class PersonInfoServiceTest {
         verify(personRepository, times(1)).findByCity(city);
         verify(personConvertorDTO, times(1)).convertEntityToDto(person1);
         verify(personConvertorDTO, times(1)).convertEntityToDto(person2);
+
+        LOGGER.info("End method : shouldReturnGetCommunityEmails completed successfully");
+    }
+
+    @Test
+    void shouldReturnGetCommunityEmailsNotFoundException() {
+        LOGGER.info("Start METHOD: shouldReturnGetCommunityEmailsNotFoundException");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> cityEmailAndPhoneNumberByStationService.getCommunityEmails(null) );
+        assertNotNull(CITY_NOT_FOUND,exception.getMessage());
+        LOGGER.info("Test shouldReturnGetCommunityEmailsNotFoundException passed.");
+
     }
 
 }

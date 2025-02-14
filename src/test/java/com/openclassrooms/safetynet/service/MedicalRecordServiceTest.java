@@ -19,9 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-import static com.openclassrooms.safetynet.constant.service.MedicalRecordImplConstant.MEDICAL_RECORD_ERROR;
-import static com.openclassrooms.safetynet.constant.service.MedicalRecordImplConstant.MEDICAL_RECORD_NOT_FOUND;
-
+import static com.openclassrooms.safetynet.constant.service.MedicalRecordImplConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -81,35 +79,33 @@ public class MedicalRecordServiceTest {
     @Test
     void shouldReturnGetMedicalRecords() {
 
-        LOGGER.info("Starting test: shouldReturnGetMedicalRecords");
+        LOGGER.info("Start method: shouldReturnGetMedicalRecords");
 
         // Arrange
         when(medicalRecordRepository.getMedicalRecords()).thenReturn(List.of(medicalRecord1, medicalRecord2));
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord2)).thenReturn(medicalRecordDTO2);
 
-        // Act
-        LOGGER.info("Fetching medical records");
         List<MedicalRecordDTO> medicalRecordDTOList = medicalRecordService.getMedicalRecords();
 
         // Assert
         assertNotNull(medicalRecordDTOList);
 
         assert(medicalRecordDTOList.size() == 2);
-        //assertEquals(2, medicalRecordDTOList.size());
         assert(medicalRecordDTOList.get(0).getFirstName().equals(medicalRecordDTO1.getFirstName()));
         assert(medicalRecordDTOList.get(1).getFirstName().equals(medicalRecordDTO2.getFirstName()));
 
-        LOGGER.info("Verifying method interactions");
+
         verify(medicalRecordRepository,times(1)).getMedicalRecords();
         verify(medicalRecordConvertorDTO,times(1)).convertEntityToDto(medicalRecord1);
         verify(medicalRecordConvertorDTO,times(1)).convertEntityToDto(medicalRecord2);
 
-        LOGGER.info("Test shouldReturnGetMedicalRecords completed successfully");
+        LOGGER.info("End method : shouldReturnGetMedicalRecords completed successfully");
     }
 
     @Test
-    void shouldReturnGetMedicalRecords_NotFound () {
+    void shouldReturnGetMedicalRecordsNotFoundException () {
+        LOGGER.info("Start method: shouldReturnGetMedicalRecords_NotFound");
         // Arrange
         when(medicalRecordRepository.getMedicalRecords()).thenReturn(null);
 
@@ -120,13 +116,13 @@ public class MedicalRecordServiceTest {
         verify(medicalRecordRepository, times(1)).getMedicalRecords();
         verifyNoInteractions(medicalRecordConvertorDTO);
 
-        LOGGER.info("Test shouldReturnGetMedicalRecords_NotFound completed successfully");
+        LOGGER.info("End method shouldReturnGetMedicalRecordsNotFoundException completed successfully");
     }
 
     @Test
     void shouldReturnSave() {
 
-        LOGGER.info("Starting test: shouldReturnSave");
+        LOGGER.info("Start method: shouldReturnSave");
 
         MedicalRecordDTO medicalRecordDTO = medicalRecordDTO1;
         MedicalRecord medicalRecordEntities = medicalRecord1;
@@ -135,7 +131,6 @@ public class MedicalRecordServiceTest {
         when(medicalRecordRepository.save(medicalRecordEntities)).thenReturn(medicalRecordEntities);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecordEntities)).thenReturn(medicalRecordDTO);
 
-        LOGGER.info("Saving a new medical record");
         MedicalRecordDTO result = medicalRecordService.save(medicalRecordDTO);
 
         assertNotNull(result);
@@ -147,63 +142,51 @@ public class MedicalRecordServiceTest {
         verify(medicalRecordRepository, times(1)).save(medicalRecordEntities);
         verify(medicalRecordConvertorDTO, times(1)).convertEntityToDto(medicalRecordEntities);
 
-        LOGGER.info("Test shouldReturnSave completed successfully");
+        LOGGER.info("End method : shouldReturnSave completed successfully");
     }
 
     @Test
-    void shouldReturnSave_ExceptionThrownByRepository() {
+    void shouldReturnSaveException() {
 
-        LOGGER.info("Starting test: shouldReturnSave_ExceptionThrownByRepository");
+        LOGGER.info("Start method: shouldReturnSaveException");
 
-        // Test with null medicalRecordDTO
-        LOGGER.debug("Testing with a null medicalRecordDTO");
-        IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () -> {
-            medicalRecordService.save(null);
-        });
+        IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class,
+                () -> medicalRecordService.save(null));
 
         assertEquals(MEDICAL_RECORD_ERROR, exception1.getMessage());
-        LOGGER.info("Null medicalRecordDTO test passed");
 
         MedicalRecordDTO medicalRecordDTO = new MedicalRecordDTO();
         MedicalRecord medicalRecordEntity = new MedicalRecord();
 
-        //convert repository
-        LOGGER.debug("Mocking DTO to Entity conversion");
         when(medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTO)).thenReturn(medicalRecordEntity);
-        LOGGER.debug("Mocking repository to throw an exception when saving");
         when(medicalRecordRepository.save(medicalRecordEntity))
                 .thenThrow(new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND));
 
-        // Test RuntimeException
-        LOGGER.info("Testing repository exception handling");
-        RuntimeException exception2 = assertThrows(RuntimeException.class, () -> {medicalRecordService.save(medicalRecordDTO);});
+
+        RuntimeException exception2 = assertThrows(RuntimeException.class, () -> medicalRecordService.save(medicalRecordDTO));
         assertTrue(exception2.getMessage().contains(MEDICAL_RECORD_NOT_FOUND));
         LOGGER.info("Exception handling test passed");
 
-        // Verify interactions
-        LOGGER.debug("Verifying method interactions");
         verify(medicalRecordConvertorDTO, times(1)).convertDtoToEntity(medicalRecordDTO);
         verify(medicalRecordRepository, times(1)).save(medicalRecordEntity);
 
-        LOGGER.info("Test shouldReturnSave_ExceptionThrownByRepository completed successfully");
+        LOGGER.info("End method : shouldReturnSaveException completed successfully");
     }
 
     @Test
     void shouldReturnUpdate() {
 
-        LOGGER.info("Starting test: shouldReturnUpdate");
+        LOGGER.info("Start method: shouldReturnUpdate");
 
         // Arrange
         MedicalRecordDTO medicalRecordDTO = medicalRecordDTO1;
         MedicalRecord medicalRecordEntities = medicalRecord1;
 
-        LOGGER.debug("Mocking conversion from DTO to Entity");
         when(medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTO)).thenReturn(medicalRecordEntities);
         when(medicalRecordRepository.update(medicalRecordEntities)).thenReturn(Optional.of(medicalRecordEntities));
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecordEntities)).thenReturn(medicalRecordDTO);
 
         // Act
-        LOGGER.info("Calling medicalRecordService.update()");
         Optional<MedicalRecordDTO> result = medicalRecordService.update(medicalRecordDTO);
 
         // Assert
@@ -212,12 +195,24 @@ public class MedicalRecordServiceTest {
         assert(result.get().getFirstName().equals(medicalRecordDTO1.getFirstName()));
         assert(result.get().getLastName().equals(medicalRecordDTO1.getLastName()));
 
-        LOGGER.info("Assertions passed, verifying method interactions");
+
         verify(medicalRecordConvertorDTO, times(1)).convertDtoToEntity(medicalRecordDTO);
         verify(medicalRecordRepository, times(1)).update(medicalRecordEntities);
         verify(medicalRecordConvertorDTO, times(1)).convertEntityToDto(medicalRecordEntities);
 
-        LOGGER.info("Test shouldReturnUpdate completed successfully");
+        LOGGER.info("End method : shouldReturnUpdate completed successfully");
+    }
+
+    @Test
+    void shouldReturnUpdateException() {
+
+        LOGGER.info("Start method: shouldReturnUpdateException");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> medicalRecordService.update(null));
+        assertEquals(MEDICAL_RECORD_ERROR_UPDATING, exception.getMessage());
+
+        LOGGER.info("End method : shouldReturnUpdateException completed successfully");
     }
 
     @Test
@@ -238,6 +233,37 @@ public class MedicalRecordServiceTest {
         verify(medicalRecordRepository,times(1)).deleteByFullName(medicalRecord1.getFirstName(),medicalRecord1.getLastName());
         verifyNoInteractions(medicalRecordConvertorDTO);
 
-        LOGGER.info("Test shouldReturnDeleteByFullName completed successfully");
+        LOGGER.info("End method shouldReturnDeleteByFullName completed successfully");
+    }
+
+    @Test
+    void shouldReturnDeleteByFullNameException() {
+
+        LOGGER.info("Start method: shouldReturnDeleteByFullNameException");
+
+        // Given
+        when(medicalRecordRepository.deleteByFullName(medicalRecord1.getFirstName(), medicalRecord1.getLastName())).thenReturn(false);
+
+        // When & Then
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> medicalRecordService.deleteByFullName(medicalRecord1.getFirstName(), medicalRecord1.getLastName()));
+
+        assertEquals(MEDICAL_RECORD_NOT_FOUND, exception.getMessage());
+        LOGGER.info("End method : shouldReturnDeleteByFullNameException completed successfully");
+    }
+
+
+
+    @Test
+    void shouldReturnDeleteByFullNameNull() {
+
+        LOGGER.info("Start method: shouldReturnDeleteByFullNameNull");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                medicalRecordService.deleteByFullName(null, null));
+
+        assertEquals(MEDICAL_RECORD_ERROR_DELETING, exception.getMessage());
+        LOGGER.info("End method : shouldReturnDeleteByFullNameNull completed successfully");
+
     }
 }

@@ -55,102 +55,89 @@ public class PersonServiceTest {
 
     // CRUD
     @Test
-    void shouldReturnGetPersons() throws PersonNotFoundException { //getPersons
+    void shouldReturnGetPersons() throws PersonNotFoundException {
+
+        LOGGER.info("Start method :shouldReturnGetPersons");
 
         // Arrange
-        LOGGER.info("Arranging the test: mocking repository and DTO conversion");
         when(personRepository.getPersons()).thenReturn(Arrays.asList(person1, person2));
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
 
         // Act
-        LOGGER.info("Acting: calling the service to get the list of persons");
         List<PersonDTO> personDTOList = personService.getPersons();
 
         // Assert
         assertNotNull(personDTOList);
         assertEquals(2, personDTOList.size());
 
-        LOGGER.info("Verifying individual persons in the list");
         assertEquals(personDTO1.getFirstName(),personDTOList.get(0).getFirstName());
         assertEquals(personDTO2.getFirstName(),personDTOList.get(1).getFirstName());
 
-        LOGGER.info("Verifying repository and DTO conversion method calls");
         verify(personRepository,times(1)).getPersons();
         verify(personConvertorDTO,times(1)).convertEntityToDto(person1);
         verify(personConvertorDTO,times(1)).convertEntityToDto(person2);
 
-        LOGGER.info("Test shouldReturnGetPersons completed successfully");
+        LOGGER.info("End shouldReturnGetPersons : completed successfully");
     }
 
-    // 'annotation @Test(expected = IndexOutOfBoundsException.class)
-    // attend une IndexOutOfBoundsException, mais dans le code, on utilise
-    //@Test (expected=IndexOutOfBoundsException.class) // JUnit 4
     @Test
     void shouldReturnGetPersonsNotFound() {
 
+        LOGGER.info("Start method: shouldReturnGetPersonsNotFound");
+
         // Arrange
-        LOGGER.info("Arranging the test: mocking person repository to return null");
         when(personRepository.getPersons()).thenReturn(null);
 
         // Act & Assert
-
-        LOGGER.info("Acting: calling the service to get the list of persons, expecting an exception");
         PersonNotFoundException exception = assertThrows(PersonNotFoundException.class, () -> personService.getPersons());
 
-        LOGGER.info("Asserting the exception message");
         assertEquals("No persons found in the repository.", exception.getMessage());
 
-        LOGGER.info("Verifying interactions: checking that the repository was called once");
         verify(personRepository,times(1)).getPersons();
-        LOGGER.info("Verifying no interactions with the person converter DTO");
         verifyNoInteractions(personConvertorDTO);
 
-        LOGGER.info("Test shouldReturnGetPersons_NotFound completed successfully");
+        LOGGER.info("End method : shouldReturnGetPersonsNotFound completed successfully");
     }
 
 
     @Test
     void shouldReturnSave() {
 
+        LOGGER.info("Start method : shouldReturnSave");
+
         // Arrange
-        LOGGER.info("Arranging the test: preparing mock data for PersonDTO and Person entity");
         PersonDTO personDTO = personDTO1;
         Person personEntity = person1;
 
         // Configurer les mocks
-        LOGGER.info("Mocking convertDtoToEntity to return the Person entity when called");
         when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
-        LOGGER.info("Mocking save method of the repository to return the Person entity");
         when(personRepository.save(personEntity)).thenReturn(personEntity);
-        LOGGER.info("Mocking convertEntityToDto to return the PersonDTO after saving");
         when(personConvertorDTO.convertEntityToDto(personEntity)).thenReturn(personDTO);
 
         // Act
-        LOGGER.info("Acting: calling personService.save(personDTO) to save the person");
         PersonDTO result = personService.save(personDTO);
 
         // Assert
-        LOGGER.info("Asserting the result: checking if the returned PersonDTO is not null");
         assertNotNull(result);
         assertEquals(personDTO1.getFirstName(), result.getFirstName());
         assertEquals(personDTO1.getLastName(), result.getLastName());
 
-        // Vérifier les interactions
-        LOGGER.info("Verifying interactions: checking that convertDtoToEntity was called once");
+        // Vérifier
         verify(personConvertorDTO,times(1)).convertDtoToEntity(personDTO);
         verify(personRepository,times(1)).save(personEntity);
         verify(personConvertorDTO,times(1)).convertEntityToDto(personEntity);
 
-        LOGGER.info("Test shouldReturnSave completed successfully");
+        LOGGER.info("End shouldReturnSave : completed successfully");
     }
 
     @Test
     void shouldReturnSaveException() {
 
+        LOGGER.info("Start method: shouldReturnSaveException");
+
         // Test with null personDTO
-        LOGGER.info("Testing: Null PersonDTO passed to save method.");
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {personService.save(null);});
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> personService.save(null));
 
         assertEquals(PERSON_ERROR, exception.getMessage());
 
@@ -158,37 +145,36 @@ public class PersonServiceTest {
         Person personEntity = new Person();
 
         when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
-        when(personRepository.save(personEntity)).thenThrow(new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE));
+
+        when(personRepository.save(personEntity)).thenThrow(new IllegalArgumentException(PERSON_ERROR_SAVING_DATA_BASE));
 
         // Act & Assert
-        PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class, () -> {personService.save(personDTO);});
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> personService.save(personDTO));
 
         assertTrue(exception2.getMessage().contains("System error while saving persons in the repository:"));
 
         // Verify the interactions
-        LOGGER.info("Verifying that convertDtoToEntity was called once.");
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
         verify(personRepository, times(1)).save(personEntity);
 
-        LOGGER.info("Test shouldReturnSave_ExceptionThrownByRepository completed successfully");
+        LOGGER.info("End method shouldReturnSaveException :  completed successfully");
     }
 
 
     @Test
     void shouldReturnUpdate() {
 
+        LOGGER.info("Start method: shouldReturnUpdate");
+
         // Arrange
         PersonDTO personDTO = personDTO1;
         Person personEntities = person1;
 
-        // Configurer les mocks
-        LOGGER.info("Preparing the mock data for the update test. PersonDTO: {}, PersonEntity: {}", personDTO, personEntities);
         when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntities);
         when(personRepository.update(personEntities)).thenReturn(Optional.of(personEntities));
         when(personConvertorDTO.convertEntityToDto(personEntities)).thenReturn(personDTO);
 
         // Act
-        LOGGER.info("Calling personService.update() with the mock PersonDTO.");
         Optional<PersonDTO> result = personService.update(personDTO);
 
         // Assert
@@ -197,117 +183,83 @@ public class PersonServiceTest {
         assertEquals(personDTO1.getLastName(), result.get().getLastName());
 
         // Vérifier les interactions
-        LOGGER.info("Verifying that update method was called once on the repository.");
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
         verify(personRepository, times(1)).update(personEntities);
         verify(personConvertorDTO, times(1)).convertEntityToDto(personEntities);
 
-        LOGGER.info("Test shouldReturnUpdate completed successfully");
+        LOGGER.info("End method shouldReturnUpdate :  completed successfully");
     }
 
     @Test
     void shouldReturnUpdateException() {
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {personService.update(null);});
-        LOGGER.info("Asserting the exception message for null PersonDTO.");
+        LOGGER.info("Start method: shouldReturnUpdateException");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> personService.update(null));
         assertEquals(PERSON_ERROR_UPDATING, exception.getMessage());
-
-        PersonDTO personDTO = new PersonDTO();
-        Person personEntity = new Person();
-
-        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
-        when(personRepository.update(personEntity)).thenThrow(new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE));
-        PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class, () -> {personService.update(personDTO);});
-
-        assertTrue(exception2.getMessage().contains("System error while saving persons in the repository:"));
-
-        // Verify the interactions
-        LOGGER.info("Verifying that convertDtoToEntity was called once.");
-        verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
-        verify(personRepository, times(1)).update(personEntity);
-
         LOGGER.info("Test shouldReturnSave_ExceptionThrownByRepository completed successfully");
-
     }
 
+    @Test
+    void shouldReturnUpdatePersonNotFound() {
+
+        LOGGER.info("Start method: shouldReturnUpdatePersonNotFound");
+        // Given
+        PersonDTO updatedPersonDTO = new PersonDTO();
+        Person personEntity = new Person();
+
+        when(personConvertorDTO.convertDtoToEntity(updatedPersonDTO)).thenReturn(personEntity);
+        when(personRepository.update(personEntity)).thenReturn(Optional.empty());
+
+        // When & Then
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> personService.update(updatedPersonDTO));
+
+        assertEquals(PERSON_NOT_FOUND_UPDATING, exception.getMessage());
+        LOGGER.info("End method : shouldReturnUpdatePersonNotFound completed successfully");
+    }
 
     @Test
     void shouldReturnDeleteByFullName() {
 
-        // Arrange
-        LOGGER.info("Preparing the mock data for the deleteByFullName test. Deleting person with first name: {} and last name: {}."
-                , personDTO1.getFirstName(), personDTO1.getLastName());
+        LOGGER.info("Start method: shouldReturnDeleteByFullName");
+
         when(personRepository.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName())).thenReturn(true);
-
-        // Act
-
         Boolean result = personService.deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
 
         // Assert
         assertTrue(result);
 
-        // Vérifier que la méthode du repository a été appelée
-        LOGGER.info("Verifying that deleteByFullName method was called once on the repository.");
         verify(personRepository, times(1)).deleteByFullName(personDTO1.getFirstName(), personDTO1.getLastName());
-
         LOGGER.info("Test shouldReturnDeleteByFullName completed successfully");
     }
 
     @Test
     void shouldReturnDeleteByFullNameException() {
-        // Given
-        PersonDTO personDTO = new PersonDTO();
-        personDTO.setFirstName("kara");
-        personDTO.setLastName("Maga");
 
-        // Simuler le comportement du repository pour lever une exception
-        doThrow(new PersonNotFoundException("Person not found"))
-                .when(personRepository).deleteByFullName(personDTO.getFirstName(), personDTO.getLastName());
+        LOGGER.info("Start method: shouldReturnDeleteByFullNameException");
+
+        // Given
+        when(personRepository.deleteByFullName(person1.getFirstName(), person1.getLastName())).thenReturn(false);
 
         // When & Then
-        PersonNotFoundException exception = assertThrows(PersonNotFoundException.class, () ->
-                personService.deleteByFullName(personDTO.getFirstName(), personDTO.getLastName()));
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> personService.deleteByFullName(person1.getFirstName(), person1.getLastName()));
 
-        //assertTrue(exception.getMessage().contains("Person not found"));
-
-        // Vérification de l’appel au repository
-        verify(personRepository, times(1)).deleteByFullName(personDTO.getFirstName(), personDTO.getLastName());
+        assertEquals(PERSON_ERROR_DELETING_NOT_FOUND, exception.getMessage());
+        LOGGER.info("End method : shouldReturnDeleteByFullNameException completed successfully");
     }
-
 
     @Test
-    void shouldReturnDeleteByFullNameExceptionNull() {
+    void shouldReturnDeleteByFullNameNull() {
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            personService.deleteByFullName(null, null);
-        });
+        LOGGER.info("Start method: shouldReturnDeleteByFullNameNull");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                personService.deleteByFullName(null, null));
 
         assertEquals(PERSON_ERROR_DELETING, exception.getMessage());
+        LOGGER.info("End method : shouldReturnDeleteByFullNameNull completed successfully");
 
-        /*PersonDTO personDTO = new PersonDTO();
-        Person personEntity = new Person();
-
-        // Mocking the conversion and repository call
-        when(personConvertorDTO.convertDtoToEntity(personDTO)).thenReturn(personEntity);
-        when(personRepository.deleteByFullName(personEntity.getFirstName(), personEntity.getLastName()))
-                .thenThrow(new PersonNotFoundException(PERSON_ERROR_SAVING_DATA_BASE));
-
-        // Case when the person is not found in the database
-        PersonNotFoundException exception2 = assertThrows(PersonNotFoundException.class,
-                () -> personService.deleteByFullName(personDTO.getFirstName(), personDTO.getLastName()));
-
-        assertTrue(exception2.getMessage().contains(PERSON_ERROR_SAVING_DATA_BASE));
-
-        // Verifying the interactions
-        LOGGER.info("Verifying that convertDtoToEntity was called once.");
-        verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);
-        verify(personRepository, times(1)).deleteByFullName(personEntity.getFirstName(), personEntity.getLastName());
-
-        LOGGER.info("Test shouldReturnDeleteByFullNameException completed successfully");
-
-         */
     }
-
-
 
 }
