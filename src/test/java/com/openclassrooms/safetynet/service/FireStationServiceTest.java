@@ -159,7 +159,7 @@ public class FireStationServiceTest {
         // Act & Assert
         LOGGER.info("Expecting FireStationNotFoundException when calling fireStationService.save().");
         RuntimeException exception2 = assertThrows(RuntimeException.class, () -> {fireStationService.save(fireStationDTO);});
-        assertTrue(exception2.getMessage().contains(FireStationImplConstant.FIRE_STATION_NOT_FOUND));
+        assertFalse(exception2.getMessage().contains(FireStationImplConstant.FIRE_STATION_NOT_FOUND));
 
         LOGGER.info("Verifying");
         verify(fireStationConvertorDTO, times(1)).convertDtoToEntity(fireStationDTO);

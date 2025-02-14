@@ -30,27 +30,16 @@ public class MedicalRecordService {
 
     public List<MedicalRecordDTO> getMedicalRecords() throws MedicalRecordNotFoundException {
 
-        try {
+        List<MedicalRecord> medicalRecords = medicalRecordRepository.getMedicalRecords();
 
-            List<MedicalRecord> medicalRecords = medicalRecordRepository.getMedicalRecords();
-
-            if (medicalRecords == null || medicalRecords.isEmpty()) {
-                LOGGER.error(MEDICAL_RECORD_NOT_FOUND);
-                throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND);
-            }
-
-            return medicalRecords.stream()
-                    .map(medicalRecordConvertorDTO::convertEntityToDto)
-                    .collect(Collectors.toList());
-
-        } catch (MedicalRecordNotFoundException e) {
-            LOGGER.error(MEDICAL_RECORD_NOT_FOUND_MSG, e.getMessage());
-            throw e;
-
-        } catch (Exception e) {
-            LOGGER.error(ERROR_CONVERTING, e.getMessage(), e);
-            throw new RuntimeException(MEDICAL_RECORD_UNEXPECT, e);
+        if (medicalRecords == null || medicalRecords.isEmpty()) {
+            LOGGER.error(MEDICAL_RECORD_NOT_FOUND);
+            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND);
         }
+
+        return medicalRecords.stream()
+                .map(medicalRecordConvertorDTO::convertEntityToDto)
+                .collect(Collectors.toList());
     }
 
     public MedicalRecordDTO save(MedicalRecordDTO medicalRecordDTO) {
@@ -60,40 +49,23 @@ public class MedicalRecordService {
             throw new IllegalArgumentException(MEDICAL_RECORD_ERROR);
         }
 
-        try {
+        MedicalRecord medicalRecordEntity = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTO);
+        MedicalRecord savedMedicalRecordEntity = medicalRecordRepository.save(medicalRecordEntity);
 
-            MedicalRecord medicalRecordEntity = medicalRecordConvertorDTO.convertDtoToEntity(medicalRecordDTO);
-            MedicalRecord savedMedicalRecordEntity = medicalRecordRepository.save(medicalRecordEntity);
-
-            return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecordEntity);
-
-        } catch (MedicalRecordNotFoundException e) {
-            LOGGER.warn(MEDICAL_RECORD_NOT_FOUND, e.getMessage());
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND + e.getMessage());
-
-        } catch (RuntimeException e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE, e.getMessage(), e);
-            throw new RuntimeException(MEDICAL_RECORD_ERROR_SAVING_DATA_BASE);
-        }
+        return medicalRecordConvertorDTO.convertEntityToDto(savedMedicalRecordEntity);
     }
 
     public Optional<MedicalRecordDTO> update(MedicalRecordDTO updatedMedicalRecordDTO) {
 
-        try {
-            if (updatedMedicalRecordDTO == null) {
-                LOGGER.error(MEDICAL_RECORD_ERROR_UPDATING);
-                throw new IllegalArgumentException(MEDICAL_RECORD_ERROR_UPDATING);
-            }
-
-            MedicalRecord medicalRecordEntity = medicalRecordConvertorDTO.convertDtoToEntity(updatedMedicalRecordDTO);
-            Optional<MedicalRecord> savedMedicalRecordEntity = medicalRecordRepository.update(medicalRecordEntity);
-
-            return savedMedicalRecordEntity.map(medicalRecordConvertorDTO::convertEntityToDto);
-
-        } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_SAVING_UPDATING_SUCCESS, e.getMessage(), e);
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_ERROR_SAVING_UPDATING_SUCCESS);
+        if (updatedMedicalRecordDTO == null) {
+            LOGGER.error(MEDICAL_RECORD_ERROR_UPDATING);
+            throw new IllegalArgumentException(MEDICAL_RECORD_ERROR_UPDATING);
         }
+
+        MedicalRecord medicalRecordEntity = medicalRecordConvertorDTO.convertDtoToEntity(updatedMedicalRecordDTO);
+        Optional<MedicalRecord> savedMedicalRecordEntity = medicalRecordRepository.update(medicalRecordEntity);
+
+        return savedMedicalRecordEntity.map(medicalRecordConvertorDTO::convertEntityToDto);
     }
 
     public Boolean deleteByFullName(String firstName, String lastName) {
@@ -103,27 +75,16 @@ public class MedicalRecordService {
             throw new IllegalArgumentException(MEDICAL_RECORD_ERROR_DELETING);
         }
 
-        try {
-            boolean isDeleted = medicalRecordRepository.deleteByFullName(firstName, lastName);
+        boolean isDeleted = medicalRecordRepository.deleteByFullName(firstName, lastName);
 
-            LOGGER.info(isDeleted ? MEDICAL_RECORD_DELETING_SUCCESS : MEDICAL_RECORD_ERROR_DELETING_NOT_FOUND, firstName, lastName);
+        LOGGER.info(isDeleted ? MEDICAL_RECORD_DELETING_SUCCESS : MEDICAL_RECORD_ERROR_DELETING_NOT_FOUND, firstName, lastName);
 
-            if (!isDeleted) {
+        if (!isDeleted) {
 
-                throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND);
-            }
-
-            return true;
-
-        } catch (MedicalRecordNotFoundException e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_DELETING_NOT_, e.getMessage());
-            throw e;
-
-        } catch (Exception e) {
-            LOGGER.error(MEDICAL_RECORD_ERROR_DELETING_NOT_, firstName, lastName, e.getMessage(), e);
-            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_ERROR_DELETING_NOT_);
-
+            throw new MedicalRecordNotFoundException(MEDICAL_RECORD_NOT_FOUND);
         }
+
+        return true;
     }
 
 }

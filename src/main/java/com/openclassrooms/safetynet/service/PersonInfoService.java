@@ -2,7 +2,6 @@ package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
 
 import com.openclassrooms.safetynet.repository.FireStationRepository;
 import com.openclassrooms.safetynet.repository.PersonRepository;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
-import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.PERSON_ERROR_EMAIL;
 
 @Service
 @AllArgsConstructor
@@ -46,28 +44,22 @@ public class PersonInfoService {
                 .toList();
     }
 
-    public List<String> getCommunityEmails(String city) throws EmailNotFoundException {
+    public List<String> getCommunityEmails(String city) {
 
         if (city == null || city.isBlank()) {
             LOGGER.error(CITY_NOT_FOUND);
             throw new IllegalArgumentException(CITY_NOT_FOUND);
         }
 
-        try {
-            // Recovery of city residents
-            List<PersonDTO> residents = personRepository.findByCity(city).stream()
-                    .map(personConvertorDTO::convertEntityToDto)
-                    .toList();
+        // Recovery of city residents
+        List<PersonDTO> residents = personRepository.findByCity(city).stream()
+                .map(personConvertorDTO::convertEntityToDto)
+                .toList();
 
-            return residents.stream()
-                    .map(PersonDTO::getEmail)
-                    .filter(email -> email != null && !email.isBlank())
-                    .distinct()
-                    .toList();
-
-        } catch (RuntimeException e) {
-            LOGGER.error(PERSON_ERROR_EMAIL, city, e.getMessage(), e);
-            throw new EmailNotFoundException(PERSON_ERROR_EMAIL);
-        }
+        return residents.stream()
+                .map(PersonDTO::getEmail)
+                .filter(email -> email != null && !email.isBlank())
+                .distinct()
+                .toList();
     }
 }

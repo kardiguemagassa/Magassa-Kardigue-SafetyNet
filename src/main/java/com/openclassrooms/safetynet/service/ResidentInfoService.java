@@ -221,8 +221,6 @@ public class ResidentInfoService {
             throw new IllegalArgumentException(RESIDENTS_INVALID + residentDTO.getFirstName() + residentDTO.getLastName());
         }
 
-        try {
-
             LocalDate birthDate = LocalDate.parse(medicalRecordDTO.getBirthdate(), DATE_FORMATTER);
             int age = calculateAge(birthDate);
 
@@ -236,15 +234,6 @@ public class ResidentInfoService {
                     .medications(medicalRecordDTO.getMedications())
                     .allergies(medicalRecordDTO.getAllergies())
                     .build();
-
-        } catch (RuntimeException e) {
-            LOGGER.error(ERROR_REPOSITORIES, e.getMessage());
-            throw new ResidentInfoNotFoundException(ERROR_REPOSITORIES + e.getMessage());
-
-        } catch (Exception e) {
-            LOGGER.error(MESSING_BIRTH_DATE, residentDTO.getFirstName(), residentDTO.getLastName(), medicalRecordDTO.getBirthdate(), e);
-            throw new ResidentInfoNotFoundException(MESSING_BIRTH_DATE, e);
-        }
     }
 
     // Method to enrich the person's information
