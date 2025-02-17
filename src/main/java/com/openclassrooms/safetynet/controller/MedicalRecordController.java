@@ -1,7 +1,6 @@
 package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
-import com.openclassrooms.safetynet.exception.ExceptionHandling;
 import com.openclassrooms.safetynet.service.MedicalRecordService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-public class MedicalRecordController extends ExceptionHandling {
+public class MedicalRecordController {
 
     private final MedicalRecordService medicalRecordService;
 

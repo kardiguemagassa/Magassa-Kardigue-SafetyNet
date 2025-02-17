@@ -119,21 +119,6 @@
 			<version>1.3</version>
 		</dependency>
 
-		<!--<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-inline</artifactId>
-			<version>4.10.0</version>  Assurez-vous d'utiliser la dernière version
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>5.5.0</version>
-			<scope>test</scope>
-		</dependency>-->
-
-
 	</dependencies>
 
 	<build>
@@ -230,28 +215,15 @@
 						</goals>
 						<configuration>
 							<excludes>
-								<exclude>**/config/*Test.java</exclude>
-								<!--<exclude>**/repository/**</exclude>-->
+								<exclude>**/constant/**</exclude>
 								<exclude>**/dto/**</exclude>
 								<exclude>**/model/**</exclude>
 								<exclude>**/exception/**</exclude>
-								<!--<exclude>**/convertorDTO/**</exclude>-->
 							</excludes>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<argLine>-Djdk.instrument.traceUsage=false -XX:+EnableDynamicAgentLoading</argLine>
-				</configuration>
-			</plugin>-->
-
-
-
 
 		</plugins>
 	</build>

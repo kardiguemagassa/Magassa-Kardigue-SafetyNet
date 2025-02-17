@@ -2,7 +2,6 @@ package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.FireStationResponseDTO;
 import com.openclassrooms.safetynet.dto.ResidentInfoDTO;
-import com.openclassrooms.safetynet.exception.ExceptionHandling;
 import com.openclassrooms.safetynet.service.ResidentInfoService;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +15,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class ResidentInfoController extends ExceptionHandling {
+public class ResidentInfoController {
 
     private final ResidentInfoService residentInfoService;
 

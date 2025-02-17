@@ -1,7 +1,6 @@
 package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.FireStationDTO;
-import com.openclassrooms.safetynet.exception.ExceptionHandling;
 import com.openclassrooms.safetynet.service.FireStationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-public class FireStationController extends ExceptionHandling {
+public class FireStationController {
 
     private final FireStationService fireStationService;
 
@@ -22,7 +21,6 @@ public class FireStationController extends ExceptionHandling {
     public ResponseEntity<List<FireStationDTO>> getFireStations() {
         List<FireStationDTO> fireStations = fireStationService.getFireStations();
         return new ResponseEntity<>(fireStations, HttpStatus.OK);
-
     }
 
     @PostMapping("/firestation")

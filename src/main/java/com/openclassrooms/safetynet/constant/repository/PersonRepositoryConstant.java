@@ -12,7 +12,6 @@ public class PersonRepositoryConstant {
     public static final String PERSON_SAVING_CSV = "Updated the database and saved to CSV with a total of {} persons.";
 
     public static final String PERSON_ERROR = "Attempted to save a null person.";
-    public static final String PERSON_ERROR_SAVING_CSV_FILE = "Nothing  persons found in csv file =:";
     public static final String PERSON_SAVING_DATA_BASE_SUC = "Successfully registered {} persons in DataBaseInMemoryWrapper. ";
     public static final String PERSON_ERROR_SAVING_DATA_BASE_ = "Error registering people: {} ";
 

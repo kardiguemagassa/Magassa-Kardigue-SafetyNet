@@ -1,9 +1,7 @@
 package com.openclassrooms.safetynet.controller;
 
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.exception.ExceptionHandling;
 
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.HttpResponse;
 import com.openclassrooms.safetynet.service.PersonService;
 
@@ -22,7 +20,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @AllArgsConstructor
-public class PersonController extends ExceptionHandling {
+public class PersonController {
 
     private final PersonService personService;
 
@@ -39,7 +37,7 @@ public class PersonController extends ExceptionHandling {
     }
 
     @PutMapping("/person")
-    public ResponseEntity<PersonDTO> update(@RequestBody PersonDTO updatedPersonDTO) throws PersonNotFoundException {
+    public ResponseEntity<PersonDTO> update(@RequestBody PersonDTO updatedPersonDTO) {
         Optional<PersonDTO> updated = personService.update(updatedPersonDTO);
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
@@ -47,11 +45,10 @@ public class PersonController extends ExceptionHandling {
     @DeleteMapping("/person")
     public ResponseEntity<HttpResponse> deleteByFullName(
             @RequestParam("firstName") String firstName,
-            @RequestParam("lastName") String lastName, WebRequest request)
-            throws PersonNotFoundException, IllegalArgumentException {
+            @RequestParam("lastName") String lastName, WebRequest request) {
 
         // http://localhost:8080/person?firstName=John&lastName=Boyd
-        boolean deleted = personService.deleteByFullName(firstName, lastName);
+        personService.deleteByFullName(firstName, lastName);
         return response(NO_CONTENT, "User deleted successfully", request);
     }
 

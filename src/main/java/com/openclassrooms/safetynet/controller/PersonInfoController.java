@@ -1,7 +1,5 @@
 package com.openclassrooms.safetynet.controller;
 
-import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.service.PersonInfoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +16,6 @@ public class PersonInfoController {
 
     private final PersonInfoService cityEmailAndPhoneNumberByStationService;
 
-
     /* 3
     http://localhost:8080/phoneAlert?firestation=<firestation_number>
     Cette url doit retourner une liste des numéros de téléphone des résidents desservis
@@ -28,7 +25,6 @@ public class PersonInfoController {
    */
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getPhoneNumbersByStation(@RequestParam("firestation") int stationNumber) {
-
         List<String> phoneNumbers = cityEmailAndPhoneNumberByStationService.getPhoneNumbersByStation(stationNumber);
         return new ResponseEntity<>(phoneNumbers, HttpStatus.OK);
     }
@@ -39,9 +35,7 @@ public class PersonInfoController {
     Cette url doit retourner les adresses mail de tous les habitants de la ville
     */
     @GetMapping("/communityEmail")
-    public ResponseEntity<List<String>> getCommunityEmails(@RequestParam("city") String city)
-            throws EmailNotFoundException, PersonNotFoundException, IllegalArgumentException {
-
+    public ResponseEntity<List<String>> getCommunityEmails(@RequestParam("city") String city) {
         List<String> emails = cityEmailAndPhoneNumberByStationService.getCommunityEmails(city);
         return ResponseEntity.ok(emails);
     }
