@@ -10,7 +10,6 @@ public class FireStationRepositoryConstant {
     public static final String FIRE_STATION_ERROR_LOADING = "Error retrieving fire stations: {}";
 
     public static final String FIRE_STATION_ERROR = "Attempted to save a null fire station.";
-    public static final String FIRE_STATION_ERROR_SAVING_CSV_FILE = "DataBaseInMemoryWrapper fire stations list is null. Creating a new list.";
     public static final String FIRE_STATION_SAVING_DATA_BASE_SUC = "Successfully saved fire station: {}";
     public static final String FIRE_STATION_ERROR_SAVING_DATA_BASE_ = "Error saving fire station: {}";
 
@@ -19,10 +18,8 @@ public class FireStationRepositoryConstant {
     public static final String FIRE_STATION_ERROR_UPDATING_SUCCESS = "Updating fire station at address: {}";
     public static final String FIRE_STATION_ERROR_SAVING_UPDATING_SUCCESS = "Error updating fire station: {}";
 
-    public static final String FIRE_STATION_ERROR_DELETING = "Attempted to delete a fire station with a null or blank address.";
     public static final String FIRE_STATION_NOT_FOUND_DELETING = "DataBaseInMemoryWrapper fire stations list is null. Cannot perform deletion.";
     public static final String FIRE_STATION_DELETING_SUCCESS = "Fire station at address {} deleted successfully.";
-    public static final String FIRE_STATION_ERROR_DELETING_NOT_FOUND = "Fire station at address {} not found.";
     public static final String FIRE_STATION_ERROR_DELETING_BY_ADDRESS = "Error deleting fire station at address {}: {}";
 
     public static final String FIRE_STATION_ERROR_SEARCHING_ADDRESSES_NUMBERS = "Attempted to search with a null or empty station numbers list.";

@@ -40,7 +40,6 @@ public class ExceptionHandling implements ErrorController {
     private static final String FIRE_STATION_NOT_FOUND_MSG = "Aucune addresse ou Station pompier n'a été trouvé";
     private static final String MEDICAL_RECORD_NOT_FOUND_MSG = "Aucun Medical Record n'a été trouvé";
     private static final String INTERNAL_SERVER_ERROR_API_SERVICE = "Une erreur s'est produite lors du traitement de la demande ApiService";
-    private static final String ERROR_PATH = "/error";
 
 
     @ExceptionHandler(NoHandlerFoundException.class)
@@ -93,7 +92,6 @@ public class ExceptionHandling implements ErrorController {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<HttpResponse> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request) {
-        //return ResponseEntity.badRequest().body(ex.getMessage());
         return createHttpResponse(BAD_REQUEST, INTERNAL_SERVER_ERROR_MSG, request);
     }
 
@@ -117,12 +115,5 @@ public class ExceptionHandling implements ErrorController {
         );
         return new ResponseEntity<>(response, httpStatus);
     }
-
-    /*
-    @RequestMapping(ERROR_PATH)
-    public ResponseEntity<HttpResponse> pageNotFound(WebRequest request) {
-        return createHttpResponse(NOT_FOUND, RESOURCE_NOT_FOUND_MSG, request);
-    }
-     */
 
 }

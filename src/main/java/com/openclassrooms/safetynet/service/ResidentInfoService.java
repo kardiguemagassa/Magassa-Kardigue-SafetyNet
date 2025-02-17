@@ -47,17 +47,10 @@ public class ResidentInfoService {
         List<String> addresses = fireStationRepository.findAddressesByStationNumber(stationNumber);
 
         if (addresses == null || addresses.isEmpty()) {
-            LOGGER.warn(API_ADDRESS_NUMBER_NOT_FOUND, stationNumber);
             throw new IllegalArgumentException(API_ADDRESS_NUMBER_NOT_FOUND);
-
         }
 
         List<Person> residents = personRepository.findByAddresses(addresses);
-
-        if (residents == null || residents.isEmpty()) {
-            LOGGER.warn(API_ADDRESS_NOT_FOUND, addresses);
-            throw new IllegalArgumentException(API_ADDRESS_NOT_FOUND);
-        }
 
         List<ResidentInfoDTO> enrichedResidents = residents.stream()
                 .map(person -> enrichResident(person, person.getAddress())).filter(Objects::nonNull)
@@ -83,48 +76,36 @@ public class ResidentInfoService {
 
         if (residents == null || residents.isEmpty()) {
             LOGGER.info(API_ADDRESS_NOT_FOUND, address);
-            return Collections.emptyList();
+            throw new IllegalArgumentException(API_ADDRESS_NOT_FOUND);
         }
 
-        List<ResidentInfoDTO> children = residents.stream()
-                .map(person -> enrichResident(person, person.getAddress()))
-                .filter(Objects::nonNull)
-                .filter(resident -> resident.getAge() <= 18)
-                .map(resident -> {
-                    resident.setAddress(null);
-                    resident.setPhone(null);
-                    resident.setEmail(null);
-                    resident.setMedications(null);
-                    resident.setAllergies(null);
-                    resident.setStationNumber(null);
-                    resident.setHouseholdMembers(null);
-                    return resident;
-                }).toList();
+        List<ResidentInfoDTO> children = filterChildHouseMemberInfoResidents(residents, true);
+        List<ResidentInfoDTO> householdMembers = filterChildHouseMemberInfoResidents(residents, false);
 
-        // If no children, returns an empty list
-        if (children.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<ResidentInfoDTO> householdMembers = residents.stream()
-                .map(person -> enrichResident(person, person.getAddress()))
-                .filter(Objects::nonNull)
-                .filter(resident -> resident.getAge() > 18)
-                .map(resident -> {
-                    resident.setAddress(null);
-                    resident.setPhone(null);
-                    resident.setEmail(null);
-                    resident.setMedications(null);
-                    resident.setAllergies(null);
-                    resident.setStationNumber(null);
-                    resident.setHouseholdMembers(null);
-                    return resident;
-                }).toList();
-
-        // Involves other household members with the children
+        // Associer les membres du foyer aux enfants
         children.forEach(child -> child.setHouseholdMembers(new ArrayList<>(householdMembers)));
 
         return children;
+    }
+
+    private List<ResidentInfoDTO> filterChildHouseMemberInfoResidents(List<Person> residents, boolean isChild) {
+        return residents.stream()
+                .map(person -> enrichResident(person, person.getAddress()))
+                .filter(Objects::nonNull)
+                .filter(resident -> isChild == (resident.getAge() <= 18))
+                .map(this::childHouseMemberInfo)
+                .toList();
+    }
+
+    private ResidentInfoDTO childHouseMemberInfo(ResidentInfoDTO resident) {
+        resident.setAddress(null);
+        resident.setPhone(null);
+        resident.setEmail(null);
+        resident.setMedications(null);
+        resident.setAllergies(null);
+        resident.setStationNumber(null);
+        resident.setHouseholdMembers(null);
+        return resident;
     }
 
     public List<ResidentInfoDTO> getResidentsByAddress(String address) {
@@ -135,17 +116,12 @@ public class ResidentInfoService {
 
         if (fireStationDTO == null) {
             LOGGER.error(API_ADDRESS_NOT_FOUND, address);
-            throw new IllegalStateException(API_ADDRESS_NOT_FOUND + address);
+            throw new IllegalArgumentException(API_ADDRESS_NOT_FOUND);
         }
 
         // Retrieve the barracks number
         int fireStationNumber = Integer.parseInt(fireStationDTO.getStation());
         List<Person> residents = personRepository.findByAddress(address);
-
-        if (residents == null || residents.isEmpty()) {
-            LOGGER.error(API_ADDRESS_NOT_FOUND, address);
-            throw new IllegalStateException(API_ADDRESS_NOT_FOUND + address);
-        }
 
         List<ResidentInfoDTO> enrichedResidents;
         enrichedResidents = residents.stream()
@@ -211,7 +187,6 @@ public class ResidentInfoService {
         return enrichedResidents;
     }
 
-    // Main method that uses the two separate methods
     private ResidentInfoDTO enrichResident(Person resident, String address) {
 
         PersonDTO residentDTO = enrichPerson(resident);
@@ -246,7 +221,7 @@ public class ResidentInfoService {
                 });
     }
 
-    // Method for enriching medical information
+     // Method for enriching medical information
     private MedicalRecordDTO enrichMedicalRecord(String firstName, String lastName) {
 
         return Optional.ofNullable(medicalRecordRepository.findByFullName(firstName, lastName))
