@@ -16,24 +16,32 @@ public class PersonInfoController {
 
     private final PersonInfoService cityEmailAndPhoneNumberByStationService;
 
-    /* 3
-    http://localhost:8080/phoneAlert?firestation=<firestation_number>
-    Cette url doit retourner une liste des numéros de téléphone des résidents desservis
-    par la caserne de pompiers. Nous l'utiliserons pour envoyer des messages texte
-    d'urgence à des foyers spécifiques.
-    http://localhost:8080/phoneAlert?firestation=1
-   */
+    /**
+     * 3
+     * http://localhost:8080/phoneAlert?firestation=<firestation_number>
+     * Cette url doit retourner une liste des numéros de téléphone des résidents desservis
+     * par la caserne de pompiers. Nous l'utiliserons pour envoyer des messages texte
+     * d'urgence à des foyers spécifiques.
+     * http://localhost:8080/phoneAlert?firestation=1
+     *
+     * @param stationNumber
+     * @return
+     */
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getPhoneNumbersByStation(@RequestParam("firestation") int stationNumber) {
         List<String> phoneNumbers = cityEmailAndPhoneNumberByStationService.getPhoneNumbersByStation(stationNumber);
         return new ResponseEntity<>(phoneNumbers, HttpStatus.OK);
     }
 
-    /* 7
-    http://localhost:8080/communityEmail?city=<city>
-    http://localhost:8080/communityEmail?city=Culver
-    Cette url doit retourner les adresses mail de tous les habitants de la ville
-    */
+    /**
+     * 7
+     * http://localhost:8080/communityEmail?city=<city>
+     * http://localhost:8080/communityEmail?city=Culver
+     * Cette url doit retourner les adresses mail de tous les habitants de la ville
+     *
+     * @param city
+     * @return
+     */
     @GetMapping("/communityEmail")
     public ResponseEntity<List<String>> getCommunityEmails(@RequestParam("city") String city) {
         List<String> emails = cityEmailAndPhoneNumberByStationService.getCommunityEmails(city);
