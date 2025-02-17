@@ -3,9 +3,6 @@ package com.openclassrooms.safetynet.controller;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 import com.openclassrooms.safetynet.service.FireStationService;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +20,30 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FireStationController.class)
-@ExtendWith(MockitoExtension.class)
 public class FireStationControllerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FireStationControllerTest.class);
 
     @Autowired
     private MockMvc mockMvc;
+
     @MockitoBean
     private FireStationService fireStationService;
+
     private FireStationDTO mockFireStationDTO1, mockFireStationDTO2;
+    private String fireStationJson;
 
     @BeforeEach
     public void setUp() {
         mockFireStationDTO1 = new FireStationDTO("149 Bd Pei ere 75007 Paris", "1");
         mockFireStationDTO2 = new FireStationDTO("150 Bd Pei ere 75007 Paris", "2");
 
-        LOGGER.info("@BeforeEach executes before the execution of every test method in this class");
+        fireStationJson = """
+                {
+                "address": "149 Bd Pei ere 75007 Paris",
+                "station": "1"
+                }
+                """;
     }
 
     @AfterEach
@@ -81,25 +85,14 @@ public class FireStationControllerTest {
         verify(fireStationService, times(1)).getFireStations();
     }
 
-
     @Test
     void shouldReturnSave() throws Exception {
 
-        String json = """
-                {
-                "address": "149 Bd Pei ere 75007 Paris",
-                "station": "1"
-                }
-                """;
-
-        mockFireStationDTO1 = new FireStationDTO();
-        mockFireStationDTO1.setAddress("149 Bd Pei ere 75007 Paris");
-        mockFireStationDTO1.setStation("1");
-
         when(fireStationService.save(any(FireStationDTO.class))).thenReturn(mockFireStationDTO1);
+
         String response = mockMvc.perform(post("/firestation")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                        .content(fireStationJson))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.address").value(mockFireStationDTO1.getAddress()))
                         .andExpect(jsonPath("$.station").value(mockFireStationDTO1.getStation()))
@@ -113,22 +106,11 @@ public class FireStationControllerTest {
     @Test
     void shouldReturnUpdate() throws Exception {
 
-        String json = """
-                {
-                "address": "149 Bd Pei ere 75007 Paris",
-                "station": "1"
-                }
-                """;
-
-        mockFireStationDTO1 = new FireStationDTO();
-        mockFireStationDTO1.setAddress("149 Bd Pei ere 75007 Paris");
-        mockFireStationDTO1.setStation("1");
-
         when(fireStationService.update(any(FireStationDTO.class))).thenReturn(Optional.of(mockFireStationDTO1));
 
         String response = mockMvc.perform(put("/firestation")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                        .content(fireStationJson))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.address").value(mockFireStationDTO1.getAddress()))
                         .andExpect(jsonPath("$.station").value(mockFireStationDTO1.getStation()))
@@ -142,10 +124,6 @@ public class FireStationControllerTest {
 
     @Test
     void shouldReturnDeleteFireStation() throws Exception {
-
-        mockFireStationDTO1 = new FireStationDTO();
-
-        mockFireStationDTO1.setAddress("149 Bd Pei ere 75007 Paris");
 
         when(fireStationService.deleteByAddress(mockFireStationDTO1.getAddress())).thenReturn(true);
 

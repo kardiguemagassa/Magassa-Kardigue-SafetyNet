@@ -4,9 +4,6 @@ import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 
 import com.openclassrooms.safetynet.service.MedicalRecordService;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(MedicalRecordController.class)
-@ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MedicalRecordControllerTest {
 
@@ -37,6 +33,7 @@ public class MedicalRecordControllerTest {
 
     private MedicalRecordDTO mockMedicalRecordDTO1;
     private MedicalRecordDTO mockMedicalRecordDTO2;
+    private String medicalRecordJson;
 
     @BeforeEach
     public void setUpBeforeEach() {
@@ -47,7 +44,15 @@ public class MedicalRecordControllerTest {
         mockMedicalRecordDTO2 = new MedicalRecordDTO("Jane", "Doe", "01/01/2000",
                 List.of("aznol:350mg","hydrapermazol:100mg"), List.of("nillacilan"));
 
-        LOGGER.info("@BeforeEach executes before the execution of every test method in this class");
+        medicalRecordJson = """
+                {
+                "firstName": "Alain",
+                "lastName": "Smith",
+                "medications": ["Allergy", "Flu"],
+                "allergies": ["Allergy", "Flu"],
+                "birthdate": "1990-01-01"
+                }
+                """;
     }
 
 
@@ -84,22 +89,8 @@ public class MedicalRecordControllerTest {
     @Order(3)
     void shouldReturnSaveMedicalRecord() throws Exception {
 
-        String json = """
-                {
-                "firstName": "John",
-                "lastName": "Doe",
-                "medications": ["Allergy", "Flu"],
-                "allergies": ["Allergy", "Flu"],
-                "birthdate": "1990-01-01"
-                }
-                """;
-
-        mockMedicalRecordDTO1 = new MedicalRecordDTO();
-        mockMedicalRecordDTO1.setFirstName("John");
-        mockMedicalRecordDTO1.setLastName("Doe");
         mockMedicalRecordDTO1.setMedications(List.of("Allergy", "Flu"));
         mockMedicalRecordDTO1.setAllergies(List.of("Allergy", "Flu"));
-        mockMedicalRecordDTO1.setBirthdate("1990-01-01");
 
         // Mock data
         when(medicalRecordService.save(any(MedicalRecordDTO.class))).thenReturn(mockMedicalRecordDTO1);
@@ -107,7 +98,7 @@ public class MedicalRecordControllerTest {
         // Perform POST request
         String response = mockMvc.perform(post("/medicalRecord")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(medicalRecordJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value(mockMedicalRecordDTO1.getFirstName()))
                 .andExpect(jsonPath("$.lastName").value(mockMedicalRecordDTO1.getLastName()))
@@ -126,22 +117,8 @@ public class MedicalRecordControllerTest {
     @Order(4)
     void shouldReturnUpdateMedicalRecord() throws Exception {
 
-        String json = """
-                {
-                "firstName": "John",
-                "lastName": "Doe",
-                "medications": ["Allergy", "Flu"],
-                "allergies": ["Allergy", "Flu"],
-                "birthdate": "1990-01-01"
-                }
-                """;
-
-        mockMedicalRecordDTO1 = new MedicalRecordDTO();
-        mockMedicalRecordDTO1.setFirstName("John");
-        mockMedicalRecordDTO1.setLastName("Doe");
         mockMedicalRecordDTO1.setMedications(List.of("Allergy", "Flu"));
         mockMedicalRecordDTO1.setAllergies(List.of("Allergy", "Flu"));
-        mockMedicalRecordDTO1.setBirthdate("1990-01-01");
 
         // Mock data
         when(medicalRecordService.update(any(MedicalRecordDTO.class))).thenReturn(Optional.of(mockMedicalRecordDTO1));
@@ -149,7 +126,7 @@ public class MedicalRecordControllerTest {
         // Perform POST request
         String responseUpdate = mockMvc.perform(put("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                        .content(medicalRecordJson))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.firstName").value(mockMedicalRecordDTO1.getFirstName()))
                         .andExpect(jsonPath("$.lastName").value(mockMedicalRecordDTO1.getLastName()))
@@ -167,10 +144,6 @@ public class MedicalRecordControllerTest {
     @Test
     @Order(5)
     void shouldReturnDeleteByFullName() throws Exception {
-
-        mockMedicalRecordDTO1 = new MedicalRecordDTO();
-        mockMedicalRecordDTO1.setFirstName("John");
-        mockMedicalRecordDTO1.setLastName("Doe");
 
         when(medicalRecordService.deleteByFullName(anyString(), anyString())).thenReturn(true);
 

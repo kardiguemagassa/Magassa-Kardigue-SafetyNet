@@ -5,10 +5,6 @@ import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.service.PersonInfoService;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(PersonInfoController.class)
-@ExtendWith(MockitoExtension.class)
 public class PersonInfoControllerTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -42,7 +37,6 @@ public class PersonInfoControllerTest {
     private PersonDTO personDTO2;
 
     private FireStationDTO fireStationDTO1;
-    private FireStationDTO fireStationDTO2;
 
 
     @BeforeEach

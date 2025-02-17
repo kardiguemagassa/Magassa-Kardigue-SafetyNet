@@ -74,9 +74,9 @@ public class ResidentInfoControllerTest {
     }
 
     @Test
-    void shouldReturnGetPersonsByStation_MockMvc() throws Exception {
+    void shouldReturnGetPersonsByStation() throws Exception {
 
-        LOGGER.info("Start test - shouldReturnGetPersonsByStation_MockMvc");
+        LOGGER.info("Start test - shouldReturnGetPersonsByStation");
 
         LocalDate birthDate1 = LocalDate.parse("01/01/2000", DATE_TIME_FORMATTER);
         LocalDate birthDate2 = LocalDate.parse("01/01/2010", DATE_TIME_FORMATTER);
@@ -88,19 +88,8 @@ public class ResidentInfoControllerTest {
         int stationNumber = (residentInfoDTO1.getStationNumber());
         LOGGER.info("Station Number: {}", stationNumber);
 
-        // retrieve just what I need, avoid calling null fields
-        residentInfoDTO1 = new ResidentInfoDTO();
-        residentInfoDTO1.setFirstName("John");
-        residentInfoDTO1.setLastName("Doe");
-        residentInfoDTO1.setAddress("123 Main St");
-        residentInfoDTO1.setPhone("0144445151");
         residentInfoDTO1.setAge(age1);
 
-        residentInfoDTO2 = new ResidentInfoDTO();
-        residentInfoDTO2.setFirstName("Jane");
-        residentInfoDTO2.setLastName("Doe");
-        residentInfoDTO2.setAddress("123 Main St");
-        residentInfoDTO2.setPhone("0144445152");
         residentInfoDTO2.setAge(age2);
 
         // Mock enriched residents
@@ -144,29 +133,21 @@ public class ResidentInfoControllerTest {
                         .andExpect(jsonPath("$.residents[1].age").value(residentInfoDTO2.getAge()))
                         .andReturn().getResponse().getContentAsString();
 
-        LOGGER.info("shouldReturnGetPersonsByStation_MockMvc ==> {}", response);
+        LOGGER.info("shouldReturnGetPersonsByStation ==> {}", response);
 
         verify(residentInfoService,times(1)).getPersonsByStation(stationNumber);
     }
 
     @Test
-    void shouldReturnChildrenByAddress_MockMvc() throws Exception {
+    void shouldReturnChildrenByAddress() throws Exception {
+
+        LOGGER.info("Start method : shouldReturnChildrenByAddress : ");
 
         // Arrange
         String address = residentInfoDTO1.getAddress();
-        LOGGER.info("Test shouldReturnChildrenByAddress_MockMvc - Address used: {}", address);
 
-        // Création des enfants
-        residentInfoDTO1 = new ResidentInfoDTO();
-        residentInfoDTO1.setFirstName("John");
-        residentInfoDTO1.setLastName("Doe");
         residentInfoDTO1.setAge(20);
-
-        residentInfoDTO2 = new ResidentInfoDTO();
-        residentInfoDTO2.setFirstName("Jane");
-        residentInfoDTO2.setLastName("Doe");
         residentInfoDTO2.setAge(15);
-        // À REVOIR POUR L'ENVOIE DE LISTE VIDE S'IL YA PAS D'ENFANT
 
         List<ResidentInfoDTO> mockChildren = List.of(residentInfoDTO1, residentInfoDTO2);
         LOGGER.info("Mock of created children: {}", mockChildren);
@@ -191,33 +172,19 @@ public class ResidentInfoControllerTest {
                         .andExpect(jsonPath("$[1].age").value(residentInfoDTO2.getAge()))
                         .andReturn().getResponse().getContentAsString();
 
-        LOGGER.info("Test shouldReturnChildrenByAddress_MockMvc passed successfully ==> {}", response);
+        LOGGER.info("End method : shouldReturnChildrenByAddress passed successfully ==> {}", response);
 
         verify(residentInfoService,times(1)).getChildrenByAddress(address);
     }
 
     @Test
-    void shouldReturnResidentsByAddress_MockMvc() throws Exception {
+    void shouldReturnResidentsByAddress() throws Exception {
+
+        LOGGER.info("Start method : shouldReturnResidentsByAddress : ");
 
         // Arrange
         String address = residentInfoDTO1.getAddress();
-        LOGGER.info("Test shouldReturnResidentsByAddress_MockMvc - Address used: {}", address);
 
-        residentInfoDTO1 = new ResidentInfoDTO();
-        residentInfoDTO1.setLastName("Doe");
-        residentInfoDTO1.setPhone("123456789");
-        residentInfoDTO1.setAge(35);
-        residentInfoDTO1.setMedications(List.of("aznol:350mg", "hydrapermazol:100mg"));
-        residentInfoDTO1.setAllergies(List.of("nillacilan"));
-        residentInfoDTO1.setStationNumber(1);
-
-        residentInfoDTO2 = new ResidentInfoDTO();
-        residentInfoDTO2.setLastName("Doe");
-        residentInfoDTO2.setPhone("987654321");
-        residentInfoDTO2.setAge(40);
-        residentInfoDTO2.setMedications(List.of("aznol:450mg", "hydrapermazol:200mg"));
-        residentInfoDTO2.setAllergies(List.of("nillacilan2"));
-        residentInfoDTO2.setStationNumber(2);
 
         // Mock enriched residents
         List<ResidentInfoDTO> mockResidents = List.of(residentInfoDTO1, residentInfoDTO2);
@@ -251,47 +218,20 @@ public class ResidentInfoControllerTest {
                         .andExpect(jsonPath("$[1].stationNumber").value(residentInfoDTO2.getStationNumber()))
                         .andReturn().getResponse().getContentAsString();
 
-        LOGGER.info("Test shouldReturnResidentsByAddress_MockMvc passed successfully ==> {}", response);
+        LOGGER.info("End method : shouldReturnResidentsByAddress passed successfully ==> {}", response);
 
         verify(residentInfoService,times(1)).getResidentsByAddress(address);
     }
 
     @Test
-    void shouldReturnFloodInfoByStations_MockMvc() throws Exception {
+    void shouldReturnFloodInfoByStations() throws Exception {
+
+        LOGGER.info("Start method : shouldReturnFloodInfoByStations : ");
 
         // Arrange
         int stationNumber1 = residentInfoDTO1.getStationNumber();
         int stationNumber2 = residentInfoDTO2.getStationNumber();
-
-        String address1 = residentInfoDTO1.getAddress();
-        String address2 = residentInfoDTO2.getAddress();
-
         List<Integer> stationNumbers = List.of(stationNumber1, stationNumber2);
-        LOGGER.info("Test shouldReturnFloodInfoByStations_MockMvc - Station numbers: {}", stationNumbers);
-
-        // Mock addresses associated with stations
-        List<String> mockAddresses = List.of(address1, address2);
-
-        // appel à une méthode, mais le test n'en a pas besoin.
-        //when(fireStationRepository.findAddressesByStationNumbers(stationNumbers)).thenReturn(mockAddresses);
-        LOGGER.info("Mocked addresses for stations {}: {}", stationNumbers, mockAddresses);
-
-        // Mock enriched residents
-        residentInfoDTO1 = new ResidentInfoDTO();
-        residentInfoDTO1.setLastName("Doe");
-        residentInfoDTO1.setAddress("123 Main St");
-        residentInfoDTO1.setPhone("123456789");
-        residentInfoDTO1.setAge(50);
-        residentInfoDTO1.setMedications(List.of("aznol:350mg", "hydrapermazol:100mg"));
-        residentInfoDTO1.setAllergies(List.of("nillacilan"));
-
-        residentInfoDTO2 = new ResidentInfoDTO();
-        residentInfoDTO2.setLastName("Doe");
-        residentInfoDTO2.setAddress("123 Main St");
-        residentInfoDTO2.setPhone("987654321");
-        residentInfoDTO2.setAge(40);
-        residentInfoDTO2.setMedications(List.of("aznol:450mg", "hydrapermazol:200mg"));
-        residentInfoDTO2.setAllergies(List.of("nillacilan2"));
 
         List<ResidentInfoDTO> mockResidentInfoDTOs = List.of(residentInfoDTO1, residentInfoDTO2);
 
@@ -323,7 +263,7 @@ public class ResidentInfoControllerTest {
                         .andExpect(jsonPath("$[1].allergies[0]").value(residentInfoDTO2.getAllergies().get(0)))
                         .andReturn().getResponse().getContentAsString();
 
-        LOGGER.info("Test shouldReturnFloodInfoByStations_MockMvc passed successfully ==> {}", response);
+        LOGGER.info("End shouldReturnFloodInfoByStations passed successfully ==> {}", response);
 
         verify(residentInfoService,times(1)).getFloodInfoByStations(stationNumbers);
     }
@@ -332,33 +272,18 @@ public class ResidentInfoControllerTest {
     @Test
     void shouldReturnPersonInfoByLastName() throws Exception {
 
+        LOGGER.info("Start method : shouldReturnPersonInfoByLastName : ");
+
         // Arrange
         String lastName = residentInfoDTO1.getLastName();
-        LOGGER.info("Test shouldReturnPersonInfoByLastName - Last Name used: {}", lastName);
-
-        residentInfoDTO1 = new ResidentInfoDTO();
-        residentInfoDTO1.setLastName("Doe");
-        residentInfoDTO1.setAddress("123 Main St");
-        residentInfoDTO1.setAge(25);
-        residentInfoDTO1.setEmail("john.doe@example.com");
-        residentInfoDTO1.setMedications(List.of("aznol:350mg", "hydrapermazol:100mg"));
-        residentInfoDTO1.setAllergies(List.of("nillacilan"));
-
-        residentInfoDTO2 = new ResidentInfoDTO();
-        residentInfoDTO2.setLastName("Doe");
-        residentInfoDTO2.setAddress("123 Main St");
-        residentInfoDTO2.setAge(20);
-        residentInfoDTO2.setEmail("jane.doe@example.com");
-        residentInfoDTO2.setMedications(List.of("aznol:450mg", "hydrapermazol:200mg"));
-        residentInfoDTO2.setAllergies(List.of("nillacilan2"));
 
         // Mock enriched residents
         List<ResidentInfoDTO> mockResidentInfoDTOs = List.of(residentInfoDTO1, residentInfoDTO2);
+
         when(residentInfoService.getPersonInfo(lastName)).thenReturn(mockResidentInfoDTOs);
         LOGGER.info("Mocked residents for last name '{}': {}", lastName, mockResidentInfoDTOs);
 
         // Act & Assert
-        LOGGER.info("Sending GET request to /personInfolastName with lastName: {}", lastName);
         String response = mockMvc.perform(get("/personInfolastName")
                         .param("lastName", lastName)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -382,9 +307,8 @@ public class ResidentInfoControllerTest {
                         .andExpect(jsonPath("$[1].allergies[0]").value(residentInfoDTO2.getAllergies().get(0)))
                         .andReturn().getResponse().getContentAsString();
 
-        LOGGER.info("Test shouldReturnPersonInfoByLastName passed successfully ==> {}", response);
+        LOGGER.info("End method : shouldReturnPersonInfoByLastName passed successfully ==> {}", response);
         verify(residentInfoService,times(1)).getPersonInfo(lastName);
     }
-
 
 }
