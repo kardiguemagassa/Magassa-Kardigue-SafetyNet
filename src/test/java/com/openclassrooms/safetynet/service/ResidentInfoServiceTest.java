@@ -20,22 +20,19 @@ import org.mockito.Mock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ResidentInfoServiceTest {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Mock
     private PersonRepository personRepository;
@@ -64,9 +61,6 @@ public class ResidentInfoServiceTest {
     private FireStation fireStation2;
     private FireStationDTO fireStationDTO1;
     private FireStationDTO fireStationDTO2;
-
-    private ResidentInfoDTO residentInfoDTO1;
-    private ResidentInfoDTO residentInfoDTO2;
 
     @InjectMocks
     private ResidentInfoService residentInfoService;
@@ -170,13 +164,9 @@ public class ResidentInfoServiceTest {
     }
 
     @Test
-    void shouldReturnGetPersonsByStations() {
+    void shouldReturnGetPersonsByStationsSuccessfully() {
 
         LOGGER.info("Starting test: shouldReturnGetPersonsByStation");
-
-        int expectedAge = Period.between(LocalDate.parse(medicalRecordDTO1.getBirthdate(), DATE_TIME_FORMATTER), LocalDate.now()).getYears();
-        int expectedAgeJane = Period.between(LocalDate.parse(medicalRecordDTO2.getBirthdate(), DATE_TIME_FORMATTER), LocalDate.now()).getYears();
-
 
         // Arrange
         int stationNumber = Integer.parseInt(fireStationDTO1.getStation());
@@ -194,17 +184,15 @@ public class ResidentInfoServiceTest {
         // Mock medical records
         when(medicalRecordRepository.findByFullName(medicalRecord1.getFirstName(), medicalRecord1.getLastName())).thenReturn(medicalRecord1);
         when(medicalRecordRepository.findByFullName(medicalRecord2.getFirstName(), medicalRecord2.getLastName())).thenReturn(medicalRecord2);
-        //LOGGER.debug("Retrieved medical records for residents");
 
         // Mock conversion Person -> PersonDTO
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
-        //LOGGER.debug("Converted Person entities to DTOs");
+        LOGGER.debug("Converted Person entities to DTOs");
 
         // Mock conversion MedicalRecord -> MedicalRecordDTO
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord2)).thenReturn(medicalRecordDTO2);
-        //LOGGER.debug("Converted MedicalRecord entities to DTOs");
 
         // Act
         LOGGER.info("Calling service getPersonsByStation with stationNumber={}", stationNumber);
@@ -223,7 +211,6 @@ public class ResidentInfoServiceTest {
         assertEquals(personDTO1.getLastName(), john.getLastName());
         assertEquals(personDTO1.getAddress(), john.getAddress());
         assertEquals(personDTO1.getPhone(), john.getPhone());
-        //assertEquals(expectedAge, john.getAge());
 
         ResidentInfoDTO jane = result.getResidents().stream()
                 .filter(resident -> resident.getFirstName().equals(resident.getFirstName()))
@@ -244,15 +231,23 @@ public class ResidentInfoServiceTest {
         LOGGER.info("Test shouldReturnGetPersonsByStation completed successfully");
     }
 
+    @Test
+    void shouldReturnGetPersonsByStationsNull() {
+
+        LOGGER.info("Start method : shouldReturnGetPersonsByStationsNull");
+         assertThrows(IllegalArgumentException.class, ()-> residentInfoService.getPersonsByStation(0));
+        assertNotNull(API_ADDRESS_NOT_FOUND);
+        LOGGER.info("End method :  shouldReturnGetPersonsByStationsNull completed successfully");
+
+    }
 
     @Test
-    void shouldReturnChildrenByAddress() {
+    void shouldReturnChildrenByAddressSuccessfully() {
 
         LOGGER.info("Starting test: shouldReturnChildrenByAddress");
 
         // Input address
         String address = fireStationDTO1.getAddress();
-        //LOGGER.debug("Provided address: {}", address);
 
         // Mock residents
         when(personRepository.findByAddress(address)).thenReturn(List.of(person1, person2));
@@ -266,12 +261,11 @@ public class ResidentInfoServiceTest {
         // Mock conversion Person -> PersonDTO
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
-        //LOGGER.debug("Converted Person entities to DTOs");
+        LOGGER.debug("Converted Person entities to DTOs:");
 
         // Mock conversion MedicalRecord -> MedicalRecordDTO
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord2)).thenReturn(medicalRecordDTO2);
-        //LOGGER.debug("Converted MedicalRecord entities to DTOs");
 
         // Call the method
         LOGGER.info("Calling service getChildrenByAddress with address: {}", address);
@@ -285,12 +279,20 @@ public class ResidentInfoServiceTest {
     }
 
     @Test
-    void shouldReturnResidentsByAddress() {
-        LOGGER.info("Starting test: shouldReturnResidentsByAddress");
+    void shouldReturnChildrenByAddressNotFoundException() {
+        LOGGER.info("Start method : shouldReturnChildrenByAddressNotFoundException");
+
+        assertThrows(IllegalArgumentException.class, () -> residentInfoService.getChildrenByAddress(null));
+        assertNotNull(API_ADDRESS_NUMBER_NOT_FOUND);
+        LOGGER.info("End method : shouldReturnChildrenByAddressNotFoundException completed successfully");
+    }
+
+    @Test
+    void shouldReturnResidentsByAddressSuccessfully() {
+        LOGGER.info("Starting test: shouldReturnResidentsByAddressSuccessfully");
 
         // Arrange
         String address = fireStation1.getAddress();
-        LOGGER.debug("Provided address: {}", address);
 
         // Mock fire station for the given address
         FireStation fireStation = new FireStation(address, fireStation1.getStation());
@@ -309,46 +311,52 @@ public class ResidentInfoServiceTest {
         // Mock conversion Person -> PersonDTO
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
-        LOGGER.debug("Converted residents to DTOs");
 
         // Mock medical records
         when(medicalRecordRepository.findByFullName(medicalRecord1.getFirstName(), medicalRecord1.getLastName())).thenReturn(medicalRecord1);
         when(medicalRecordRepository.findByFullName(medicalRecord2.getFirstName(), medicalRecord2.getLastName())).thenReturn(medicalRecord2);
-        //LOGGER.debug("Retrieved medical records for residents");
 
         // Mock conversion MedicalRecord -> MedicalRecordDTO
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord2)).thenReturn(medicalRecordDTO2);
-        LOGGER.debug("Converted medical records to DTOs");
 
         // Act
         LOGGER.info("Calling getResidentsByAddress with address: {}", address);
         List<ResidentInfoDTO> residents = residentInfoService.getResidentsByAddress(address);
-        //LOGGER.info("Received residents: {}", residents);
 
         // Assert
         assertNotNull(residents, "The residents list should not be null");
         assertEquals(2, residents.size(), "Expected 2 residents");
 
         ResidentInfoDTO Doe1 = residents.get(0);
-        LOGGER.debug("Verifying first resident: {}", Doe1);
+        LOGGER.debug("Verifying second resident: {}", Doe1);
         assertEquals(medicalRecord1.getLastName(), Doe1.getLastName());
-        assertEquals("0144445151", Doe1.getPhone());
+        assertEquals(person1.getPhone(), Doe1.getPhone());
         assertEquals(35, Doe1.getAge());
 
         ResidentInfoDTO Doe2 = residents.get(1);
         LOGGER.debug("Verifying second resident: {}", Doe2);
         assertEquals(medicalRecord2.getLastName(), Doe2.getLastName());
-        assertEquals("0144445151", Doe2.getPhone());
+        assertEquals(person1.getPhone(), Doe2.getPhone());
         assertEquals(15, Doe2.getAge());
 
-        LOGGER.info("Test shouldReturnResidentsByAddress completed successfully");
+        LOGGER.info("Test shouldReturnResidentsByAddressSuccessfully completed successfully");
     }
 
     @Test
-    void shouldReturnFloodInfoByStations() {
+    void shouldReturnResidentsByAddressNull() {
+        LOGGER.info("Start method: shouldReturnResidentsByAddressNull");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> residentInfoService.getResidentsByAddress(null));
+        assertNotNull(API_ADDRESS_NOT_FOUND , exception.getMessage());
+        LOGGER.info("End method : shouldReturnResidentsByAddressNull completed successfully");
+    }
 
-        LOGGER.info("Starting test: shouldReturnFloodInfoByStations");
+
+    @Test
+    void shouldReturnFloodInfoByStationsSuccessfully() {
+
+        LOGGER.info("Starting test: shouldReturnFloodInfoByStationsSuccessfully");
 
         // Arrange
         List<Integer> stationNumbers = List.of(
@@ -372,22 +380,19 @@ public class ResidentInfoServiceTest {
                 .thenReturn(medicalRecord1);
         when(medicalRecordRepository.findByFullName(medicalRecord2.getFirstName(), medicalRecordDTO2.getLastName()))
                 .thenReturn(medicalRecord2);
-        //LOGGER.debug("Retrieved medical records for residents");
 
         // Mock Person -> PersonDTO conversion
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
-        //LOGGER.debug("Converted Person entities to DTOs");
 
         // Mock MedicalRecord -> MedicalRecordDTO conversion
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord2)).thenReturn(medicalRecordDTO2);
-        //LOGGER.debug("Converted MedicalRecord entities to DTOs");
+
 
         // Act
         LOGGER.info("Calling getFloodInfoByStations with station numbers: {}", stationNumbers);
         List<ResidentInfoDTO> residents = residentInfoService.getFloodInfoByStations(stationNumbers);
-        //LOGGER.info("Received residents: {}", residents);
 
         // Assertions
         assertNotNull(residents);
@@ -395,17 +400,27 @@ public class ResidentInfoServiceTest {
         assertEquals(personDTO1.getAddress(), residents.get(0).getAddress());
         assertEquals(personDTO1.getAddress(), residents.get(1).getAddress()); // TO BE REVIEWED
 
-        LOGGER.info("Test shouldReturnFloodInfoByStations completed successfully");
+        LOGGER.info("Test shouldReturnFloodInfoByStationsSuccessfully completed successfully");
     }
 
     @Test
-    void shouldReturnPersonInfoByLastName() {
+    void shouldReturnFloodInfoByStationsException() {
+        LOGGER.info("Start method : shouldReturnFloodInfoByStationsException");
 
-        LOGGER.info("Starting test: shouldReturnPersonInfoByLastName");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> residentInfoService.getFloodInfoByStations(null));
+        assertNotNull(FIRE_STATION_LIST_NOT_FOUND , exception.getMessage());
+        LOGGER.info("End method : shouldReturnFloodInfoByStationsException completed successfully");
+
+    }
+
+    @Test
+    void shouldReturnPersonInfoByLastNameSuccessfully() {
+
+        LOGGER.info("Start method: shouldReturnPersonInfoByLastNameSuccessfully");
 
         // Arrange
         String lastName = person1.getLastName();
-        LOGGER.debug("Searching for residents with last name: {}", lastName);
 
         // Mock residents with the given last name
         when(personRepository.findByLastName(lastName)).thenReturn(List.of(person1, person2));
@@ -416,17 +431,14 @@ public class ResidentInfoServiceTest {
                 .thenReturn(medicalRecord1);
         when(medicalRecordRepository.findByFullName(medicalRecord2.getFirstName(), medicalRecord2.getLastName()))
                 .thenReturn(medicalRecord2);
-        LOGGER.debug("Retrieved medical records for residents");
 
         // Mock Person -> PersonDTO conversion
         when(personConvertorDTO.convertEntityToDto(person1)).thenReturn(personDTO1);
         when(personConvertorDTO.convertEntityToDto(person2)).thenReturn(personDTO2);
-        LOGGER.debug("Converted Person entities to DTOs");
 
         // Mock MedicalRecord -> MedicalRecordDTO conversion
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord1)).thenReturn(medicalRecordDTO1);
         when(medicalRecordConvertorDTO.convertEntityToDto(medicalRecord2)).thenReturn(medicalRecordDTO2);
-        LOGGER.debug("Converted MedicalRecord entities to DTOs");
 
         // Act
         LOGGER.info("Calling getPersonInfo with last name: {}", lastName);
@@ -439,6 +451,20 @@ public class ResidentInfoServiceTest {
         assertEquals(personDTO1.getLastName(), residents.get(0).getLastName());
         assertEquals(personDTO2.getLastName(), residents.get(1).getLastName());
 
-        LOGGER.info("Test shouldReturnPersonInfoByLastName completed successfully");
+        LOGGER.info("End method : shouldReturnPersonInfoByLastNameSuccessfully completed successfully");
     }
+
+    @Test
+    void shouldReturnPersonInfoByLastNameException() {
+
+        LOGGER.info("Starting test: shouldReturnPersonInfoByLastNameException");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> residentInfoService.getPersonInfo(null));
+        assertNotNull(FIRE_STATION_LIST_NOT_FOUND , exception.getMessage());
+        LOGGER.info("End method : shouldReturnPersonInfoByLastNameException completed successfully");
+
+    }
+
+
 }

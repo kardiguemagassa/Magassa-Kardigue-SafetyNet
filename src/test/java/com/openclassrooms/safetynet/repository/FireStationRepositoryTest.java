@@ -54,9 +54,9 @@ public class FireStationRepositoryTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(dataBaseInMemoryWrapper, times(1)).getFireStations();
-        //verifyNoMoreInteractions(dataBaseInMemoryWrapper);
         LOGGER.info("End method: shouldReturnFireStationsLoadedSuccessfully : Test passed");
     }
+
 
     @Test
     public void shouldReturnGetFireStationsLoadedException() {
@@ -71,7 +71,6 @@ public class FireStationRepositoryTest {
         assertEquals(0, result.size());
         verify(dataBaseInMemoryWrapper).getFireStations();
         verifyNoMoreInteractions(dataBaseInMemoryWrapper);
-
         LOGGER.info("End method: shouldReturnGetFireStationsLoadedException : Test passed");
     }
 
@@ -94,11 +93,8 @@ public class FireStationRepositoryTest {
 
     @Test
     public void shouldReturnSavingNullFireStation() {
-
         LOGGER.info("Start method : shouldReturnSavingNullFireStation");
-
         FireStation result = fireStationRepository.save(null);
-
         assertNull(result);
         LOGGER.info("End method : shouldReturnSavingNullFireStation : Test passed");
     }
@@ -117,7 +113,6 @@ public class FireStationRepositoryTest {
         verify(dataBaseInMemoryWrapper, times(1)).getFireStations();
         verifyNoMoreInteractions(dataBaseInMemoryWrapper);
         LOGGER.info("End method : shouldReturnSaveFireStationException : Test passed");
-
     }
 
     @Test
@@ -136,7 +131,7 @@ public class FireStationRepositoryTest {
         assertTrue(result.isPresent());
         assertEquals(updatedFireStation.getStation(), result.get().getStation());
         assertEquals(updatedFireStation, result.get());
-        verify(dataBaseInMemoryWrapper, times(2)).getFireStations(); // A REVOIR
+        verify(dataBaseInMemoryWrapper, times(2)).getFireStations();
         LOGGER.info("End method : shouldReturnUpdateFireStationSuccessfully : Test passed");
     }
 
