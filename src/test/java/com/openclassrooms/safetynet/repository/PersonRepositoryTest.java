@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.openclassrooms.safetynet.constant.repository.PersonRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.PersonConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

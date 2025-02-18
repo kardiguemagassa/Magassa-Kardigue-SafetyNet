@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.openclassrooms.safetynet.constant.repository.FireStationRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.FireStationConstant.*;
 
 
 @Component
@@ -47,9 +47,7 @@ public class FireStationRepository {
                     saveFireStationToCsv(loadedFireStations);
                     LOGGER.info(FIRE_STATION_LOADED, loadedFireStations.size());
 
-                } /*else {
-                    LOGGER.warn(FIRE_STATION_NOT_FOUND);
-                }*/
+                }
                 isLoading = false;
             }
             return new ArrayList<>(fireStations);

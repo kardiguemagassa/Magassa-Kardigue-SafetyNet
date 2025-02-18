@@ -2,7 +2,7 @@ package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.MedicalRecordConvertorDTO;
 import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
-import com.openclassrooms.safetynet.exception.medicalRecord.MedicalRecordNotFoundException;
+import com.openclassrooms.safetynet.exception.MedicalRecordNotFoundException;
 import com.openclassrooms.safetynet.model.MedicalRecord;
 import com.openclassrooms.safetynet.repository.MedicalRecordRepository;
 
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-import static com.openclassrooms.safetynet.constant.service.MedicalRecordImplConstant.*;
+import static com.openclassrooms.safetynet.constant.MedicalRecordConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

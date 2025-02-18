@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.openclassrooms.safetynet.constant.csvUtil.CsvUtilsConstant.*;
+import static com.openclassrooms.safetynet.constant.CsvUtilsConstant.*;
 
 public class CsvUtils {
 

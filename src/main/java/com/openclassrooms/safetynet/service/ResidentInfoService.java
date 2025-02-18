@@ -8,7 +8,7 @@ import com.openclassrooms.safetynet.dto.MedicalRecordDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
 import com.openclassrooms.safetynet.dto.FireStationResponseDTO;
 import com.openclassrooms.safetynet.dto.ResidentInfoDTO;
-import com.openclassrooms.safetynet.exception.residentInfo.ResidentInfoNotFoundException;
+import com.openclassrooms.safetynet.exception.ResidentInfoNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
@@ -25,7 +25,7 @@ import java.time.Period;
 
 import java.util.*;
 
-import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
+import static com.openclassrooms.safetynet.constant.ResidentInfoConstant.*;
 
 @Service
 @AllArgsConstructor

@@ -1,9 +1,9 @@
 package com.openclassrooms.safetynet.service;
 
-import com.openclassrooms.safetynet.constant.service.FireStationImplConstant;
+import com.openclassrooms.safetynet.constant.FireStationConstant;
 import com.openclassrooms.safetynet.convertorDTO.FireStationConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
-import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
+import com.openclassrooms.safetynet.exception.FireStationNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
 
@@ -18,10 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.openclassrooms.safetynet.constant.repository.FireStationRepositoryConstant.FIRE_STATION_NOT_FOUND;
+import static com.openclassrooms.safetynet.constant.FireStationConstant.*;
 
-import static com.openclassrooms.safetynet.constant.service.FireStationImplConstant.FIRE_STATION_ERROR_DELETING;
-import static com.openclassrooms.safetynet.constant.service.FireStationImplConstant.FIRE_STATION_ERROR_UPDATING;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -134,7 +132,7 @@ public class FireStationServiceTest {
         LOGGER.info("Testing with a null FireStationDTO.");
         IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class,
                 () -> fireStationService.save(null));
-        assertEquals(FireStationImplConstant.FIRE_STATION_ERROR, exception1.getMessage());
+        assertEquals(FireStationConstant.FIRE_STATION_ERROR, exception1.getMessage());
 
         FireStationDTO fireStationDTO = new FireStationDTO();
         FireStation fireStationEntity = new FireStation();
@@ -144,8 +142,10 @@ public class FireStationServiceTest {
                 .thenThrow(new FireStationNotFoundException(FIRE_STATION_NOT_FOUND));
 
         // Act & Assert
-        RuntimeException exception2 = assertThrows(RuntimeException.class, () -> fireStationService.save(fireStationDTO));
-        assertFalse(exception2.getMessage().contains(FireStationImplConstant.FIRE_STATION_NOT_FOUND));
+        FireStationNotFoundException exception2 = assertThrows(FireStationNotFoundException.class,
+                () -> fireStationService.save(fireStationDTO));
+        assertEquals(FIRE_STATION_NOT_FOUND, exception2.getMessage());
+
 
         verify(fireStationConvertorDTO, times(1)).convertDtoToEntity(fireStationDTO);
         verify(fireStationRepository, times(1)).save(fireStationEntity);

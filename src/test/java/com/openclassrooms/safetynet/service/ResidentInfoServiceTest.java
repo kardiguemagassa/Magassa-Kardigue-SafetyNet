@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
+import static com.openclassrooms.safetynet.constant.ResidentInfoConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

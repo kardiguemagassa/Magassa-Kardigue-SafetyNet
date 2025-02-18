@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.openclassrooms.safetynet.constant.repository.PersonRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.PersonConstant.*;
 
 @Component
 public class PersonRepository {

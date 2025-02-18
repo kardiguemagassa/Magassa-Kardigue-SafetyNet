@@ -3,7 +3,7 @@ package com.openclassrooms.safetynet.service;
 import com.openclassrooms.safetynet.convertorDTO.FireStationConvertorDTO;
 import com.openclassrooms.safetynet.dto.FireStationDTO;
 
-import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
+import com.openclassrooms.safetynet.exception.FireStationNotFoundException;
 import com.openclassrooms.safetynet.model.FireStation;
 import com.openclassrooms.safetynet.repository.FireStationRepository;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import static com.openclassrooms.safetynet.constant.service.FireStationImplConstant.*;
+import static com.openclassrooms.safetynet.constant.FireStationConstant.*;
 
 @Service
 @AllArgsConstructor

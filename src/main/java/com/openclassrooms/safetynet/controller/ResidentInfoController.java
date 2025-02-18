@@ -98,7 +98,7 @@ public class ResidentInfoController {
     /**
      * 6
      * http://localhost:8080/personInfolastName=<lastName>
-     *  http://localhost:8080/personInfolastName?lastName=Boyd
+     * http://localhost:8080/personInfolastName?lastName=Boyd
      * Cette url doit retourner le nom, l'adresse, l'âge, l'adresse mail et les antécédents
      * médicaux (médicaments, posologie et allergies) de chaque habitant. Si plusieurs
      * personnes portent le même nom, elles doivent toutes apparaître.

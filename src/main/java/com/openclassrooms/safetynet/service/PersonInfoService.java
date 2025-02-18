@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.*;
+import static com.openclassrooms.safetynet.constant.ResidentInfoConstant.*;
 
 @Service
 @AllArgsConstructor

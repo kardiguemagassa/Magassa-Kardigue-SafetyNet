@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.API_ADDRESS_NUMBER_NOT_FOUND;
-import static com.openclassrooms.safetynet.constant.service.ResidentInfoImplConstant.CITY_NOT_FOUND;
+import static com.openclassrooms.safetynet.constant.ResidentInfoConstant.API_ADDRESS_NUMBER_NOT_FOUND;
+import static com.openclassrooms.safetynet.constant.ResidentInfoConstant.CITY_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;

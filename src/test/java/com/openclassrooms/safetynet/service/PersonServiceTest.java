@@ -2,7 +2,7 @@ package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
+import com.openclassrooms.safetynet.exception.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.PersonRepository;
 
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.openclassrooms.safetynet.constant.service.PersonImpConstant.*;
+import static com.openclassrooms.safetynet.constant.PersonConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -151,7 +151,7 @@ public class PersonServiceTest {
         // Act & Assert
         IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> personService.save(personDTO));
 
-        assertTrue(exception2.getMessage().contains("System error while saving persons in the repository:"));
+        assertTrue(exception2.getMessage().contains(SYSTEM_ERROR));
 
         // Verify the interactions
         verify(personConvertorDTO, times(1)).convertDtoToEntity(personDTO);

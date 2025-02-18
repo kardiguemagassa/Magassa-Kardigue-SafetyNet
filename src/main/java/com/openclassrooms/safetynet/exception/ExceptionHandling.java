@@ -1,10 +1,5 @@
 package com.openclassrooms.safetynet.exception;
 
-import com.openclassrooms.safetynet.exception.residentInfo.ResidentInfoNotFoundException;
-import com.openclassrooms.safetynet.exception.fireStation.FireStationNotFoundException;
-import com.openclassrooms.safetynet.exception.medicalRecord.MedicalRecordNotFoundException;
-import com.openclassrooms.safetynet.exception.residentInfo.EmailNotFoundException;
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.HttpResponse;
 
 import org.slf4j.Logger;

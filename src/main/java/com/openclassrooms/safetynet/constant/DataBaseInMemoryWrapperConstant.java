@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.constant.dataBaseInMemory;
+package com.openclassrooms.safetynet.constant;
 
 public class DataBaseInMemoryWrapperConstant {
 

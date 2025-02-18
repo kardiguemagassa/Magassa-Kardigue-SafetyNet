@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.openclassrooms.safetynet.constant.repository.FireStationRepositoryConstant.*;
+import static com.openclassrooms.safetynet.constant.FireStationConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -155,7 +155,6 @@ public class FireStationRepositoryTest {
         assertEquals(updatedFireStation.getStation(), result.get().getStation());
         assertEquals(updatedFireStation, result.get());
 
-        // Vérifier que la station a bien été ajoutée
         assertTrue(fireStationList.contains(updatedFireStation));
 
         verify(dataBaseInMemoryWrapper, atLeastOnce()).getFireStations();

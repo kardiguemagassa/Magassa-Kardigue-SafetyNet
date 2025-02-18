@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.openclassrooms.safetynet.constant.repository.MedicalRecordRepositoryConstant.MEDICAL_RECORD_ERROR_LOADING;
+import static com.openclassrooms.safetynet.constant.MedicalRecordConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

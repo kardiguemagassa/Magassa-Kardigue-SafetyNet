@@ -2,7 +2,7 @@ package com.openclassrooms.safetynet.service;
 
 import com.openclassrooms.safetynet.convertorDTO.PersonConvertorDTO;
 import com.openclassrooms.safetynet.dto.PersonDTO;
-import com.openclassrooms.safetynet.exception.person.PersonNotFoundException;
+import com.openclassrooms.safetynet.exception.PersonNotFoundException;
 import com.openclassrooms.safetynet.model.Person;
 import com.openclassrooms.safetynet.repository.PersonRepository;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.openclassrooms.safetynet.constant.service.PersonImpConstant.*;
+import static com.openclassrooms.safetynet.constant.PersonConstant.*;
 
 @Service
 @AllArgsConstructor

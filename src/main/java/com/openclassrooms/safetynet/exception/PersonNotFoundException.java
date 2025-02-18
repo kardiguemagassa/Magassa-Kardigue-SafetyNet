@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.exception.person;
+package com.openclassrooms.safetynet.exception;
 
 public class PersonNotFoundException extends RuntimeException {
 

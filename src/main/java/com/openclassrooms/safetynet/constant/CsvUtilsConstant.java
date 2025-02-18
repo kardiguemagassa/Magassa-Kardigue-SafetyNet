@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.constant.csvUtil;
+package com.openclassrooms.safetynet.constant;
 
 public class CsvUtilsConstant {
 

@@ -1,8 +1,8 @@
-package com.openclassrooms.safetynet.constant.service;
+package com.openclassrooms.safetynet.constant;
 
 import java.time.format.DateTimeFormatter;
 
-public class ResidentInfoImplConstant {
+public class ResidentInfoConstant {
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 

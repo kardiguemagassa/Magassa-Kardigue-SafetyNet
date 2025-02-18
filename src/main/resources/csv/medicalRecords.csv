@@ -21,4 +21,5 @@ MedicalRecord(firstName=Shawna, lastName=Stelzer, birthdate=07/08/1980, medicati
 MedicalRecord(firstName=Kendrik, lastName=Stelzer, birthdate=03/06/2014, medications=[noxidian:100mg, pharmacol:2500mg], allergies=[])
 MedicalRecord(firstName=Clive, lastName=Ferguson, birthdate=03/06/1994, medications=[], allergies=[])
 MedicalRecord(firstName=Eric, lastName=Cadigan, birthdate=08/06/1945, medications=[tradoxidine:400mg], allergies=[])
+MedicalRecord(firstName=kara, lastName=magassa, birthdate=03/06/1984, medications=[aznol:350mgpp, hydrapermazol:100mgaa], allergies=[nillacilanpl])
 MedicalRecord(firstName=Johny, lastName=Boydo, birthdate=03/06/1984, medications=[aznol:350mg00, hydrapermazol:100mg00], allergies=[nillacilan00])

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.openclassrooms.safetynet.constant.dataBaseInMemory.DataBaseInMemoryWrapperConstant.DATA_JSON_PATH_NOT_FOUND;
+import static com.openclassrooms.safetynet.constant.DataBaseInMemoryWrapperConstant.DATA_JSON_PATH_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

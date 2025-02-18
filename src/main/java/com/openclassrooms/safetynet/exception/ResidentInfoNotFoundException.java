@@ -1,4 +1,4 @@
-package com.openclassrooms.safetynet.exception.residentInfo;
+package com.openclassrooms.safetynet.exception;
 
 public class ResidentInfoNotFoundException extends RuntimeException {
 
